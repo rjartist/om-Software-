@@ -5,6 +5,7 @@ import 'package:gkmarts/Provider/HomePage/Bottom_navigationBar/bottom_navigation
 
 import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
 import 'package:gkmarts/Provider/HomePage/book_tab_provider.dart';
+import 'package:gkmarts/Provider/HomePage/learn_provider.dart';
 import 'package:gkmarts/Provider/Location/location_provider.dart';
 import 'package:gkmarts/Provider/Login/login_provider.dart';
 import 'package:gkmarts/Widget/global.dart';
@@ -24,6 +25,7 @@ void main()async {
         ChangeNotifierProvider(create: (_) => LocationProvider()),
         ChangeNotifierProvider(create: (_) => HomeTabProvider()),
         ChangeNotifierProvider(create: (_) => BookTabProvider()),
+        ChangeNotifierProvider(create: (_) => LearnProvider()),
       
 
       ],
