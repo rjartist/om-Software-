@@ -147,7 +147,7 @@ class Login extends StatelessWidget {
                           context,
                           PageTransition(
                             type: PageTransitionType.rightToLeft,
-                            duration: const Duration(milliseconds: 500),
+                            duration: const Duration(milliseconds: 300),
                             child: const CreateAccount(),
                           ),
                         );

@@ -1,14 +1,14 @@
 // widgets/home_header.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:gkmarts/Provider/HomePage/Grocery_section/grocery_product_provider.dart';
+import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
 import 'package:gkmarts/Provider/Location/location_provider.dart';
 import 'package:gkmarts/Provider/Login/login_provider.dart';
 import 'package:gkmarts/Widget/global.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
-import 'package:gkmarts/View/BottomNavigationBar/HomeTab/General/home_banner.dart';
-import 'package:gkmarts/View/BottomNavigationBar/HomeTab/General/profile_page.dart';
+import 'package:gkmarts/View/BottomNavigationBar/HomeTab/home_banner.dart';
+import 'package:gkmarts/View/BottomNavigationBar/HomeTab/profile_page.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 
@@ -128,7 +128,7 @@ class HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final homeProvider = context.read<GroceryProductProvider>();
+    final homeProvider = context.read<HomeTabProvider>();
     final location = context.watch<LocationProvider>().userAddress;
     final user = context.watch<LoginProvider>().user;
 
@@ -164,12 +164,10 @@ class HomeHeader extends StatelessWidget {
                   _profileAvatar(),
                 ],
               ),
-            ),
+            ), 
+            // vSizeBox(15),
 
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, ),
-              child: HomeBanner(),
-            ),
+           
             // const SizedBox(height: 10),
           ],
         ),

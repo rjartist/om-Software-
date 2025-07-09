@@ -5,6 +5,7 @@ import 'package:gkmarts/Models/UserModel/user_model.dart';
 import 'package:gkmarts/Provider/Connectivity/connectivity_provider.dart';
 import 'package:gkmarts/Services/AuthServices/auth_services.dart';
 import 'package:gkmarts/Services/AuthServices/login_auth_service.dart';
+import 'package:gkmarts/View/Auth_view/login.dart';
 import 'package:gkmarts/Widget/global.dart';
 import 'package:gkmarts/Utils/SharedPrefHelper/shared_local_storage.dart';
 import 'package:gkmarts/View/home_page.dart';
@@ -349,23 +350,23 @@ class LoginProvider extends ChangeNotifier {
       GlobalSnackbar.error(context, "No internet connection");
       return;
     }
-    // try {
-    //   await FirebaseAuth.instance.signOut();
-    //   await SharedPrefHelper.clearAll();
-    //   _user = null;
-    //   notifyListeners();
+    try {
+     await AuthService().clearTokens();
+      await SharedPrefHelper.clearAll();
+      _user = null;
+      notifyListeners();
 
-    //   // Navigate to Login screen
-    //   Navigator.pushAndRemoveUntil(
-    //     navigatorKey.currentContext!,
-    //     MaterialPageRoute(builder: (_) => const Login()),
-    //     (route) => false,
-    //   );
-    //   clearControllers();
-    //   GlobalSnackbar.success(navigatorKey.currentContext!, "Logout successful");
-    // } catch (e) {
-    //   GlobalSnackbar.error(navigatorKey.currentContext!, "Logout failed:");
-    // }
+      // Navigate to Login screen
+      Navigator.pushAndRemoveUntil(
+        navigatorKey.currentContext!,
+        MaterialPageRoute(builder: (_) => const Login()),
+        (route) => false,
+      );
+      clearControllers();
+      GlobalSnackbar.success(navigatorKey.currentContext!, "Logout successful");
+    } catch (e) {
+      GlobalSnackbar.error(navigatorKey.currentContext!, "Logout failed:");
+    }
   }
 
   @override

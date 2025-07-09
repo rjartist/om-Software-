@@ -3,38 +3,40 @@ import 'package:flutter/material.dart';
 
 class LearnTab extends StatelessWidget {
   const LearnTab({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final dummyBookmarks = <String>["Algorithm", "Binary Tree", "Flutter", "Provider"];
-
-    return Padding(
-      padding: const EdgeInsets.all(16),
+@override
+Widget build(BuildContext context) {
+  return const Center(
+    child: Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text("Saved Bookmarks", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 16),
-          Expanded(
-            child: dummyBookmarks.isEmpty
-                ? const Center(child: Text("No bookmarks yet."))
-                : ListView.separated(
-                    itemCount: dummyBookmarks.length,
-                    separatorBuilder: (_, __) => const Divider(),
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        leading: const Icon(Icons.bookmark),
-                        title: Text(dummyBookmarks[index]),
-                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                        onTap: () {
-                          // Navigate to word detail page later
-                        },
-                      );
-                    },
-                  ),
+          Icon(
+            Icons.construction, // Or use Icons.upcoming, Icons.schedule, etc.
+            size: 80,
+            color: Colors.grey,
+          ),
+          SizedBox(height: 16),
+          Text(
+            "Coming Soon",
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            "This feature is under development. Stay tuned!",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey,
+            ),
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

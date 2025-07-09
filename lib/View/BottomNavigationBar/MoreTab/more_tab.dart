@@ -1,36 +1,37 @@
-
-
-
 import 'package:flutter/material.dart';
-
 
 class MoreTab extends StatelessWidget {
   const MoreTab({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text("Search Glossary", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 12),
-          TextField(
-            decoration: InputDecoration(
-              hintText: "Enter keyword...",
-              prefixIcon: Icon(Icons.search),
-              filled: true,
-              fillColor: Colors.grey[200],
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.construction, // Or use Icons.upcoming, Icons.schedule, etc.
+              size: 80,
+              color: Colors.grey,
             ),
-          ),
-          const SizedBox(height: 24),
-          const Text("Recent Results", style: TextStyle(fontSize: 16)),
-          const Expanded(
-            child: Center(child: Text("No search results yet.")),
-          ),
-        ],
+            SizedBox(height: 16),
+            Text(
+              "Coming Soon",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              "This feature is under development. Stay tuned!",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+          ],
+        ),
       ),
     );
   }

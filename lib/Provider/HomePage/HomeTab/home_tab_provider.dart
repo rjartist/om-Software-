@@ -8,9 +8,12 @@ import 'package:gkmarts/Services/HomeTab/home_tab_service.dart';
 import 'package:provider/provider.dart';
 
 class HomeTabProvider with ChangeNotifier {
+  int unreadNotifications = 6;
   bool isBannerGetting = false;
   bool isBookVenueLoading = false;
   List<VenueModel> venueList = [];
+  List<VenueModel> filteredVenueList = [];
+
   List<GameJoinModel> joinGameList = [];
   bool isJoinGameLoading = false;
   List<BannerModel> bannerList = [];
@@ -20,6 +23,27 @@ class HomeTabProvider with ChangeNotifier {
   //--
   int _selectedServiceIndex = -1;
   int get selectedServiceIndex => _selectedServiceIndex;
+
+  void setVenueList(List<VenueModel> venues) {
+    venueList = venues;
+    filteredVenueList = venues;
+    notifyListeners();
+  }
+
+  void searchVenues(String query) {
+    if (query.isEmpty) {
+      filteredVenueList = venueList;
+    } else {
+      filteredVenueList =
+          venueList
+              .where(
+                (venue) =>
+                    venue.venueName.toLowerCase().contains(query.toLowerCase()),
+              )
+              .toList();
+    }
+    notifyListeners();
+  }
 
   void setSelectedService(int index) {
     _selectedServiceIndex = index;
@@ -42,15 +66,17 @@ class HomeTabProvider with ChangeNotifier {
 
     try {
       // Simulated delay to mimic API call
-      await Future.delayed(const Duration(seconds: 2));
+      await Future.delayed(const Duration(seconds: 1));
 
       // Dummy static response
       final dummyResponse = {
         "data": [
           {
-            "venueName": "Sunset Garden",
-            "venueAddress": "Mumbai, India",
-            "imageUrl": "https://via.placeholder.com/150",
+            "venueName": "Mavericks Cricket Academy",
+            "venueAddress":
+                "Shankar Kalate Nagar, Opp. Silver Fitness Club, Wakad, Pune 57",
+            "imageUrl":
+                "https://images.unsplash.com/photo-1663832952954-170d73947ba7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y3JpY2tldCUyMGZpZWxkfGVufDB8fDB8fHww",
             "rating": 4.2,
             "totalReviews": 38,
             "price": 12000,
@@ -58,7 +84,8 @@ class HomeTabProvider with ChangeNotifier {
           {
             "venueName": "Royal Banquet",
             "venueAddress": "New Delhi, India",
-            "imageUrl": "https://via.placeholder.com/150",
+            "imageUrl":
+                "https://images.unsplash.com/photo-1663832952954-170d73947ba7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y3JpY2tldCUyMGZpZWxkfGVufDB8fDB8fHww",
             "rating": 3.8,
             "totalReviews": 27,
             "price": 8500,
@@ -66,7 +93,8 @@ class HomeTabProvider with ChangeNotifier {
           {
             "venueName": "Green Lawn Resort",
             "venueAddress": "Pune, India",
-            "imageUrl": "https://via.placeholder.com/150",
+            "imageUrl":
+                "https://images.unsplash.com/photo-1663832952954-170d73947ba7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y3JpY2tldCUyMGZpZWxkfGVufDB8fDB8fHww",
             "rating": 4.5,
             "totalReviews": 49,
             "price": 14500,
@@ -74,7 +102,8 @@ class HomeTabProvider with ChangeNotifier {
           {
             "venueName": "Skyline Terrace",
             "venueAddress": "Bangalore, India",
-            "imageUrl": "https://via.placeholder.com/150",
+            "imageUrl":
+                "https://images.unsplash.com/photo-1663832952954-170d73947ba7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y3JpY2tldCUyMGZpZWxkfGVufDB8fDB8fHww",
             "rating": 4.0,
             "totalReviews": 18,
             "price": 11000,
@@ -82,7 +111,8 @@ class HomeTabProvider with ChangeNotifier {
           {
             "venueName": "Lakeside Palace",
             "venueAddress": "Udaipur, India",
-            "imageUrl": "https://via.placeholder.com/150",
+            "imageUrl":
+                "https://images.unsplash.com/photo-1663832952954-170d73947ba7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y3JpY2tldCUyMGZpZWxkfGVufDB8fDB8fHww",
             "rating": 4.7,
             "totalReviews": 56,
             "price": 18000,
@@ -94,6 +124,7 @@ class HomeTabProvider with ChangeNotifier {
           (dummyResponse['data'] as List<dynamic>).cast<Map<String, dynamic>>();
 
       venueList = list.map((e) => VenueModel.fromJson(e)).toList();
+      setVenueList(venueList);
     } catch (e) {
       // Optional: log error, but no user alert
       debugPrint("Venue fetch error: $e");
@@ -114,14 +145,14 @@ class HomeTabProvider with ChangeNotifier {
 
     try {
       // Simulated API delay
-      await Future.delayed(const Duration(seconds: 2));
+      await Future.delayed(const Duration(seconds: 1));
 
       final dummyResponse = {
         "data": [
           {
             "gameName": "Cricket Friendly Match",
             "date": "2025-07-10",
-            "time": "8 AM - 9 PM",
+            "time": "Sat 16 Mar,",
             "address": "Wankhede Stadium, Mumbai",
             "hostName": "Rahul Verma",
             "hostPhoto":
@@ -145,18 +176,29 @@ class HomeTabProvider with ChangeNotifier {
             ],
           },
           {
-            "gameName": "Badminton Doubles",
-            "date": "2025-07-12",
-            "time": "4 PM - 6 PM",
-            "address": "Indira Stadium, Delhi",
-            "hostName": "Priya Mehta",
-            "hostPhoto": "https://via.placeholder.com/150",
+            "gameName": "Cricket Friendly Match",
+            "date": "2025-07-10",
+            "time": "Sat 16 Mar,",
+            "address": "Wankhede Stadium, Mumbai",
+            "hostName": "Rahul Verma",
+            "hostPhoto":
+                "https://media.istockphoto.com/id/1216426542/photo/portrait-of-happy-man-at-white-background-stock-photo.webp?a=1&b=1&s=612x612&w=0&k=20&c=EgxUJNnRMUmyCuVLrnMWcQMPq9EGqdjHNZEBGgAa3hg=",
             "members": [
               {
-                "name": "Neeraj Yadav",
-                "photo": "https://via.placeholder.com/100",
+                "name": "Amit Singh",
+                "photo":
+                    "https://media.istockphoto.com/id/1325154957/photo/young-man-smiling-with-arms-crossed-on-gray-background-stock-photo.jpg?s=612x612&w=0&k=20&c=RCAoQfqWvgDOM9MwKmyRRXwZcXYS0wL3CcCKQ37eNOU=",
               },
-              {"name": "Kavya Rao", "photo": "https://via.placeholder.com/100"},
+              {
+                "name": "Sneha Patel",
+                "photo":
+                    "https://media.istockphoto.com/id/1325154957/photo/young-man-smiling-with-arms-crossed-on-gray-background-stock-photo.jpg?s=612x612&w=0&k=20&c=RCAoQfqWvgDOM9MwKmyRRXwZcXYS0wL3CcCKQ37eNOU=",
+              },
+              {
+                "name": "John Abraham",
+                "photo":
+                    "https://media.istockphoto.com/id/1325154957/photo/young-man-smiling-with-arms-crossed-on-gray-background-stock-photo.jpg?s=612x612&w=0&k=20&c=RCAoQfqWvgDOM9MwKmyRRXwZcXYS0wL3CcCKQ37eNOU=",
+              },
             ],
           },
         ],

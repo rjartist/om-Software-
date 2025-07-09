@@ -57,8 +57,8 @@ class ApiService {
       res.responseData = response.body;
 
       // Log (you can replace this with debugPrint or print)
-      print("Response Code: \${response.statusCode}");
-      print("Response Body: \${response.body}");
+      print("Response Code: ${response.statusCode}");
+      print("Response Body: ${response.body}");
 
       final decoded = jsonDecode(response.body);
       if (decoded is Map<String, dynamic>) {
@@ -109,11 +109,8 @@ class ApiService {
 // ✅ 4. Secure HttpClient with invalid cert allowance (if needed)
 http.Client accopsHttpClient({bool allowInvalidCerts = false}) {
   final ioClient = HttpClient();
-  ioClient.badCertificateCallback = (
-    X509Certificate cert,
-    String host,
-    int port,
-  ) => allowInvalidCerts;
+  ioClient.badCertificateCallback =
+      (X509Certificate cert, String host, int port) => allowInvalidCerts;
 
   return IOClient(ioClient);
 }

@@ -3,7 +3,7 @@ import 'package:gkmarts/Provider/HomePage/Bottom_navigationBar/bottom_navigation
 import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
-import 'package:gkmarts/View/BottomNavigationBar/HomeTab/General/home_tab.dart';
+import 'package:gkmarts/View/BottomNavigationBar/HomeTab/home_tab.dart';
 import 'package:gkmarts/View/BottomNavigationBar/LearnTab/Learn_tab.dart';
 import 'package:gkmarts/View/BottomNavigationBar/MoreTab/more_tab.dart';
 import 'package:gkmarts/View/BottomNavigationBar/PlayTab/paly_tab.dart';
@@ -76,13 +76,13 @@ class _HomePageState extends State<HomePage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              currentIndex == 1 ? Icons.play_circle : Icons.play_circle_outline,
+              currentIndex == 1 ? Icons.people : Icons.people_outline,
             ),
             label: "Play",
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              currentIndex == 2 ? Icons.bookmark : Icons.bookmark_border,
+              currentIndex == 2 ?  Icons.menu_book : Icons.menu_book_outlined,
             ),
             label: "Learn",
           ),
@@ -96,7 +96,7 @@ class _HomePageState extends State<HomePage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              currentIndex == 4 ? Icons.settings : Icons.settings_outlined,
+              currentIndex == 4 ?Icons.menu : Icons.menu, 
             ),
             label: "More",
           ),

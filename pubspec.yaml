@@ -53,6 +53,8 @@ dependencies:
   pull_to_refresh: ^2.0.0
   badges: ^3.1.2
   intl: ^0.20.2
+  table_calendar: ^3.2.0
+  url_launcher: ^6.3.1
   # flutter_google_places: ^0.3.0
   
 

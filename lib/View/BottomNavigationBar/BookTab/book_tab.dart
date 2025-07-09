@@ -1,49 +1,70 @@
 import 'package:flutter/material.dart';
-
-
+import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
+import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
+import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
+import 'package:gkmarts/View/BottomNavigationBar/BookTab/venues.dart';
+import 'package:gkmarts/View/BottomNavigationBar/HomeTab/home_header.dart';
+import 'package:gkmarts/Widget/network_status_banner.dart';
+import 'package:provider/provider.dart';
 
 class BookTab extends StatelessWidget {
   const BookTab({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        const CircleAvatar(
-          radius: 40,
-          backgroundImage: AssetImage('assets/images/user_placeholder.png'), // placeholder
-        ),
-        const SizedBox(height: 12),
-        const Center(child: Text("John Doe", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
-        const Center(child: Text("johndoe@example.com", style: TextStyle(color: Colors.grey))),
-        const SizedBox(height: 24),
+    final searchController = TextEditingController();
 
-        const Divider(),
-        ListTile(
-          leading: const Icon(Icons.dark_mode),
-          title: const Text("Dark Mode"),
-          trailing: Switch(value: false, onChanged: (val) {}),
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: AppColors.bgColor,
+        body: Column(
+          spacing: 8,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const NetworkStatusBanner(),
+            const HomeHeader(),
+            Padding(
+                 padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 4 ),
+              child: Text('Venues Around You', style: AppTextStyle.blackText()),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  controller: searchController,
+                  onChanged: (value) {
+                    context.read<HomeTabProvider>().searchVenues(value);
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Type venues...',
+                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                    hintStyle: const TextStyle(color: Colors.grey),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                  ),
+                  style: const TextStyle(fontSize: 14),
+                ),
+              ),
+            ),
+
+            const Expanded(child: Venues()), 
+          ],
         ),
-        ListTile(
-          leading: const Icon(Icons.language),
-          title: const Text("Language"),
-          subtitle: const Text("English"),
-          onTap: () {},
-        ),
-        ListTile(
-          leading: const Icon(Icons.info_outline),
-          title: const Text("About App"),
-          onTap: () {},
-        ),
-        ListTile(
-          leading: const Icon(Icons.logout, color: Colors.red),
-          title: const Text("Logout", style: TextStyle(color: Colors.red)),
-          onTap: () {
-            // Perform logout later
-          },
-        ),
-      ],
+      ),
     );
   }
 }

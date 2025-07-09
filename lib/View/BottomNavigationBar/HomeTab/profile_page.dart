@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gkmarts/Provider/Login/login_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
-import 'package:gkmarts/View/BottomNavigationBar/HomeTab/General/MyOrders/my_order.dart';
 import 'package:gkmarts/Widget/global_appbar.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
@@ -48,16 +47,16 @@ class ProfilePage extends StatelessWidget {
                             //   overflow: TextOverflow.ellipsis,
                             // ),
                             const SizedBox(height: 4),
-                            // Text(
-                            //   user?.email ?? 'example@email.com',
-                            //   style: TextStyle(
-                            //     fontSize: 14,
-                            //     color: AppColors.secondaryTextColor,
-                            //   ),
-                            // ),
+                            Text(
+                              user?.userEmail ?? 'example@email.com',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: AppColors.secondaryTextColor,
+                              ),
+                            ),
                             const SizedBox(height: 4),
                             Text(
-                              "Flutter Developer", // Dummy role
+                              "Hello Developer", // Dummy role
                               style: TextStyle(
                                 fontSize: 13,
                                 color: AppColors.hintTextColor,
@@ -69,59 +68,59 @@ class ProfilePage extends StatelessWidget {
                     ],
                   ),
 
-                  const SizedBox(height: 30),
+                  // const SizedBox(height: 30),
 
-                  // SECTION: Account Settings
-                  _sectionTitle("Account Settings"),
-                  _profileTile(Icons.person_outline, "Edit Profile", () {
-                    // TODO: Navigate to Edit Profile
-                  }),
+                  // // SECTION: Account Settings
+                  // _sectionTitle("Account Settings"),
+                  // _profileTile(Icons.person_outline, "Edit Profile", () {
+                  //   // TODO: Navigate to Edit Profile
+                  // }),
 
-                  _profileTile(Icons.receipt_long, "My Orders", () {
-                    Navigator.push(
-                      context,
+                  // _profileTile(Icons.receipt_long, "My Orders", () {
+                  //   Navigator.push(
+                  //     context,
             
-                      PageTransition(
-                        type: PageTransitionType.rightToLeft,
-                        duration: const Duration(milliseconds: 300),
-                        child: const MyOrdersPage(),
-                      ),
-                    );
-                  }),
-                  _profileTile(Icons.lock_outline, "Change Password", () {
-                    // TODO: Navigate to Change Password
-                  }),
+                  //     PageTransition(
+                  //       type: PageTransitionType.rightToLeft,
+                  //       duration: const Duration(milliseconds: 300),
+                  //       child: const MyOrdersPage(),
+                  //     ),
+                  //   );
+                  // }),
+                  // _profileTile(Icons.lock_outline, "Change Password", () {
+                  //   // TODO: Navigate to Change Password
+                  // }),
 
-                  const SizedBox(height: 24),
+                  // const SizedBox(height: 24),
 
-                  // SECTION: Help & Support
-                  _sectionTitle("Help & Support"),
-                  _profileTile(Icons.help_outline, "Help Center", () {
-                    // TODO: Help Center
-                  }),
-                  _profileTile(Icons.feedback_outlined, "Send Feedback", () {
-                    // TODO: Send Feedback
-                  }),
-                  _profileTile(
-                    Icons.privacy_tip_outlined,
-                    "Privacy Policy",
-                    () {
-                      // TODO: Privacy Policy
-                    },
-                  ),
+                  // // SECTION: Help & Support
+                  // _sectionTitle("Help & Support"),
+                  // _profileTile(Icons.help_outline, "Help Center", () {
+                  //   // TODO: Help Center
+                  // }),
+                  // _profileTile(Icons.feedback_outlined, "Send Feedback", () {
+                  //   // TODO: Send Feedback
+                  // }),
+                  // _profileTile(
+                  //   Icons.privacy_tip_outlined,
+                  //   "Privacy Policy",
+                  //   () {
+                  //     // TODO: Privacy Policy
+                  //   },
+                  // ),
 
-                  const SizedBox(height: 24),
+                  // const SizedBox(height: 24),
 
-                  // SECTION: App Info
-                  _sectionTitle("App Info"),
-                  _profileTile(
-                    Icons.info_outline,
-                    "Version 1.0.0",
-                    null,
-                    showArrow: false,
-                  ),
+                  // // SECTION: App Info
+                  // _sectionTitle("App Info"),
+                  // _profileTile(
+                  //   Icons.info_outline,
+                  //   "Version 1.0.0",
+                  //   null,
+                  //   showArrow: false,
+                  // ),
 
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 150),
 
                   // SECTION: Logout
                   Center(

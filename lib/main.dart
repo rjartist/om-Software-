@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gkmarts/Provider/Connectivity/connectivity_provider.dart';
 import 'package:gkmarts/Provider/HomePage/Bottom_navigationBar/bottom_navigationbar.dart';
-import 'package:gkmarts/Provider/HomePage/Genaral/general_provider.dart';
-import 'package:gkmarts/Provider/HomePage/Grocery_section/grocery_product_provider.dart';
+
 import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
+import 'package:gkmarts/Provider/HomePage/book_tab_provider.dart';
 import 'package:gkmarts/Provider/Location/location_provider.dart';
 import 'package:gkmarts/Provider/Login/login_provider.dart';
 import 'package:gkmarts/Widget/global.dart';
@@ -23,8 +23,9 @@ void main()async {
         ChangeNotifierProvider(create: (_) => BottomNavProvider()),
         ChangeNotifierProvider(create: (_) => LocationProvider()),
         ChangeNotifierProvider(create: (_) => HomeTabProvider()),
-        ChangeNotifierProvider(create: (_) => GroceryProductProvider()),
-        ChangeNotifierProvider(create: (_) => GeneralProvider()),
+        ChangeNotifierProvider(create: (_) => BookTabProvider()),
+      
+
       ],
       child: const MyApp(),
     ),

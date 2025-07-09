@@ -23,7 +23,7 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onBackTap,
     this.actions,
     this.backIcon = Icons.arrow_back,
-    this.backgroundColor = AppColors.bgColor,
+    this.backgroundColor = AppColors.white,
     this.titleStyle,
   }) : super(key: key);
 

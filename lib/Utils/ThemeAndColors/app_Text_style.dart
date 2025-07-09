@@ -88,6 +88,9 @@ class AppTextStyle {
 
   static TextStyle titleText() =>
       base(fontSize: 18, color: Colors.black, fontWeight: FontWeight.w600);
+      
+  static TextStyle titleSmallText() =>
+      base(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w500);
 }
 
 SizedBox hSizeBox(double width) => SizedBox(width: width);
