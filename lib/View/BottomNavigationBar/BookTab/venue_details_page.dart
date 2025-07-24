@@ -1,17 +1,21 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gkmarts/Models/HomeTab_Models/Venue_detail_model.dart';
+import 'package:gkmarts/Models/BookTabModel/venue_detail_model.dart';
 import 'package:gkmarts/Provider/HomePage/book_tab_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/View/BottomNavigationBar/BookTab/booking_date_time_page.dart';
+import 'package:gkmarts/View/BottomNavigationBar/BookTab/cancle_booking.dart';
+import 'package:gkmarts/Widget/global.dart';
 import 'package:gkmarts/Widget/global_button.dart';
 import 'package:gkmarts/Widget/global_snackbar.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:provider/provider.dart';
 
 class VenueDetailsPage extends StatefulWidget {
-  final String venueId;
-  const VenueDetailsPage({super.key, required this.venueId});
+  final int facilityId;
+  const VenueDetailsPage({super.key, required this.facilityId});
 
   @override
   State<VenueDetailsPage> createState() => _VenueDetailsPageState();
@@ -26,7 +30,7 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
       Provider.of<BookTabProvider>(
         context,
         listen: false,
-      ).getVenueDetails(widget.venueId);
+      ).getVenueDetails(widget.facilityId);
     });
   }
 
@@ -35,33 +39,61 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
     final provider = Provider.of<BookTabProvider>(context);
     final model = provider.venueDetailModel;
 
-    return Scaffold(
-      backgroundColor: AppColors.bgColor,
-      body:
-          provider.isgetVenueDetailsGetting
-              ? const Center(child: CupertinoActivityIndicator())
-              : model == null
-              ? const Center(child: Text("No data available"))
-              : SingleChildScrollView(
-                padding: const EdgeInsets.only(bottom: 80),
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildImageSlider(context, provider, model),
-                    _buildVenueInfo(context, model,provider),
-                    buildAvailableSports(context, model, provider),
-                    _buildAmenities(model),
-                    _buildVenueMeta(model),
-                  ],
+    return PopScope(
+      canPop: true,
+      onPopInvoked: (bool didPop) {
+        if (didPop) {
+          Provider.of<BookTabProvider>(
+            context,
+            listen: false,
+          ).clearBookingData();
+        }
+      },
+
+      child: Scaffold(
+        backgroundColor: AppColors.bgColor,
+        body:
+            provider.isgetVenueDetailsGetting
+                ? const Center(child: CupertinoActivityIndicator())
+                : model == null
+                ? const Center(child: Text("No data available"))
+                : SingleChildScrollView(
+                  padding: const EdgeInsets.only(bottom: 80),
+                  child: Column(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      VenueImageSlider(
+                        facilityId: model.modifiedFacility.facilityId,
+                        imageUrls:
+                            model.modifiedFacility.facilityImages
+                                .map((e) => e.image)
+                                .toList(),
+                        currentIndex: provider.currentImageIndex,
+                        onPageChanged:
+                            (index) => provider.setCurrentImageIndex(index),
+                        onBackTap: () {
+                          Navigator.pop(context);
+                          provider.clearBookingData();
+                        },
+                      ),
+                      _buildVenueInfo(context, model, provider),
+                      buildAvailableSports(context, model, provider),
+                      _buildAmenities(model),
+                      _buildVenueMeta(context, model),
+                    ],
+                  ),
                 ),
-              ),
-      bottomNavigationBar: _buildBottomButtons(context, provider),
+        bottomNavigationBar: _buildBottomButtons(context, provider),
+      ),
     );
   }
 
-  
-  Widget _buildVenueInfo(BuildContext context, VenueDetailModel model, BookTabProvider provider) {
+  Widget _buildVenueInfo(
+    BuildContext context,
+    VenueDetailModel model,
+    BookTabProvider provider,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -69,7 +101,31 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           vSizeBox(5),
-          Text(model.venueName, style: AppTextStyle.titleText()),
+          Text(
+            model.modifiedFacility.facilityName,
+            style: AppTextStyle.titleText(),
+          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(4),
+
+                child: const Icon(
+                  Icons.access_time,
+                  size: 14,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                "${formatTime(model.modifiedFacility.facilityStartHour)} - ${formatTime(model.modifiedFacility.facilityEndHour)}",
+                style: AppTextStyle.blackText(fontSize: 12),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -80,16 +136,22 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      model.venueAddress,
+                      model.modifiedFacility.address,
                       style: AppTextStyle.blackText(fontSize: 14),
                     ),
                     const SizedBox(height: 4),
+
+                    const SizedBox(height: 4),
                     OutlinedButton.icon(
                       onPressed: () {
-                          provider.openMapForVenue(context);
+                        provider.openMapForVenue(
+                          context,
+                          model.modifiedFacility.googleMapUrl,
+                        );
                       },
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(color: AppColors.borderColor),
+
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(4),
                         ),
@@ -99,10 +161,16 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
                         ),
                         foregroundColor: Colors.red,
                       ),
-                      icon: const Icon(Icons.map, size: 16),
+                      icon: Image.asset(
+                        'assets/images/google_map_icon.png',
+                        height: 16,
+                        width: 16,
+                      ),
                       label: Text(
                         'Show on Map',
-                        style: AppTextStyle.smallBlack(),
+                        style: AppTextStyle.smallBlack(
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ],
@@ -115,80 +183,13 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
     );
   }
 
-  Widget _buildImageSlider(
-    BuildContext context,
-    BookTabProvider provider,
-    VenueDetailModel model,
-  ) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.25,
-          width: double.infinity,
-          child: PageView.builder(
-            controller: provider.imagePageController,
-            itemCount: model.images.length,
-            onPageChanged: provider.setCurrentImageIndex,
-            itemBuilder:
-                (_, i) => Image.network(model.images[i], fit: BoxFit.cover),
-          ),
-        ),
-        Positioned(
-          top: 40,
-          left: 16,
-          child: GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: const CircleAvatar(
-              backgroundColor: Colors.white,
-              child: Icon(Icons.arrow_back, color: Colors.black),
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: 12,
-          left: 0,
-          right: 0,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              model.images.length,
-              (i) => Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color:
-                      provider.currentImageIndex == i
-                          ? Colors.redAccent
-                          : Colors.white.withOpacity(0.4),
-                ),
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          right: 12,
-          bottom: -20,
-          child: Row(
-            children: const [
-              _CircleIcon(icon: Icons.favorite_border),
-              SizedBox(width: 12),
-              _CircleIcon(icon: Icons.share),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-
   Widget buildAvailableSports(
     BuildContext context,
     VenueDetailModel model,
     BookTabProvider provider,
   ) {
+    final services = model.modifiedFacility.services;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -200,16 +201,31 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
             height: 100,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              itemCount: model.availableSports.length,
+              itemCount: services.length,
               separatorBuilder: (_, __) => const SizedBox(width: 12),
               itemBuilder: (_, index) {
-                final sport = model.availableSports[index];
-                final isSelected = provider.selectedSport == sport.sportName;
+                final service = services[index];
+                final isSelected =
+                    provider.selectedSport == service.serviceName;
+                final imageUrl =
+                    service.serviceImages.isNotEmpty
+                        ? service.serviceImages.first.image
+                        : '';
+
+                String trimmedName =
+                    service.serviceName.length > 12
+                        ? service.serviceName.substring(0, 13) + '...'
+                        : service.serviceName;
+
                 return GestureDetector(
-                  onTap: () => provider.selectSport(sport.sportName),
+                  onTap:
+                      () => provider.selectSport(
+                        service.serviceName,
+                        service.serviceId,
+                      ),
                   child: Container(
-                    width: 80,
-                    height: 80,
+                    width: 90,
+                    height: 90,
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
@@ -222,17 +238,11 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        ClipOval(
-                          child: Image.network(
-                            sport.image,
-                            width: 32,
-                            height: 32,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+                        ClipOval(child: buildNetworkOrSvgImage(imageUrl)),
+
                         const SizedBox(height: 4),
                         Text(
-                          sport.sportName,
+                          trimmedName,
                           style: TextStyle(
                             fontSize: 12,
                             color: isSelected ? Colors.white : Colors.black,
@@ -242,6 +252,8 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
                                     : FontWeight.normal,
                           ),
                           textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -256,6 +268,8 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
   }
 
   Widget _buildAmenities(VenueDetailModel model) {
+    final amenities = model.modifiedFacility.facilityAmenities;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
@@ -267,7 +281,7 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
             spacing: 8,
             runSpacing: 8,
             children:
-                model.amenities
+                amenities
                     .map(
                       (e) => Container(
                         padding: const EdgeInsets.symmetric(
@@ -279,7 +293,7 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          e,
+                          e.amenityName,
                           style: AppTextStyle.blackText(fontSize: 13),
                         ),
                       ),
@@ -291,7 +305,9 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
     );
   }
 
-  Widget _buildVenueMeta(VenueDetailModel model) {
+  Widget _buildVenueMeta(BuildContext context, VenueDetailModel model) {
+    final feedback = model.modifiedFacility.feedback;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -299,8 +315,13 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
         children: [
           Text("About Venue", style: AppTextStyle.titleText()),
           const SizedBox(height: 8),
+          Text(
+            "2 Multi-Sport Turf",
+            style: AppTextStyle.greytext(fontSize: 13),
+          ),
+          const SizedBox(height: 15),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -309,7 +330,10 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
                     children: [
                       const Icon(Icons.star, color: Colors.orange, size: 18),
                       const SizedBox(width: 4),
-                      Text("${model.rating} (${model.totalReviews} reviews)"),
+                      Text(
+                        "${feedback.averageRating} (${feedback.totalCount} ratings)",
+                        style: AppTextStyle.blackText(),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -322,19 +346,19 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
                           top: Radius.circular(20),
                         ),
                       ),
-                      builder: (_) => const RateVenueBottomSheet(),
+                      builder: (_) => RateVenueBottomSheet(model: model),
                     );
                   }),
                 ],
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("${model.totalGamesPlayed}+ Games"),
-                  const SizedBox(height: 6),
-                  _outlinedSmallButton("UPCOMING", () {}),
-                ],
-              ),
+              // Column(
+              //   crossAxisAlignment: CrossAxisAlignment.start,
+              //   children: [
+              //     Text("NA+ total Games"),
+              //     const SizedBox(height: 6),
+              //     _outlinedSmallButton("UPCOMING", () {}),
+              //   ],
+              // ),
             ],
           ),
         ],
@@ -357,9 +381,14 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
   }
 
   Widget _buildBottomButtons(BuildContext context, BookTabProvider provider) {
-    return Container(
-      color: AppColors.bgColor,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    return SafeArea(
+      // ✅ Wrap with SafeArea
+      minimum: const EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 10,
+        bottom: 15,
+      ), // Padding inside safe area
       child: Row(
         children: [
           Expanded(
@@ -371,8 +400,7 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
                 showModalBottomSheet(
                   context: context,
                   isScrollControlled: true,
-                  backgroundColor:
-                      Colors.transparent, // Needed to make curve visible
+                  backgroundColor: Colors.transparent,
                   builder: (context) => const CorporateBookingSheet(),
                 );
               },
@@ -380,11 +408,14 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: GlobalSmallButton(
+            child: GlobalPrimaryButton(
               text: "BOOK NOW!",
               onTap: () {
                 if (!provider.isSportSelected()) {
-                  GlobalSnackbar.error(context, "Please select a sport");
+                  GlobalSnackbar.error(
+                    context,
+                    "Please select an available sport to book this venue",
+                  );
                   return;
                 }
                 Navigator.push(
@@ -404,9 +435,237 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
     );
   }
 }
+//   Widget _buildBottomButtons(BuildContext context, BookTabProvider provider) {
+//     return Container(
+//       color: AppColors.bgColor,
+//       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 25, top: 10),
+//       child: Row(
+//         children: [
+//           Expanded(
+//             child: GlobalSmallButton(
+//               textColor: AppColors.black,
+//               backgroundColor: AppColors.white,
+//               text: "BULK / CORPORATE",
+//               onTap: () {
+//                 showModalBottomSheet(
+//                   context: context,
+//                   isScrollControlled: true,
+//                   backgroundColor:
+//                       Colors.transparent, // Needed to make curve visible
+//                   builder: (context) => const CorporateBookingSheet(),
+//                 );
+//               },
+//             ),
+//           ),
+//           const SizedBox(width: 12),
+//           Expanded(
+//             child: GlobalPrimaryButton(
+//               // isEnabled: provider.selectedSport != null,
+//               text: "BOOK NOW!",
+//               onTap: () {
+//                 if (!provider.isSportSelected()) {
+//                   GlobalSnackbar.error(
+//                     context,
+//                     "Please select an available sport to book this venue",
+//                   );
+//                   return;
+//                 }
+//                 Navigator.push(
+//                   context,
+//                   MaterialPageRoute(
+//                     builder:
+//                         (_) => BookingDateTimePage(
+//                           model: provider.venueDetailModel!,
+//                         ),
+//                   ),
+//                 );
+//               },
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+class VenueImageSlider extends StatelessWidget {
+  final List<String> imageUrls;
+  final int currentIndex;
+  final int facilityId;
+  final Function(int) onPageChanged;
+  final VoidCallback onBackTap;
+
+  const VenueImageSlider({
+    super.key,
+    required this.imageUrls,
+    required this.currentIndex,
+    required this.facilityId,
+    required this.onPageChanged,
+    required this.onBackTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (imageUrls.isEmpty) {
+      return Container(
+        height: MediaQuery.of(context).size.height * 0.30,
+        width: double.infinity,
+        color: Colors.grey.shade200,
+        child: const Center(
+          child: Icon(Icons.image_not_supported, size: 40, color: Colors.grey),
+        ),
+      );
+    }
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        CarouselSlider.builder(
+          itemCount: imageUrls.length,
+          itemBuilder: (context, index, realIndex) {
+            final imageUrl = imageUrls[index];
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (_) => FullScreenImageViewer(
+                          images: imageUrls,
+                          initialIndex: index,
+                        ),
+                  ),
+                );
+              },
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(0),
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
+                ),
+              ),
+            );
+          },
+          options: CarouselOptions(
+            height: MediaQuery.of(context).size.height * 0.30,
+            viewportFraction: 1.0,
+            autoPlay: true,
+            autoPlayInterval: const Duration(seconds: 3),
+            autoPlayAnimationDuration: const Duration(milliseconds: 800),
+            enlargeCenterPage: false,
+            onPageChanged: (index, reason) {
+              onPageChanged(index);
+            },
+          ),
+        ),
+
+        // Back Button
+        Positioned(
+          top: 40,
+          left: 16,
+          child: GestureDetector(
+            onTap: onBackTap,
+            child: const CircleAvatar(
+              backgroundColor: Colors.white,
+              child: Icon(Icons.arrow_back, color: Colors.black),
+            ),
+          ),
+        ),
+
+        // Indicator Dots
+        Positioned(
+          bottom: 12,
+          left: 0,
+          right: 0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              imageUrls.length,
+              (i) => Container(
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color:
+                      currentIndex == i
+                          ? Colors.redAccent
+                          : Colors.white.withOpacity(0.4),
+                ),
+              ),
+            ),
+          ),
+        ),
+
+        Positioned(
+          right: 12,
+          bottom: -20,
+          child: Row(
+            children: [
+              Consumer<BookTabProvider>(
+                builder: (context, provider, _) {
+                  return IgnorePointer(
+                    ignoring: provider.isFavoriteLoading,
+                    child: AnimatedOpacity(
+                      opacity: provider.isFavoriteLoading ? 0.5 : 1,
+                      duration: const Duration(milliseconds: 300),
+                      child: GestureDetector(
+                        behavior:
+                            HitTestBehavior.translucent, // Expands tap area
+                        onTap: () {
+                          provider.toggleFavorite(context, facilityId);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(
+                            8.0,
+                          ), // Increase tap area
+                          child: CircleIconButton(
+                            icon:
+                                provider.isFavorite
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                            iconColor:
+                                provider.isFavorite ? Colors.red : Colors.black,
+                            onTap: () {
+                              provider.toggleFavorite(context, facilityId);
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+
+              GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () {
+                  // Your share function here
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: CircleIconButton(
+                    icon: Icons.share,
+                    onTap: () {
+                      // Your share function here
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
 
 class RateVenueBottomSheet extends StatelessWidget {
-  const RateVenueBottomSheet({super.key});
+  final VenueDetailModel model;
+
+  const RateVenueBottomSheet({super.key, required this.model});
 
   @override
   Widget build(BuildContext context) {
@@ -437,7 +696,7 @@ class RateVenueBottomSheet extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              "Rate Mavericks Cricket Academy",
+              model.modifiedFacility.facilityName,
               style: AppTextStyle.titleText(),
               textAlign: TextAlign.center,
             ),
@@ -492,7 +751,7 @@ class RateVenueBottomSheet extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                GlobalSmallButton(
+                GlobalPrimaryButton(
                   text: "Rate",
                   onTap: () {
                     provider.resetRating();
@@ -503,6 +762,44 @@ class RateVenueBottomSheet extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class FullScreenImageViewer extends StatelessWidget {
+  final List<String> images;
+  final int initialIndex;
+
+  const FullScreenImageViewer({
+    super.key,
+    required this.images,
+    this.initialIndex = 0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        foregroundColor: Colors.white,
+        elevation: 0,
+      ),
+      body: PageView.builder(
+        controller: PageController(initialPage: initialIndex),
+        itemCount: images.length,
+        itemBuilder: (context, index) {
+          return Center(
+            child: PhotoView(
+              imageProvider: NetworkImage(images[index]),
+              backgroundDecoration: const BoxDecoration(color: Colors.black),
+              loadingBuilder:
+                  (context, event) =>
+                      const Center(child: CircularProgressIndicator()),
+            ),
+          );
+        },
       ),
     );
   }
@@ -560,7 +857,28 @@ class CorporateBookingSheet extends StatelessWidget {
               ],
             ),
 
-            GlobalSmallButton(text: "I’m Interested", onTap: () {}),
+            GlobalPrimaryButton(
+              text: "I’m Interested",
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
+                  ),
+                  builder:
+                      (_) => CallNow(
+                        title: "Corporate Booking Enquiry",
+                        description:
+                            "Looking to reserve a venue for your corporate event?\nOur team is here to assist you with scheduling\nand more. Reach out now!",
+                        phoneNumber: "+91 9999999999",
+                        onConfirm: () {}, // Optional action after call
+                      ),
+                );
+              },
+            ),
 
             Container(
               padding: EdgeInsets.symmetric(vertical: 10),
@@ -591,7 +909,28 @@ class CorporateBookingSheet extends StatelessWidget {
               ],
             ),
 
-            GlobalSmallButton(text: "Enquire Now", onTap: () {}),
+            GlobalPrimaryButton(
+              text: "Enquire Now",
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
+                  ),
+                  builder:
+                      (_) => CallNow(
+                        title: "Need Help?",
+                        description:
+                            "Want to enquire about the venue or your booking?\nFeel free to call our support team.",
+                        phoneNumber: "+91 9999999999",
+                        onConfirm: () {}, // Optional action after call
+                      ),
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -621,19 +960,30 @@ class _BookingFeature extends StatelessWidget {
   }
 }
 
-class _CircleIcon extends StatelessWidget {
+class CircleIconButton extends StatelessWidget {
   final IconData icon;
-  const _CircleIcon({required this.icon});
+  final VoidCallback onTap;
+  final Color iconColor;
+
+  const CircleIconButton({
+    super.key,
+    required this.icon,
+    required this.onTap,
+    this.iconColor = Colors.black, // Default to black
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(6),
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white,
+        ),
+        child: Icon(icon, color: iconColor, size: 20),
       ),
-      child: Icon(icon, color: Colors.black, size: 20),
     );
   }
 }

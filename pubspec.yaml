@@ -55,7 +55,14 @@ dependencies:
   intl: ^0.20.2
   table_calendar: ^3.2.0
   url_launcher: ^6.3.1
-  # flutter_google_places: ^0.3.0
+  photo_view: ^0.15.0
+  share_plus: ^11.0.0
+  collection: ^1.19.1
+  image_picker: ^1.1.2
+  flutter_svg: ^2.2.0
+  crypto: ^3.0.6
+  phonepe_payment_sdk: ^3.0.0
+
   
 
 dev_dependencies:
@@ -123,7 +130,22 @@ flutter:
         - asset: assets/fonts/Roboto-Regular.ttf
         - asset: assets/fonts/Roboto-Bold.ttf
         - asset: assets/fonts/Roboto-Italic.ttf
-
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/poppins/Poppins-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/poppins/Poppins-Light.ttf
+          weight: 300
+        - asset: assets/fonts/poppins/Poppins-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/poppins/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/poppins/Poppins-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/poppins/Poppins-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/poppins/Poppins-Black.ttf
+          weight: 900
 
   #
   # For details regarding fonts from package dependencies,

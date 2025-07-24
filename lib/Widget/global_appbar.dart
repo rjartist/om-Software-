@@ -14,6 +14,7 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
   final IconData backIcon;
   final Color backgroundColor;
   final TextStyle? titleStyle;
+  final bool isHomeScreen;
 
   const GlobalAppBar({
     Key? key,
@@ -25,6 +26,7 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.backIcon = Icons.arrow_back,
     this.backgroundColor = AppColors.white,
     this.titleStyle,
+    this.isHomeScreen = false,
   }) : super(key: key);
 
   @override
@@ -33,8 +35,10 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
       surfaceTintColor: Colors.transparent,
       backgroundColor: backgroundColor,
       elevation: 0,
-      centerTitle: centerTitle,
       automaticallyImplyLeading: false,
+      toolbarHeight: 56,
+      centerTitle: centerTitle,
+      titleSpacing: 0,
       leading:
           showBackButton
               ? IconButton(
@@ -42,16 +46,35 @@ class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
                 onPressed: onBackTap ?? () => Navigator.of(context).pop(),
               )
               : null,
-      title: Text(
-        title,
-        style:
-            titleStyle ??
-            AppTextStyle.blackText(fontSize: 17.h, fontWeight: FontWeight.w600),
-      ),
+      title:
+          isHomeScreen == true
+              ? Padding(
+                padding: const EdgeInsets.only(left: 15),
+                child: Text(
+                  title,
+                  style:
+                      titleStyle ??
+                      AppTextStyle.blackText(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w500,
+                      ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              )
+              : Text(
+                title,
+                style:
+                    titleStyle ??
+                    AppTextStyle.blackText(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w500,
+                    ),
+                overflow: TextOverflow.ellipsis,
+              ),
       actions: actions,
     );
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(56.h);
+  Size get preferredSize => const Size.fromHeight(56);
 }

@@ -8,7 +8,16 @@ import 'package:flutter/foundation.dart';
 class LocationProvider with ChangeNotifier {
   String _userAddress = '';
   String get userAddress => _userAddress;
+
   static const String _addressKey = 'user_address';
+
+  String get selectedCity {
+    if (_userAddress.isNotEmpty) {
+      return _userAddress.split(',').first.trim();
+    } else {
+      return '';
+    }
+  }
 
   LocationProvider() {
     _loadAddressFromStorage();
@@ -69,7 +78,7 @@ class LocationProvider with ChangeNotifier {
     List<String> addressParts = [];
 
     // if (place.subThoroughfare != null && place.subThoroughfare!.isNotEmpty) {
-    //   addressParts.add(place.subThoroughfare!); 
+    //   addressParts.add(place.subThoroughfare!);
     // }
 
     // if (place.thoroughfare != null && place.thoroughfare!.isNotEmpty) {

@@ -42,12 +42,14 @@ class Venues extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 6,
+                    color: Colors.black.withOpacity(0.2), // Increased opacity
+                    blurRadius:
+                        8, // Increased blur to match search field shadow
                     offset: const Offset(0, 2),
                   ),
                 ],
               ),
+
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Material(
@@ -58,7 +60,9 @@ class Venues extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder:
-                              (_) => VenueDetailsPage(venueId: venue.venueName),
+                              (_) => VenueDetailsPage(
+                                facilityId: venue.facilityId,
+                              ),
                         ),
                       );
                     },
@@ -79,9 +83,7 @@ class Venues extends StatelessWidget {
                                 placeholder:
                                     (context, url) => Container(
                                       color: Colors.grey.shade200,
-                                      child: const Center(
-                                        child: CupertinoActivityIndicator(),
-                                      ),
+                                      child: const Center(child: SizedBox()),
                                     ),
                                 errorWidget:
                                     (context, url, error) => Container(
@@ -94,13 +96,6 @@ class Venues extends StatelessWidget {
                                             Icons.broken_image_outlined,
                                             size: 40,
                                             color: Colors.grey,
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Text(
-                                            "Image not available",
-                                            style: AppTextStyle.greytext(
-                                              fontSize: 12,
-                                            ),
                                           ),
                                         ],
                                       ),

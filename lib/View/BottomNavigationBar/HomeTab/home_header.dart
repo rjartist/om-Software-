@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
 import 'package:gkmarts/Provider/Location/location_provider.dart';
 import 'package:gkmarts/Provider/Login/login_provider.dart';
+import 'package:gkmarts/View/BottomNavigationBar/HomeTab/notification_page.dart';
 import 'package:gkmarts/Widget/global.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
@@ -13,7 +14,56 @@ import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 
 class HomeHeader extends StatelessWidget {
-  const HomeHeader({super.key});
+  HomeHeader({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final homeProvider = context.read<HomeTabProvider>();
+    final location = context.watch<LocationProvider>().userAddress;
+    final user = context.watch<LoginProvider>().user;
+
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Container(
+        width: double.infinity,
+        color: AppColors.white,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: EdgeInsets.only(
+                left: 16.w,
+                right: 16.w,
+                top: 10.h,
+                bottom: 5.h,
+              ),
+              // decoration: BoxDecoration(color: AppColors.white),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Flexible(
+                    flex: 6,
+                    child: _locationBlock(location: location, context: context),
+                  ),
+
+                  const Spacer(),
+                  _notificationIcon(
+                    badge: homeProvider.unreadNotifications,
+                    context: context,
+                  ),
+                  const SizedBox(width: 8),
+                  _profileAvatar(),
+                ],
+              ),
+            ),
+            // vSizeBox(15),
+
+            // const SizedBox(height: 10),
+          ],
+        ),
+      ),
+    );
+  }
 
   void _showLocationBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -40,7 +90,7 @@ class HomeHeader extends StatelessWidget {
         const SizedBox(width: 6),
         Flexible(
           child: Text(
-            location.isNotEmpty ? location : 'Select delivery location...',
+            location.isNotEmpty ? location : 'Select Location',
             style: AppTextStyle.blackText(fontSize: 14),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -77,23 +127,31 @@ class HomeHeader extends StatelessWidget {
     );
   }
 
-  Widget _notificationIcon({required int badge}) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        IconButton(
-          icon: const Icon(
+  Widget _notificationIcon({
+    required int badge,
+    required BuildContext context,
+  }) {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const NotificationPage()),
+        );
+      },
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
+        children: [
+          const Icon(
             Icons.notifications_none,
             color: AppColors.black,
             size: 30,
           ),
-          onPressed: () {
-            // TODO: Show snackbar or navigate
-          },
-        ),
-        if (badge > 0)
-          Positioned(right: 6, top: 6, child: _badge(count: badge)),
-      ],
+          if (badge > 0)
+            Positioned(right: 0, top: -8, child: _badge(count: badge)),
+        ],
+      ),
     );
   }
 
@@ -104,7 +162,7 @@ class HomeHeader extends StatelessWidget {
         PageTransition(
           type: PageTransitionType.bottomToTop,
           duration: const Duration(milliseconds: 300),
-          child: const ProfilePage(),
+          child: const ProfilePage(homePage: false),
         ),
       );
     },
@@ -125,55 +183,6 @@ class HomeHeader extends StatelessWidget {
       ),
     ),
   );
-
-  @override
-  Widget build(BuildContext context) {
-    final homeProvider = context.read<HomeTabProvider>();
-    final location = context.watch<LocationProvider>().userAddress;
-    final user = context.watch<LoginProvider>().user;
-
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Container(
-        width: double.infinity,
-        // padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20),
-        // decoration: BoxDecoration(
-        //   borderRadius: BorderRadius.only(
-        //     bottomLeft: Radius.circular(30.r),
-        //     bottomRight: Radius.circular(30.r),
-        //   ),
-        //   color: AppColors.secondaryColor.withValues(alpha: 0.7),
-        // ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: EdgeInsets.only(left: 16.w, right: 16.w, top: 20.h, bottom: 5.h),
-              decoration: BoxDecoration(color: AppColors.white),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Flexible(
-                    flex: 6,
-                    child: _locationBlock(location: location, context: context),
-                  ),
-
-                  const Spacer(),
-                  _notificationIcon(badge: homeProvider.unreadNotifications),
-                  const SizedBox(width: 8),
-                  _profileAvatar(),
-                ],
-              ),
-            ), 
-            // vSizeBox(15),
-
-           
-            // const SizedBox(height: 10),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 class LocationBottomSheet extends StatefulWidget {
@@ -186,13 +195,21 @@ class LocationBottomSheet extends StatefulWidget {
 class _LocationBottomSheetState extends State<LocationBottomSheet> {
   final TextEditingController _searchController = TextEditingController();
   String? selectedAddress;
-
+  final List<String> popularCities = [
+    'Mumbai',
+    'Delhi',
+    'Bangalore',
+    'Hyderabad',
+    'Ahmedabad',
+    'Pune',
+    'Jaipur',
+  ];
   @override
   Widget build(BuildContext context) {
     final locationProvider = context.watch<LocationProvider>();
 
     return DraggableScrollableSheet(
-      initialChildSize: 0.80,
+      initialChildSize: 0.50,
       minChildSize: 0.4,
       maxChildSize: 0.95,
       expand: false,
@@ -212,7 +229,7 @@ class _LocationBottomSheetState extends State<LocationBottomSheet> {
                   children: [
                     const Expanded(
                       child: Text(
-                        'Select Delivery Location',
+                        'Select Your Location',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -228,6 +245,37 @@ class _LocationBottomSheetState extends State<LocationBottomSheet> {
                     ),
                   ],
                 ),
+
+                // TextField(
+                //   controller: _searchController,
+                //   decoration: InputDecoration(
+                //     hintText: 'Type Location',
+                //     filled: true,
+                //     fillColor: AppColors.bgColor,
+                //     suffixIcon: const Icon(Icons.search), // Icon at the end
+                //     contentPadding: const EdgeInsets.symmetric(
+                //       horizontal: 16,
+                //       vertical: 14,
+                //     ),
+                //     border: OutlineInputBorder(
+                //       borderRadius: BorderRadius.circular(8),
+                //       borderSide: BorderSide.none, // No visible border
+                //     ),
+                //     enabledBorder: OutlineInputBorder(
+                //       borderRadius: BorderRadius.circular(8),
+                //       borderSide: BorderSide.none,
+                //     ),
+                //     focusedBorder: OutlineInputBorder(
+                //       borderRadius: BorderRadius.circular(8),
+                //       borderSide: BorderSide.none,
+                //     ),
+                //   ),
+                //   onSubmitted: (value) {
+                //     setState(() {
+                //       selectedAddress = value.trim();
+                //     });
+                //   },
+                // ),
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -263,21 +311,50 @@ class _LocationBottomSheetState extends State<LocationBottomSheet> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.search),
-                    hintText: 'Search another address...',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  onSubmitted: (value) {
-                    setState(() {
-                      selectedAddress = value.trim();
-                    });
-                  },
+
+                Text(
+                  'Popular Cities',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children:
+                      popularCities.map((city) {
+                        return GestureDetector(
+                          onTap: () {
+                            context.read<LocationProvider>().setCustomAddress(
+                              city,
+                            );
+                            context.read<HomeTabProvider>().getBookVenue(
+                              context,
+                            );
+                            Navigator.pop(context);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryColor.withOpacity(0.08),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: AppColors.primaryColor.withOpacity(0.3),
+                              ),
+                            ),
+                            child: Text(
+                              city,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                ),
+
                 if (selectedAddress != null && selectedAddress!.isNotEmpty) ...[
                   const SizedBox(height: 16),
                   Container(

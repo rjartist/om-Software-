@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gkmarts/Models/HomeTab_Models/Venue_detail_model.dart';
+import 'package:gkmarts/Models/BookTabModel/venue_detail_model.dart';
 import 'package:gkmarts/Provider/HomePage/Bottom_navigationBar/bottom_navigationbar.dart';
 import 'package:gkmarts/Provider/HomePage/book_tab_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
@@ -18,106 +18,177 @@ class CongratulationBooking extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = Provider.of<BookTabProvider>(context);
 
-    return Scaffold(
-      backgroundColor: AppColors.bgColor,
-      appBar: GlobalAppBar(title: "Booking Confirmed", showBackButton: false),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          spacing: 20,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Center(
-              child: Column(
-                children: [
-                  Icon(Icons.check_circle, color: Colors.green, size: 60),
-                  SizedBox(height: 12),
-                  Text(
-                    "🎉 Congratulations!",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    "Your booking has been successfully confirmed.",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, color: Colors.black87),
-                  ),
-                ],
-              ),
-            ),
-
-            // Booking Details Card
-            BookingInfoCard(model: model, provider: provider),
-
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    "Total Paid:",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
-                  Text(
-                    "₹${provider.finalPayableAmount}",
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                GlobalSmallButton(
-                  text: "Back To Home",
-                  onTap: () {
-                    context.read<BookTabProvider>().clearBookingData();
-                    context.read<BottomNavProvider>().changeIndex(0);
-                    Navigator.popUntil(context, (route) => route.isFirst);
-                  },
-                  width: 150,
-                ),
-                GlobalSmallButton(
-                  text: "Cancel Booking",
-                  onTap: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(20),
-                        ),
-                      ),
-                      builder: (_) => CancelBookingSheet(onConfirm: () {}),
-                    );
-                  },
-                  width: 150,
-                ),
-              ],
-            ),
-          ],
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        backgroundColor: AppColors.bgColor,
+        appBar: GlobalAppBar(
+          title: "Booking Confirmed",
+          showBackButton: false,
+          centerTitle: true,
         ),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            spacing: 20,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Center(
+                child: Column(
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.green, size: 60),
+                    SizedBox(height: 12),
+                    Text(
+                      "🎉 Congratulations!",
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      "Your booking has been successfully confirmed.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 14, color: Colors.black87),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Booking Details Card
+              BookingInfoCard(model: model, provider: provider),
+
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildInfoRow(
+                      "Payment Date",
+                      provider.paymentDate ?? "N/A",
+                    ),
+                    _buildInfoRow(
+                      "Payment Time",
+                      provider.paymentTime ?? "N/A",
+                    ),
+                    _buildInfoRow(
+                      "Payment Method",
+                      provider.paymentMethod ?? "UPI",
+                    ),
+                    _buildInfoRow("Booking ID", provider.bookingId.toString()),
+                  ],
+                ),
+              ),
+
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Total Paid:",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      "₹${provider.finalPayableAmount}",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  // GlobalPrimaryButton(
+                  //   text: "Cancel Booking",
+                  //   onTap: () {
+                  //     showModalBottomSheet(
+                  //       context: context,
+                  //       isScrollControlled: true,
+                  //       shape: const RoundedRectangleBorder(
+                  //         borderRadius: BorderRadius.vertical(
+                  //           top: Radius.circular(20),
+                  //         ),
+                  //       ),
+                  //       builder:
+                  //           (_) => CancelBookingSheet(
+                  //             model: model,
+                  //             bookingDateTime:
+                  //                 "${provider.paymentDate} at ${provider.paymentTime}",
+                  //           ),
+                  //     );
+                  //   },
+                  //   width: 150,
+                  // ),
+                  GlobalPrimaryButton(
+                    text: "Back To Home",
+                    onTap: () {
+                      context.read<BookTabProvider>().clearBookingData();
+                      context.read<BottomNavProvider>().changeIndex(0);
+                      Navigator.popUntil(context, (route) => route.isFirst);
+                    },
+                    width: 150,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(fontSize: 14, color: Colors.black87),
+          ),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+        ],
       ),
     );
   }

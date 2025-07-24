@@ -1,26 +1,765 @@
+import 'dart:convert';
+
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:gkmarts/Models/HomeTab_Models/Venue_detail_model.dart';
+import 'package:gkmarts/Models/BookTabModel/coupon_model.dart';
+import 'package:gkmarts/Models/BookTabModel/slot_price_model.dart';
+import 'package:gkmarts/Models/BookTabModel/venue_detail_model.dart';
+import 'package:gkmarts/Provider/Connectivity/connectivity_provider.dart';
+import 'package:gkmarts/Services/BookTab/book_tab_service.dart';
+import 'package:gkmarts/View/BottomNavigationBar/BookTab/congratulation_booking.dart';
+import 'package:gkmarts/Widget/global.dart';
+import 'package:gkmarts/Widget/global_snackbar.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:table_calendar/table_calendar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class BookTabProvider extends ChangeNotifier {
   bool isgetVenueDetailsGetting = false;
+  bool isFavorite = false;
+  bool isFavoriteLoading = false;
+  bool isCouponLoading = false;
+  bool isCouponApplying = false;
+  bool isSlotPriceLoading = false;
+  bool isProceedToPlay = false;
+  bool isRatevenue = false;
+  bool isTurfAvailable = false;
+  List<CouponModel> couponList = [];
+  final TextEditingController couponController = TextEditingController();
+  String couponAppliedMessage = '';
+  String? selectedCouponCode;
+  int offerDiscount = 0; //coupon
+  bool isCouponApplied = false;
+  SlotPriceModel? slotPriceModel;
   VenueDetailModel? venueDetailModel;
   final PageController imagePageController = PageController();
   int currentImageIndex = 0;
   String? selectedSport;
+  int? selectedSportId;
   DateTime selectedDate = DateTime.now();
   bool isCalendarExpanded = false;
   String? selectedSlot;
-  int offerDiscount = 100;
-  int convenienceFee = 50;
+  AvailableSlotDate? filteredAvailableSlotsForSelectedDate; //---------
+  List<int> availableTurfIdsForSelectedTimeDate = []; //--
 
+  int convenienceFee = 0;
+  String? paymentDate;
+  String? paymentTime;
+  String? paymentMethod = "UPI";
+  int? bookingId;
+  int? paymentId;
+  List<int> selectedTurfIndexes = [];
+  List<int> selectedTurfIds = [];
+
+  DateTime startDateForList = DateTime.now();
+  int? selectedUnitId;
   TimeOfDay selectedStartTime = TimeOfDay(hour: 0, minute: 0);
 
-  int selectedDurationInHours = 1;
+  // int selectedDurationInHours = 1;
+  int? minMinutesSport; // not 60
 
   int userRating = 0;
   String userComment = '';
+  //----------
+
+  //----------
+
+  void toggleTurfSelection(int index, int unitId) {
+    if (unitId == 0) {
+      GlobalSnackbar.error(
+        navigatorKey.currentContext!,
+        "Turf ID is missing. Please try again.",
+      );
+    }
+
+    if (selectedTurfIndexes.contains(index)) {
+      selectedTurfIndexes.remove(index);
+      selectedTurfIds.remove(unitId);
+    } else {
+      selectedTurfIndexes.add(index);
+      selectedTurfIds.add(unitId);
+    }
+
+    notifyListeners();
+  }
+
+  TimeOfDay _calculateEndTime() {
+    final endDateTime = DateTime(
+      0,
+      1,
+      1,
+      selectedStartTime.hour,
+      selectedStartTime.minute,
+    ).add(Duration(minutes: minMinutesSport ?? 60));
+
+    return TimeOfDay(hour: endDateTime.hour, minute: endDateTime.minute);
+  }
+
+  void applyCouponCode(String code) {
+    selectedCouponCode = code;
+    couponController.text = code;
+    notifyListeners();
+  }
+
+  int get finalPayableAmount =>
+      totalPriceBeforeDiscountall - offerDiscount + convenienceFee;
+
+  // int get totalPriceBeforeDiscountall {
+  //   final slot = getSelectedSlotPrice();
+  //   if (slot == null) return 0;
+
+  //   final int ratePerHour = slot.rate;
+  //   final int turfCount = selectedTurfIndexes.length;
+
+  //   if (turfCount == 0 || minMinutesSport == 0) return 0;
+
+  //   // return turfCount * selectedDurationInHours * ratePerHour;
+  //   return turfCount * (minMinutesSport ?? 60 / 60).ceil() * ratePerHour;
+  // }
+
+  int get totalPriceBeforeDiscountall {
+    final slot = getSelectedSlotPrice();
+    if (slot == null) return 0;
+
+    final int ratePerHour = slot.rate;
+    final int turfCount = selectedTurfIndexes.length;
+    final int durationInMinutes = minMinutesSport ?? 0;
+
+    if (turfCount == 0 || durationInMinutes == 0) return 0;
+
+    final double ratePerMinute = ratePerHour / 60.0;
+    final double total = turfCount * durationInMinutes * ratePerMinute;
+
+    return total.round(); // or .ceil() if you want to always round up
+  }
+
+  void selectCoupon(String code) {
+    selectedCouponCode = code;
+    couponController.text = code;
+    notifyListeners();
+  }
+
+  void selectUnitId(int unitId) {
+    selectedUnitId = unitId;
+    notifyListeners();
+  }
+
+  List<Map<String, dynamic>> getAvailableTurfsForSelectedSlotAndDate() {
+    if (slotPriceModel == null || selectedSlot == null) return [];
+
+    final SlotPrice? selectedSlotPrice = getSelectedSlotPrice();
+    if (selectedSlotPrice == null) return [];
+
+    final String selectedDayName = DateFormat('EEEE').format(selectedDate);
+
+    final availableTurfs = <Map<String, dynamic>>[];
+
+    slotPriceModel!.calendarSlots.forEach((unitId, calendarList) {
+      final matchingCalendarSlots =
+          calendarList.where((calendarSlot) {
+            return calendarSlot.day == selectedDayName &&
+                timeRangeOverlaps(
+                  slotStart: selectedSlotPrice.startTime,
+                  slotEnd: selectedSlotPrice.endTime,
+                  calendarStart: calendarSlot.startTimeSlot,
+                  calendarEnd: calendarSlot.endTimeSlot,
+                );
+          }).toList();
+
+      if (matchingCalendarSlots.isNotEmpty) {
+        availableTurfs.add({
+          "unitId": int.tryParse(unitId) ?? 0,
+          "unitName": matchingCalendarSlots.first.unitName,
+        });
+      }
+    });
+
+    return availableTurfs;
+  }
+
+  // getAvailableTurfsForSelectedSlotAndDate
+  bool timeRangeOverlaps({
+    required String slotStart,
+    required String slotEnd,
+    required String calendarStart,
+    required String calendarEnd,
+  }) {
+    final slotStartTime = _parseTime(slotStart);
+    final slotEndTime = _parseTime(slotEnd);
+    final calendarStartTime = _parseTime(calendarStart);
+    final calendarEndTime = _parseTime(calendarEnd);
+
+    return slotStartTime.isAfter(calendarStartTime) ||
+            slotStartTime.isAtSameMomentAs(calendarStartTime)
+        ? slotEndTime.isBefore(calendarEndTime) ||
+            slotEndTime.isAtSameMomentAs(calendarEndTime)
+        : false;
+  }
+
+  DateTime _parseTime(String time) {
+    final parts = time.split(":").map(int.parse).toList();
+    return DateTime(0, 1, 1, parts[0], parts[1]);
+  }
+
+  void selectDate(DateTime date) {
+    selectedDate = date;
+    isCalendarExpanded = false;
+    _filterSlotsOfselctedDate();
+    notifyListeners();
+  }
+
+  void _filterSlotsOfselctedDate() {
+    final selectedDateStr = DateFormat('yyyy-MM-dd').format(selectedDate);
+
+    filteredAvailableSlotsForSelectedDate = slotPriceModel?.availableSlots
+        .firstWhere(
+          (slotDate) => slotDate.date == selectedDateStr,
+          orElse: () => AvailableSlotDate(date: '', slots: []),
+        );
+    // Optionally: clear if empty
+    if (filteredAvailableSlotsForSelectedDate?.date.isEmpty ?? true) {
+      filteredAvailableSlotsForSelectedDate = null;
+    }
+  }
+
+  int getMaxDurationForSelectedSlot() {
+    final slot = getSelectedSlotPrice();
+    if (slot == null) return 1;
+
+    final slotStartParts = slot.startTime.split(":").map(int.parse).toList();
+    final slotEndParts = slot.endTime.split(":").map(int.parse).toList();
+
+    final startDateTime = DateTime(
+      0,
+      0,
+      0,
+      slotStartParts[0],
+      slotStartParts[1],
+    );
+    final endDateTime = DateTime(0, 0, 0, slotEndParts[0], slotEndParts[1]);
+
+    final difference = endDateTime.difference(startDateTime).inHours;
+    return difference > 0 ? difference : 1;
+  }
+
+  void incrementDuration() {
+    final slot = getSelectedSlotPrice();
+    if (slot == null) return;
+
+    final slotEndParts = slot.endTime.split(":").map(int.parse).toList();
+    final slotEndDateTime = DateTime(0, 1, 1, slotEndParts[0], slotEndParts[1]);
+
+    final startDateTime = DateTime(
+      0,
+      1,
+      1,
+      selectedStartTime.hour,
+      selectedStartTime.minute,
+    );
+
+    // final newEndDateTime = startDateTime.add(
+    //   Duration(minutes: minMinutesSport ?? 60 + 60),
+    // );
+    final newEndDateTime = startDateTime.add(
+      Duration(
+        minutes: minMinutesSport! + (slotPriceModel?.minimumMinutesSport ?? 60),
+      ),
+    );
+
+    if (newEndDateTime.isAfter(slotEndDateTime)) {
+      GlobalSnackbar.bottomError(
+        navigatorKey.currentContext!,
+        "Increasing duration exceeds slot end time.",
+      );
+      return;
+    }
+
+    minMinutesSport =
+        minMinutesSport! + (slotPriceModel?.minimumMinutesSport ?? 60);
+    updateAvailableTurfIdsForSelectedTimeRange();
+    notifyListeners();
+  }
+
+  void decrementDuration() {
+    final baseMinutes = slotPriceModel?.minimumMinutesSport ?? 60;
+    if (minMinutesSport != null && minMinutesSport! > baseMinutes) {
+      minMinutesSport = minMinutesSport! - baseMinutes;
+      updateAvailableTurfIdsForSelectedTimeRange();
+      notifyListeners();
+    }
+  }
+
+  void setStartTime(TimeOfDay time) {
+    final slot = getSelectedSlotPrice();
+    if (slot == null) return;
+
+    final now = DateTime.now();
+    final isToday = isSameDay(selectedDate, now);
+
+    if (isToday) {
+      final nowMinutes = now.hour * 60 + now.minute;
+      final pickedMinutes = time.hour * 60 + time.minute;
+
+      if (pickedMinutes < nowMinutes) {
+        GlobalSnackbar.bottomError(
+          navigatorKey.currentContext!,
+          "You cannot select a past time for today.",
+        );
+        return;
+      }
+    }
+
+    final slotEndParts = slot.endTime.split(":").map(int.parse).toList();
+    final slotEndDateTime = DateTime(0, 1, 1, slotEndParts[0], slotEndParts[1]);
+
+    final startDateTime = DateTime(0, 1, 1, time.hour, time.minute);
+    final safeDuration = Duration(
+      minutes: minMinutesSport ?? 60,
+    ); // fallback to 60
+    final newEndDateTime = startDateTime.add(safeDuration);
+
+    if (newEndDateTime.isAfter(slotEndDateTime)) {
+      GlobalSnackbar.bottomError(
+        navigatorKey.currentContext!,
+        "Selected time + duration exceeds slot end time.",
+        duration: Duration(seconds: 3),
+      );
+      return;
+    }
+
+    selectedStartTime = time;
+    updateAvailableTurfIdsForSelectedTimeRange();
+    notifyListeners();
+  }
+
+  String get timeRangeString {
+    final start = selectedStartTime;
+
+    final startDateTime = DateTime(0, 1, 1, start.hour, start.minute);
+    final endDateTime = startDateTime.add(
+      Duration(minutes: minMinutesSport ?? 60),
+    );
+    //   final endTime = TimeOfDay(
+    //   hour: endDateTime.hour,
+    //   minute: endDateTime.minute,
+    // );
+    return "${DateFormat('HH:mm').format(startDateTime)} - ${DateFormat('HH:mm').format(endDateTime)}";
+  }
+
+  get context => null;
+
+  void selectSlot(String slot) {
+    selectedSlot = slot;
+    selectedTurfIndexes.clear();
+    selectedTurfIds.clear();
+
+    // final turfs = getAvailableTurfsForSelectedSlotAndDate();
+    // if (turfs.isNotEmpty) {
+    //   final firstTurf = turfs.first;
+    //   final int unitId = firstTurf["unitId"] ?? 0;
+    //   selectedTurfIndexes.add(0); // Auto-select first turf index
+    //   selectedTurfIds.add(unitId);
+    // }
+    final slotPrice = getSelectedSlotPrice();
+    if (slotPrice != null) {
+      updateTimeRangeBasedOnSlot(slotPrice);
+    }
+
+    notifyListeners();
+  }
+
+  void toggleCalendar() {
+    isCalendarExpanded = !isCalendarExpanded;
+    notifyListeners();
+  }
+
+  void updateTimeRangeBasedOnSlot(SlotPrice slot) {
+    final now = DateTime.now();
+
+    final slotStartParts = slot.startTime.split(":").map(int.parse).toList();
+    final slotEndParts = slot.endTime.split(":").map(int.parse).toList();
+
+    final slotStartDateTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      slotStartParts[0],
+      slotStartParts[1],
+    );
+
+    final slotEndDateTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      slotEndParts[0],
+      slotEndParts[1],
+    );
+
+    if (isSameDay(selectedDate, now)) {
+      if (now.isAfter(slotStartDateTime) && now.isBefore(slotEndDateTime)) {
+        final roundedNow =
+            now.minute > 0
+                ? DateTime(now.year, now.month, now.day, now.hour + 1)
+                : DateTime(now.year, now.month, now.day, now.hour);
+        selectedStartTime = TimeOfDay(hour: roundedNow.hour, minute: 0);
+      } else {
+        selectedStartTime = TimeOfDay(
+          hour: slotStartParts[0],
+          minute: slotStartParts[1],
+        );
+      }
+    } else {
+      selectedStartTime = TimeOfDay(
+        hour: slotStartParts[0],
+        minute: slotStartParts[1],
+      );
+    }
+
+    final maxDurationMinutes =
+        slotEndDateTime
+            .difference(
+              DateTime(
+                now.year,
+                now.month,
+                now.day,
+                selectedStartTime.hour,
+                selectedStartTime.minute,
+              ),
+            )
+            .inMinutes;
+
+    minMinutesSport =
+        maxDurationMinutes > 0 ? slotPriceModel?.minimumMinutesSport ?? 60 : 0;
+
+    updateAvailableTurfIdsForSelectedTimeRange();
+    notifyListeners();
+  }
+
+  String _formatTimeOfDayWithSeconds(TimeOfDay time) {
+    final hour = time.hour.toString().padLeft(2, '0');
+    final minute = time.minute.toString().padLeft(2, '0');
+    return "$hour:$minute:00";
+  }
+
+  //filter availableTurfIdsForSelectedTimeDate
+  void updateAvailableTurfIdsForSelectedTimeRange() {
+    final endTime = _calculateEndTime();
+    final selectedTimeRange =
+        "${_formatTimeOfDayWithSeconds(selectedStartTime)} - ${_formatTimeOfDayWithSeconds(endTime)}";
+    availableTurfIdsForSelectedTimeDate.clear();
+    final matchingSlot = filteredAvailableSlotsForSelectedDate?.slots
+        .firstWhere(
+          (slot) => slot.timeRange == selectedTimeRange,
+          orElse: () => AvailableSlot(timeRange: "", availableUnits: []),
+        );
+
+    if (matchingSlot != null && matchingSlot.timeRange.isNotEmpty) {
+      availableTurfIdsForSelectedTimeDate =
+          matchingSlot.availableUnits.map((unit) => unit.unitId).toList();
+    }
+  }
+
+  SlotPrice? getSelectedSlotPrice() {
+    if (slotPriceModel == null || selectedSlot == null) return null;
+
+    final slots =
+        slotPriceModel!.slotsPrice.entries.expand((e) => e.value).toList();
+    return slots.firstWhereOrNull((s) => s.slotId.toString() == selectedSlot);
+  }
+
+  List<Map<String, dynamic>> getSlotOptionsByDate({
+    required DateTime selectedDate,
+    required DateTime currentTime,
+  }) {
+    final isToday = isSameDay(selectedDate, DateTime.now());
+    final currentDay = selectedDate.weekday;
+    final isWeekend =
+        currentDay == DateTime.saturday || currentDay == DateTime.sunday;
+    final slotType = isWeekend ? 'Weekend' : 'Weekday';
+    final slots = slotPriceModel?.slotsPrice[slotType] ?? [];
+
+    return slots.map((slot) {
+      final endParts = slot.endTime.split(":").map(int.parse).toList();
+      final slotEndDateTime = DateTime(
+        selectedDate.year,
+        selectedDate.month,
+        selectedDate.day,
+        endParts[0],
+        endParts[1],
+      );
+
+      // Filter only if it’s today. Otherwise all slots are active.
+      final isActive = isToday ? currentTime.isBefore(slotEndDateTime) : true;
+
+      return {
+        "label":
+            "${formatTimeOnly(slot.startTime)} - ${formatTimeOnly(slot.endTime)} (${slot.slotName})",
+        "value": slot.slotId.toString(),
+        "isActive": isActive,
+      };
+    }).toList();
+  }
+
+  bool get isBookingReady {
+    return selectedSlot != null &&
+        selectedTurfIndexes.isNotEmpty &&
+        (minMinutesSport ?? 0) > 0;
+  }
+
+  Map<String, Map<String, List<SlotPrice>>> getOrganizedSlotChart() {
+    final Map<String, Map<String, List<SlotPrice>>> organizedChart = {};
+
+    int totalSlotsCount = 0;
+
+    slotPriceModel?.slotsPrice.forEach((slotType, slots) {
+      if (!organizedChart.containsKey(slotType)) {
+        organizedChart[slotType] = {};
+      }
+
+      for (var slot in slots) {
+        if (!organizedChart[slotType]!.containsKey(slot.slotName)) {
+          organizedChart[slotType]![slot.slotName] = [];
+        }
+        organizedChart[slotType]![slot.slotName]!.add(slot);
+        totalSlotsCount++;
+      }
+    });
+
+    debugPrint("Total slots organized: $totalSlotsCount");
+
+    return organizedChart;
+  }
+
+  void selectSport(String sportName, int sportId) {
+    selectedSport = sportName;
+    selectedSportId = sportId;
+    notifyListeners();
+  }
+
+  bool isSportSelected() {
+    return selectedSport != null;
+  }
+
+  void setCurrentImageIndex(int index) {
+    currentImageIndex = index;
+    notifyListeners();
+  }
+
+  //----------
+  Future<void> getSlotPrices(int venueId, int sportId) async {
+    isSlotPriceLoading = true;
+    notifyListeners();
+
+    final isOnline =
+        navigatorKey.currentContext!.read<ConnectivityProvider>().isOnline;
+    if (!isOnline) {
+      GlobalSnackbar.error(context, "No internet connection");
+      isgetVenueDetailsGetting = false;
+      notifyListeners();
+      return;
+    }
+
+    try {
+      final response = await BookTabService().getSlotPriceService(
+        venueId,
+        sportId,
+      );
+
+      if (response.isSuccess) {
+        final Map<String, dynamic> data = jsonDecode(response.responseData);
+        slotPriceModel = SlotPriceModel.fromJson(data['response']);
+        minMinutesSport = slotPriceModel?.minimumMinutesSport ?? 60;
+        _filterSlotsOfselctedDate();
+        notifyListeners();
+      } else {
+        GlobalSnackbar.error(navigatorKey.currentContext!, response.message);
+      }
+    } catch (e) {
+      debugPrint("Error fetching slot prices: $e");
+      GlobalSnackbar.error(
+        navigatorKey.currentContext!,
+        "Something went wrong",
+      );
+    } finally {
+      isSlotPriceLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> applyCoupon() async {
+    if (selectedCouponCode == null || selectedCouponCode!.isEmpty) {
+      GlobalSnackbar.error(
+        navigatorKey.currentContext!,
+        "Please select or enter a coupon code.",
+      );
+      return false;
+    }
+
+    isCouponApplying = true;
+    notifyListeners();
+
+    final int totalPrice = totalPriceBeforeDiscountall;
+    final String couponCode = selectedCouponCode!;
+
+    try {
+      final response = await BookTabService().applyCouponService(
+        totalPrice,
+        couponCode,
+      );
+
+      if (response.isSuccess) {
+        final matchingCoupon = couponList.firstWhere(
+          (coupon) => coupon.couponCode == selectedCouponCode,
+          orElse:
+              () => CouponModel(
+                couponId: 0,
+                couponCode: '',
+                discountAmount: 0,
+                expiryDate: '',
+              ),
+        );
+
+        offerDiscount = matchingCoupon.discountAmount ?? 0;
+        couponAppliedMessage = "Coupon applied successfully!";
+        isCouponApplied = true;
+        notifyListeners();
+        return true;
+      } else {
+        couponAppliedMessage = "Failed to apply coupon. Please try again.";
+        isCouponApplied = false;
+        return false;
+      }
+    } catch (e) {
+      couponAppliedMessage = "Error applying coupon.";
+      isCouponApplied = false;
+      return false;
+    } finally {
+      isCouponApplying = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> getCoupons() async {
+    isCouponLoading = true;
+    notifyListeners();
+
+    final isOnline =
+        navigatorKey.currentContext!.read<ConnectivityProvider>().isOnline;
+    if (!isOnline) {
+      GlobalSnackbar.error(context, "No internet connection");
+      isgetVenueDetailsGetting = false;
+      notifyListeners();
+      return;
+    }
+
+    try {
+      final response = await BookTabService().getCouponService();
+
+      if (response.isSuccess) {
+        final data = jsonDecode(response.responseData);
+        final List<dynamic> couponData = data['existingCoupons'] ?? [];
+        couponList =
+            couponData.map((item) => CouponModel.fromJson(item)).toList();
+        notifyListeners();
+      } else {
+        GlobalSnackbar.error(navigatorKey.currentContext!, response.message);
+      }
+    } catch (e) {
+      debugPrint("Error fetching slot prices: $e");
+      GlobalSnackbar.error(
+        navigatorKey.currentContext!,
+        "Something went wrong",
+      );
+    } finally {
+      isCouponLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> toggleFavorite(BuildContext context, int venueId) async {
+    final isOnline =
+        navigatorKey.currentContext!.read<ConnectivityProvider>().isOnline;
+
+    if (!isOnline) {
+      GlobalSnackbar.error(context, "No internet connection");
+      return;
+    }
+
+    final previousFavoriteStatus = isFavorite;
+    isFavorite = !isFavorite;
+    isFavoriteLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await BookTabService().addFavoriteService(venueId);
+
+      if (response.isSuccess) {
+        final Map<String, dynamic> data = jsonDecode(response.responseData);
+        isFavorite = data['isFavorite'] == true;
+        GlobalSnackbar.success(context, response.message);
+      } else {
+        isFavorite = previousFavoriteStatus;
+        GlobalSnackbar.error(context, response.message);
+      }
+    } catch (e) {
+      debugPrint("Error toggling favorite: $e");
+      isFavorite = previousFavoriteStatus;
+      GlobalSnackbar.error(context, "Something went wrong");
+    } finally {
+      isFavoriteLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> getVenueDetails(int facilityId) async {
+    final isOnline =
+        navigatorKey.currentContext!.read<ConnectivityProvider>().isOnline;
+
+    if (!isOnline) {
+      GlobalSnackbar.error(context, "No internet connection");
+      return;
+    }
+    isgetVenueDetailsGetting = true;
+    notifyListeners();
+
+    try {
+      final response = await BookTabService().getAllVenueDetailsServices(
+        facilityId,
+      );
+
+      if (response.isSuccess) {
+        final data = jsonDecode(response.responseData);
+        final responseJson = data['response'];
+        venueDetailModel = VenueDetailModel.fromJson(responseJson);
+        isFavorite = venueDetailModel?.isFavorite ?? false;
+      } else {
+        debugPrint("API Error: ${response.message}");
+      }
+    } catch (e) {
+      debugPrint("Error fetching venue details: $e");
+    } finally {
+      isgetVenueDetailsGetting = false;
+      notifyListeners();
+    }
+  }
+
+  void updateStartDateIfNeeded(DateTime newDate) {
+    // If selectedDate not visible in current 5-day window
+    final listDates = List.generate(
+      5,
+      (i) => startDateForList.add(Duration(days: i)),
+    );
+    final isInList = listDates.any((d) => isSameDay(d, newDate));
+
+    if (!isInList) {
+      startDateForList = newDate;
+    }
+
+    selectedDate = newDate;
+    notifyListeners();
+  }
 
   void updateUserRating(int rating) {
     userRating = rating;
@@ -38,118 +777,16 @@ class BookTabProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<int> selectedTurfIndexes = [];
-
-  int get finalPayableAmount =>
-      totalPriceBeforeDiscountall - offerDiscount + convenienceFee;
-
-  bool applyCoupon(String code) {
-    final enteredCode = code.trim().toUpperCase();
-
-    if (enteredCode == 'DISCOUNT100') {
-      offerDiscount = 100;
-      notifyListeners();
-      return true;
-    }
-
-    return false;
-  }
-
-  int get totalPriceBeforeDiscountall {
-    int turfCount = selectedTurfIndexes.length;
-    if (turfCount == 0) return 0;
-    return turfCount * selectedDurationInHours * (venueDetailModel?.price ?? 0);
-  }
-
-  void toggleTurfSelection(int index) {
-    if (selectedTurfIndexes.contains(index)) {
-      selectedTurfIndexes.remove(index);
-    } else {
-      selectedTurfIndexes.add(index);
-    }
-    notifyListeners();
-  }
-
-  void incrementDuration() {
-    if (selectedDurationInHours < 6) {
-      selectedDurationInHours++;
-      notifyListeners();
-    }
-  }
-
-  void decrementDuration() {
-    if (selectedDurationInHours > 1) {
-      selectedDurationInHours--;
-      notifyListeners();
-    }
-  }
-
-  void setStartTime(TimeOfDay time) {
-    selectedStartTime = time;
-    notifyListeners();
-  }
-
-  String get timeRangeString {
-    final now = TimeOfDay.now();
-    final start = selectedStartTime;
-    final endHour = (start.hour + selectedDurationInHours) % 24;
-    final endTime = TimeOfDay(hour: endHour, minute: start.minute);
-    String format(TimeOfDay time) {
-      final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
-      final minute = time.minute.toString().padLeft(2, '0');
-      final period = time.period == DayPeriod.am ? 'AM' : 'PM';
-      return "$hour:$minute $period"; // Example: 4:00 PM
-    }
-
-    return "${format(start)} - ${format(endTime)}";
-  }
-
-  void selectSlot(String slot) {
-    selectedSlot = slot;
-    notifyListeners();
-  }
-
-  void toggleCalendar() {
-    isCalendarExpanded = !isCalendarExpanded;
-    notifyListeners();
-  }
-
-  void selectDate(DateTime date) {
-    selectedDate = date;
-    isCalendarExpanded = false;
-    notifyListeners();
-  }
-
-  //   if (!provider.isSportSelected()) {
-  //   GlobalSnackbar.showWarning(context, "Please select a sport to proceed.");
-  //   return;
-  // }
-
-  void selectSport(String sportName) {
-    selectedSport = sportName;
-    notifyListeners();
-  }
-
-  bool isSportSelected() {
-    return selectedSport != null;
-  }
-
-  void setCurrentImageIndex(int index) {
-    currentImageIndex = index;
-    notifyListeners();
-  }
-
-  Future<void> openMapForVenue(BuildContext context) async {
-    final model = venueDetailModel;
-
-    if (model == null || model.venueName.isEmpty || model.venueAddress.isEmpty)
+  Future<void> openMapForVenue(
+    BuildContext context,
+    String googleMapUrl,
+  ) async {
+    if (googleMapUrl.isEmpty) {
+      _showMapErrorDialog(context, "Google Map URL not available");
       return;
+    }
 
-    final fullQuery = '${model.venueName}, ${model.venueAddress}';
-    final encodedQuery = Uri.encodeComponent(fullQuery);
-    final url = Uri.parse(
-      'https://www.google.com/maps/search/?api=1&query=$encodedQuery',
-    );
+    final url = Uri.parse(googleMapUrl);
 
     try {
       final launched = await launchUrl(
@@ -158,11 +795,11 @@ class BookTabProvider extends ChangeNotifier {
       );
 
       if (!launched) {
-        _showMapErrorDialog(context, fullQuery);
+        _showMapErrorDialog(context, "Could not open Google Maps");
       }
     } catch (e) {
-      debugPrint('❌ Could not launch map: $e');
-      _showMapErrorDialog(context, fullQuery);
+      debugPrint("❌ Could not launch map: $e");
+      _showMapErrorDialog(context, "Could not open Google Maps");
     }
   }
 
@@ -242,53 +879,9 @@ class BookTabProvider extends ChangeNotifier {
     );
   }
 
-  Future<void> getVenueDetails(String venueId) async {
-    isgetVenueDetailsGetting = true;
-    notifyListeners();
-
-    try {
-      await Future.delayed(const Duration(seconds: 1));
-
-      final dummyResponse = {
-        "venueId": venueId,
-        "venueName": "Mavericks Cricket Academy",
-        "venueAddress":
-            "Shankar Kalate Nagar, Opp. Silver Fitness Club, Wakad, Pune 57",
-        "images": [
-          "https://images.unsplash.com/photo-1663832952954-170d73947ba7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y3JpY2tldCUyMGZpZWxkfGVufDB8fDB8fHww",
-          "https://images.unsplash.com/photo-1663832952954-170d73947ba7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y3JpY2tldCUyMGZpZWxkfGVufDB8fDB8fHww",
-          "https://images.unsplash.com/photo-1663832952954-170d73947ba7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y3JpY2tldCUyMGZpZWxkfGVufDB8fDB8fHww",
-        ],
-        "rating": 4.2,
-        "totalReviews": 38,
-        "price": 600,
-        "availableSports": [
-          {
-            "sportName": "Cricket",
-            "image":
-                "https://images.unsplash.com/photo-1663832952954-170d73947ba7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y3JpY2tldCUyMGZpZWxkfGVufDB8fDB8fHww",
-          },
-          {
-            "sportName": "Football",
-            "image":
-                "https://images.unsplash.com/photo-1663832952954-170d73947ba7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y3JpY2tldCUyMGZpZWxkfGVufDB8fDB8fHww",
-          },
-        ],
-        "amenities": ["Washroom", "Changing Room", "Shower", "Drinking Water"],
-        "totalGamesPlayed": 158,
-        "turfCount": 3,
-      };
-
-      venueDetailModel = VenueDetailModel.fromJson(dummyResponse);
-    } catch (e) {
-      debugPrint("Error fetching venue details: $e");
-    } finally {
-      isgetVenueDetailsGetting = false;
-      notifyListeners();
-    }
-  }
-
   void clearBookingData() {
+    isFavorite = false;
+    isFavoriteLoading = false;
     isgetVenueDetailsGetting = false;
     venueDetailModel = null;
     currentImageIndex = 0;
@@ -296,11 +889,212 @@ class BookTabProvider extends ChangeNotifier {
     selectedDate = DateTime.now();
     isCalendarExpanded = false;
     selectedSlot = null;
-    offerDiscount = 100;
-    convenienceFee = 50;
+    offerDiscount = 0;
+    convenienceFee = 0;
     selectedStartTime = TimeOfDay(hour: 16, minute: 0);
-    selectedDurationInHours = 1;
+    minMinutesSport = 60;
     selectedTurfIndexes.clear();
+    selectedTurfIds.clear();
+    selectedSportId = null;
+    // Reset coupon-related variables
+    couponList.clear();
+    couponController.clear();
+    selectedCouponCode = null;
+    couponAppliedMessage = '';
+    isCouponApplied = false;
+    isCouponApplying = false;
+    isCouponLoading = false;
     notifyListeners();
+  }
+
+  void clearDateTimeRange() {
+    selectedSlot = null;
+    selectedTurfIndexes.clear();
+    selectedStartTime = TimeOfDay(hour: 0, minute: 0);
+    availableTurfIdsForSelectedTimeDate.clear();
+    minMinutesSport = 60;
+    selectedTurfIds.clear();
+    filteredAvailableSlotsForSelectedDate = null;
+    notifyListeners();
+  }
+
+  Future<void> rateVenue({
+    required int venueId,
+    required int bookingId,
+    required int rating,
+    required String feedback,
+  }) async {
+    isRatevenue = true;
+    notifyListeners();
+
+    final isOnline =
+        navigatorKey.currentContext!.read<ConnectivityProvider>().isOnline;
+    if (!isOnline) {
+      GlobalSnackbar.error(
+        navigatorKey.currentContext!,
+        "No internet connection",
+      );
+      isRatevenue = false;
+      notifyListeners();
+      return;
+    }
+
+    try {
+      final response = await BookTabService().rateVenueService(
+        venueId: venueId,
+        bookingId: bookingId,
+        rating: rating,
+        feedback: feedback,
+      );
+
+      if (response.isSuccess) {
+        GlobalSnackbar.success(navigatorKey.currentContext!, "Rating added");
+      } else {
+        GlobalSnackbar.error(navigatorKey.currentContext!, response.message);
+      }
+    } catch (e) {
+      debugPrint("Error rating venue: $e");
+      GlobalSnackbar.error(
+        navigatorKey.currentContext!,
+        "Something went wrong",
+      );
+    } finally {
+      isRatevenue = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> proceedToPay(VenueDetailModel model) async {
+    isProceedToPlay = true;
+    notifyListeners();
+
+    final isOnline =
+        navigatorKey.currentContext!.read<ConnectivityProvider>().isOnline;
+
+    if (!isOnline) {
+      GlobalSnackbar.error(
+        navigatorKey.currentContext!,
+        "No internet connection",
+      );
+      isProceedToPlay = false;
+      notifyListeners();
+      return;
+    }
+
+    try {
+      // Build only the required request body
+      final reqBody = {
+        "sportId": selectedSportId,
+        "date": DateFormat("ddList (0 items)-MM-yyyy").format(selectedDate),
+        "startTime": formatTimeApi(selectedStartTime),
+        "endTime": formatTimeApi(_calculateEndTime()),
+        "turfIds": selectedTurfIds,
+        "totalPrice": totalPriceBeforeDiscountall,
+        "discountAmount": offerDiscount,
+        "discountPrice": finalPayableAmount,
+      };
+      debugPrint("Proceed to Pay Req Body: $reqBody");
+      final response = await BookTabService().proceedToPayService(
+        reqBody: reqBody,
+      );
+
+      if (response.isSuccess) {
+        final responseData = jsonDecode(response.responseData);
+        final now = DateTime.now();
+        bookingId = responseData['response']['booking_id'];
+        paymentId = responseData['response']['paymentId'];
+        paymentDate = DateFormat("dd MMMM yyyy").format(now);
+        paymentTime = DateFormat("hh:mm a").format(now);
+
+        Future.delayed(const Duration(milliseconds: 300), () {
+          Navigator.pushReplacement(
+            navigatorKey.currentContext!,
+            MaterialPageRoute(
+              builder: (_) => CongratulationBooking(model: model),
+            ),
+          );
+        });
+
+        GlobalSnackbar.success(
+          navigatorKey.currentContext!,
+          response.message.isNotEmpty
+              ? response.message
+              : "Payment Proceeded Successfully",
+        );
+      } else {
+        GlobalSnackbar.error(navigatorKey.currentContext!, response.message);
+      }
+    } catch (e) {
+      debugPrint("Error in proceedToPay: $e");
+      GlobalSnackbar.error(
+        navigatorKey.currentContext!,
+        "Something went wrong",
+      );
+    } finally {
+      isProceedToPlay = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> checkTurfAvailability({required int venueId}) async {
+    isTurfAvailable = true;
+    notifyListeners();
+    try {
+      final reqBody = {
+        "venueId": venueId,
+        "sportId": selectedSportId,
+        "date": DateFormat("dd-MM-yyyy").format(selectedDate),
+        "startTime": formatTimeApi(selectedStartTime),
+        "endTime": formatTimeApi(_calculateEndTime()),
+        "turfIds": selectedTurfIds,
+      };
+
+      debugPrint("Check Turf Availability Req Body: $reqBody");
+
+      final response = await BookTabService().checkTurfAvailableService(
+        reqBody: reqBody,
+      );
+
+      if (response.isSuccess) {
+        final responseData = jsonDecode(response.responseData);
+        final List availableTurfs =
+            responseData['response']['list_of_available_turfs'];
+
+        final List<int> availableTurfIds =
+            availableTurfs.map<int>((item) => item['unit_id'] as int).toList();
+
+        final allSelectedAreAvailable = selectedTurfIds.every(
+          (id) => availableTurfIds.contains(id),
+        );
+
+        if (allSelectedAreAvailable) {
+          debugPrint("All selected turfs are available.");
+          return true;
+        } else {
+          GlobalSnackbar.error(
+            navigatorKey.currentContext!,
+            "Some selected turfs are not available.",
+          );
+          return false;
+        }
+      } else {
+        GlobalSnackbar.bottomError(
+          navigatorKey.currentContext!,
+          response.message,
+        );
+
+        return false;
+      }
+    } catch (e) {
+      debugPrint("Error in checkTurfAvailability: $e");
+      GlobalSnackbar.error(
+        navigatorKey.currentContext!,
+        "Something went wrong",
+      );
+      return false;
+    } finally {
+      isTurfAvailable = false;
+      notifyListeners();
+    }
   }
 }

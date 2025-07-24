@@ -1,152 +1,264 @@
 import 'package:flutter/material.dart';
-import 'package:gkmarts/Provider/Login/login_provider.dart';
+import 'package:gkmarts/Provider/Bookings/bookings_count_provider.dart';
+import 'package:gkmarts/Provider/Profile/profile_page_provider.dart';
+import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
+import 'package:gkmarts/View/BottomNavigationBar/HomeTab/edit_profile_page.dart';
+import 'package:gkmarts/View/BottomNavigationBar/HomeTab/my_bookings.dart';
+import 'package:gkmarts/View/BottomNavigationBar/HomeTab/my_favorites.dart';
+import 'package:gkmarts/View/BottomNavigationBar/HomeTab/settings.dart';
 import 'package:gkmarts/Widget/global_appbar.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+class ProfilePage extends StatefulWidget {
+  final bool homePage;
+  const ProfilePage({super.key, required this.homePage});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  @override
+  void initState() {
+    super.initState();
+
+    // Call getProfile after widget is built
+    final provider = context.read<ProfileProvider>();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await provider.getProfile(context);
+    });
+    final secondProvider = context.read<BookingsCountProvider>();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await secondProvider.fetchBookingsCounts(context);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
-      appBar: GlobalAppBar(title: "Profile", showBackButton: true),
+      appBar:
+          widget.homePage == true
+              ? GlobalAppBar(
+                title: "Profile",
+                showBackButton: false,
+                isHomeScreen: true,
+              )
+              : GlobalAppBar(title: "Profile", showBackButton: true),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        child: Consumer<LoginProvider>(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Consumer<ProfileProvider>(
           builder: (context, provider, _) {
             final user = provider.user;
+            final imageUrl = provider.user?.user?.profileImage;
 
-            return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Profile Header
-                  Row(
+            if (provider.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (user == null) {
+              return const Center(child: Text("No profile data found."));
+            }
+
+            return Consumer<BookingsCountProvider>(
+              builder: (context, secondProvider, _) {
+                final count = secondProvider.bookingCount;
+                return SingleChildScrollView(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const CircleAvatar(
-                        radius: 35,
-                        backgroundImage: AssetImage('assets/images/user.jpeg'),
-                        backgroundColor: Colors.white,
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Text(
-                            //   (user?.fullName ?? 'Guest User').toUpperCase(),
-                            //   style: TextStyle(
-                            //     fontSize: 18,
-                            //     fontWeight: FontWeight.bold,
-                            //     color: AppColors.primaryTextColor,
-                            //   ),
-                            //   overflow: TextOverflow.ellipsis,
-                            // ),
-                            const SizedBox(height: 4),
-                            Text(
-                              user?.userEmail ?? 'example@email.com',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: AppColors.secondaryTextColor,
-                              ),
+                      // Profile Header
+                      Stack(
+                        alignment: AlignmentDirectional.bottomEnd,
+                        children: [
+                          CircleAvatar(
+                            radius: 50,
+                            backgroundImage:
+                                provider.user?.user?.profileImage != null
+                                    ? NetworkImage(imageUrl!)
+                                    : const AssetImage(
+                                          'assets/images/user.jpeg',
+                                        )
+                                        as ImageProvider,
+                            backgroundColor: Colors.white,
+                          ),
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                PageTransition(
+                                  type: PageTransitionType.rightToLeft,
+                                  duration: const Duration(milliseconds: 300),
+                                  child: const EditProfilePage(),
+                                ),
+                              );
+                            },
+                            child: Image.asset(
+                              "assets/images/edit.png",
+                              height: 18,
+                              width: 18,
+                              color: AppColors.black,
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              "Hello Developer", // Dummy role
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: AppColors.hintTextColor,
-                              ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        user.user?.name ?? "--",
+                        style: AppTextStyle.blackText(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        user.user?.phoneNumber ?? "--",
+                        style: AppTextStyle.smallGrey(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+                      Container(
+                        width: double.infinity,
+                        color: AppColors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Column(
+                              children: [
+                                Text(
+                                  (count?.upcomingBookingCount ?? 0).toString(),
+                                  style: AppTextStyle.blackText(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Text(
+                                  "Upcoming Bookings",
+                                  style: AppTextStyle.blackText(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Text(
+                                  (count?.totalBookingCount ?? 0).toString(),
+                                  style: AppTextStyle.blackText(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Text(
+                                  "Total Bookings",
+                                  style: AppTextStyle.blackText(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            // _stat(
+                            //   providerBookingsCount
+                            //       .bookingCount!
+                            //       .upcomingBookingCount!,
+                            //   "Upcoming Bookings",
+                            // ),
+                            // _stat(
+                            //   providerBookingsCount
+                            //       .bookingCount!
+                            //       .totalBookingCount!,
+                            //   "Total Bookings",
+                            // ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 20,
+                        ),
+                        child: Column(
+                          children: [
+                            _profileTile(
+                              "assets/images/check_calendar.png",
+                              "My Bookings",
+                              () {
+                                Navigator.push(
+                                  context,
+                                  PageTransition(
+                                    type: PageTransitionType.rightToLeft,
+                                    duration: const Duration(milliseconds: 300),
+                                    child: const MyBookings(),
+                                  ),
+                                );
+                              },
+                            ),
+                            _profileTile(
+                              "assets/images/heart.png",
+                              "My Favorites",
+                              () {
+                                Navigator.push(
+                                  context,
+                                  PageTransition(
+                                    type: PageTransitionType.rightToLeft,
+                                    duration: const Duration(milliseconds: 300),
+                                    child: const MyFavorites(),
+                                  ),
+                                );
+                              },
+                            ),
+                            _profileTile(
+                              "assets/images/support.png",
+                              "Help & Support",
+                              () {
+                                _showHelpBottomSheet(context);
+                              },
+                            ),
+                            _profileTile(
+                              "assets/images/cancel.png",
+                              "Cancellation/Reschedule",
+                              () {
+                                _showCancelBottomSheet(context);
+                              },
+                            ),
+                            _profileTile(
+                              "assets/images/setings.png",
+                              "Settings",
+                              () {
+                                Navigator.push(
+                                  context,
+                                  PageTransition(
+                                    type: PageTransitionType.rightToLeft,
+                                    duration: const Duration(milliseconds: 300),
+                                    child: const Settings(),
+                                  ),
+                                );
+                              },
+                            ),
+                            _profileTile(
+                              "assets/images/share.png",
+                              "Invite a Friend",
+                              () {
+                                // Share logic
+                              },
                             ),
                           ],
                         ),
                       ),
                     ],
                   ),
-
-                  // const SizedBox(height: 30),
-
-                  // // SECTION: Account Settings
-                  // _sectionTitle("Account Settings"),
-                  // _profileTile(Icons.person_outline, "Edit Profile", () {
-                  //   // TODO: Navigate to Edit Profile
-                  // }),
-
-                  // _profileTile(Icons.receipt_long, "My Orders", () {
-                  //   Navigator.push(
-                  //     context,
-            
-                  //     PageTransition(
-                  //       type: PageTransitionType.rightToLeft,
-                  //       duration: const Duration(milliseconds: 300),
-                  //       child: const MyOrdersPage(),
-                  //     ),
-                  //   );
-                  // }),
-                  // _profileTile(Icons.lock_outline, "Change Password", () {
-                  //   // TODO: Navigate to Change Password
-                  // }),
-
-                  // const SizedBox(height: 24),
-
-                  // // SECTION: Help & Support
-                  // _sectionTitle("Help & Support"),
-                  // _profileTile(Icons.help_outline, "Help Center", () {
-                  //   // TODO: Help Center
-                  // }),
-                  // _profileTile(Icons.feedback_outlined, "Send Feedback", () {
-                  //   // TODO: Send Feedback
-                  // }),
-                  // _profileTile(
-                  //   Icons.privacy_tip_outlined,
-                  //   "Privacy Policy",
-                  //   () {
-                  //     // TODO: Privacy Policy
-                  //   },
-                  // ),
-
-                  // const SizedBox(height: 24),
-
-                  // // SECTION: App Info
-                  // _sectionTitle("App Info"),
-                  // _profileTile(
-                  //   Icons.info_outline,
-                  //   "Version 1.0.0",
-                  //   null,
-                  //   showArrow: false,
-                  // ),
-
-                  const SizedBox(height: 150),
-
-                  // SECTION: Logout
-                  Center(
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      onPressed: () {
-                        context.read<LoginProvider>().logout(context);
-                      },
-                      icon: const Icon(Icons.logout, color: Colors.white),
-                      label: const Text(
-                        "Logout",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                );
+              },
             );
           },
         ),
@@ -154,44 +266,176 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  // Section Header
-  Widget _sectionTitle(String title) {
+  Widget _stat(int? value, String label) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          title,
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            color: AppColors.primaryTextColor,
+          value.toString(),
+          style: AppTextStyle.blackText(
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(height: 8),
-        Divider(color: Colors.grey.shade300),
+        Text(
+          label,
+          style: AppTextStyle.blackText(
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
       ],
     );
   }
 
-  // Tile Widget
-  Widget _profileTile(
-    IconData icon,
-    String title,
-    VoidCallback? onTap, {
-    bool showArrow = true,
-  }) {
+  Widget _profileTile(String icon, String title, VoidCallback onTap) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      leading: Icon(icon, color: AppColors.primaryColor),
-      title: Text(
-        title,
-        style: const TextStyle(fontSize: 15, color: AppColors.primaryTextColor),
+      leading: Image.asset(
+        icon,
+        height: 22,
+        width: 22,
+        color: AppColors.primaryColor,
       ),
-      trailing:
-          showArrow
-              ? const Icon(Icons.arrow_forward_ios_rounded, size: 16)
-              : null,
+      title: Text(title, style: AppTextStyle.blackText(fontSize: 15)),
       onTap: onTap,
+    );
+  }
+
+  void _showHelpBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      backgroundColor: Colors.white,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Need Help!",
+                style: AppTextStyle.primaryText(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                "To get any help or support, contact our support team",
+                style: AppTextStyle.blackText(fontSize: 14),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _supportButton("CHAT", "assets/images/whatsapp.png"),
+                  _supportButton("CALL", null, icon: Icons.call),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showCancelBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      backgroundColor: Colors.white,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Cancellation / Reschedule",
+                style: AppTextStyle.primaryText(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                "To cancel a booking, go to 'My Bookings' and submit a cancellation request.",
+                style: AppTextStyle.blackText(fontSize: 14),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    PageTransition(
+                      type: PageTransitionType.rightToLeft,
+                      duration: const Duration(milliseconds: 300),
+                      child: const MyBookings(),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text("GO TO MY BOOKINGS"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _supportButton(String label, String? iconAsset, {IconData? icon}) {
+    return Container(
+      width: 150,
+      height: 40,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.profileSectionButtonColor,
+            AppColors.profileSectionButtonColor2,
+          ],
+        ),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: ElevatedButton(
+        onPressed: () {},
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (iconAsset != null)
+              Image.asset(
+                iconAsset,
+                height: 18,
+                width: 18,
+                color: AppColors.white,
+              ),
+            if (icon != null) Icon(icon, color: AppColors.white, size: 18),
+            const SizedBox(width: 10),
+            Text(
+              label,
+              style: AppTextStyle.whiteText(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

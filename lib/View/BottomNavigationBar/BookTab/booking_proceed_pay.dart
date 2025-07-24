@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gkmarts/Models/HomeTab_Models/Venue_detail_model.dart';
+import 'package:gkmarts/Models/BookTabModel/venue_detail_model.dart';
 import 'package:gkmarts/Provider/HomePage/book_tab_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
@@ -64,7 +64,7 @@ class BookingProceedPayPage extends StatelessWidget {
                       "Apply Coupon",
                       style: AppTextStyle.primaryText(
                         fontSize: 15,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     Icon(
@@ -95,16 +95,19 @@ class BookingProceedPayPage extends StatelessWidget {
                   _buildSummaryRow(
                     "Slot Price",
                     "₹${provider.totalPriceBeforeDiscountall}",
+                    color: const Color(0xFF4B4B4B),
                   ),
                   const SizedBox(height: 8),
                   _buildSummaryRow(
                     "Offer Discount",
                     "- ₹${provider.offerDiscount}",
+                    color: AppColors.primaryColor,
                   ),
                   const SizedBox(height: 8),
                   _buildSummaryRow(
                     "Convenience Fee",
                     "₹${provider.convenienceFee}",
+                    color: const Color(0xFF4B4B4B),
                   ),
                   const Divider(height: 24),
                   _buildSummaryRow(
@@ -122,17 +125,19 @@ class BookingProceedPayPage extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
         child: GestureDetector(
           onTap: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (_) => CongratulationBooking(model: model),
-              ),
-            );
+            provider.proceedToPay(model);
           },
           child: Container(
             height: 50,
             decoration: BoxDecoration(
-              color: AppColors.primaryColor,
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  AppColors.profileSectionButtonColor,
+                  AppColors.profileSectionButtonColor2,
+                ],
+              ),
               borderRadius: BorderRadius.circular(10),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -173,7 +178,12 @@ class BookingProceedPayPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSummaryRow(String label, String value, {bool isTotal = false}) {
+  Widget _buildSummaryRow(
+    String label,
+    String value, {
+    bool isTotal = false,
+    Color? color,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -189,117 +199,12 @@ class BookingProceedPayPage extends StatelessWidget {
           style: TextStyle(
             fontSize: 14,
             fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-            color: isTotal ? Colors.black : Colors.grey[700],
+            color: color ?? (isTotal ? Colors.black : Colors.grey[700]),
           ),
         ),
       ],
     );
   }
-
-  // Widget buildBookingInfoCard(BuildContext context, BookTabProvider provider) {
-  //   return Container(
-  //     decoration: BoxDecoration(
-  //       color: Colors.white,
-  //       borderRadius: BorderRadius.circular(0),
-  //       boxShadow: [
-  //         BoxShadow(
-  //           color: Colors.black.withOpacity(0.05),
-  //           blurRadius: 10,
-  //           offset: const Offset(0, 4),
-  //         ),
-  //       ],
-  //     ),
-  //     padding: const EdgeInsets.all(16),
-  //     child: Row(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         _buildVenueImage(),
-  //         const SizedBox(width: 16),
-  //         _buildBookingDetails(provider),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Widget _buildVenueImage() {
-  //   return Expanded(
-  //     flex: 3,
-  //     child: ClipRRect(
-  //       borderRadius: BorderRadius.circular(10),
-  //       child: Image.network(
-  //         model.images.first,
-  //         height: 120,
-  //         fit: BoxFit.cover,
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // Widget _buildBookingDetails(BookTabProvider provider) {
-  //   return Expanded(
-  //     flex: 7,
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       mainAxisSize: MainAxisSize.min,
-  //       children: [
-  //         Text(
-  //           model.venueName,
-  //           style: AppTextStyle.primaryText(
-  //             fontSize: 16,
-  //             fontWeight: FontWeight.bold,
-  //           ),
-  //         ),
-  //         const SizedBox(height: 4),
-  //         Text(
-  //           model.venueAddress,
-  //           style: const TextStyle(fontSize: 14, color: Colors.grey),
-  //         ),
-  //         const SizedBox(height: 12),
-  //         _buildInfoRow(
-  //           Icons.sports,
-  //           provider.selectedSport ?? "Selected Sport",
-  //         ),
-  //         const SizedBox(height: 8),
-  //         _buildInfoRow(
-  //           Icons.calendar_today,
-  //           _formatDate(provider.selectedDate),
-  //         ),
-  //         const SizedBox(height: 8),
-  //         _buildInfoRow(Icons.access_time, _getFormattedTimeRange(provider)),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Widget _buildInfoRow(IconData icon, String text) {
-  //   return Row(
-  //     children: [
-  //       Icon(icon, size: 16, color: Colors.black54),
-  //       const SizedBox(width: 6),
-  //       Text(text, style: const TextStyle(fontSize: 14)),
-  //     ],
-  //   );
-  // }
-
-  // String _formatDate(DateTime date) {
-  //   final formatter = DateFormat("dd MMM, yyyy (EEE)");
-  //   return formatter.format(date);
-  // }
-
-  // String _getFormattedTimeRange(BookTabProvider provider) {
-  //   final start = provider.selectedStartTime;
-  //   final endHour = (start.hour + provider.selectedDurationInHours) % 24;
-  //   final end = TimeOfDay(hour: endHour, minute: start.minute);
-
-  //   return "${_formatTime(start)} - ${_formatTime(end)}";
-  // }
-
-  // String _formatTime(TimeOfDay time) {
-  //   final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
-  //   final suffix = time.period == DayPeriod.am ? "AM" : "PM";
-  //   final minutes = time.minute.toString().padLeft(2, '0');
-  //   return "$hour:$minutes $suffix";
-  // }
 }
 
 class BookingInfoCard extends StatelessWidget {
@@ -314,89 +219,97 @@ class BookingInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final imageUrl =
+        model.modifiedFacility.facilityImages.isNotEmpty
+            ? model.modifiedFacility.facilityImages.first.image
+            : '';
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
+        // borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
+            blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      padding: const EdgeInsets.all(16),
-      child: Row(
+
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildVenueImage(),
-          const SizedBox(width: 16),
-          _buildBookingDetails(context),
+          // ClipRRect(
+          //   borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+          //   child:
+          //       imageUrl.isNotEmpty
+          //           ? Image.network(
+          //             imageUrl,
+          //             width: double.infinity,
+          //             height: 180,
+          //             fit: BoxFit.cover,
+          //             errorBuilder:
+          //                 (context, error, stackTrace) => const SizedBox(
+          //                   height: 180,
+          //                   child: Center(
+          //                     child: Icon(Icons.image_not_supported),
+          //                   ),
+          //                 ),
+          //           )
+          //           : const SizedBox(
+          //             height: 180,
+          //             child: Center(child: Icon(Icons.image_not_supported)),
+          //           ),
+          // ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: _buildBookingDetails(context),
+          ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildVenueImage() {
-    return Expanded(
-      flex: 3,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Image.network(
-          model.images?.first ?? '',
-          height: 120,
-          fit: BoxFit.cover,
-          errorBuilder:
-              (context, error, stackTrace) =>
-                  const Icon(Icons.image_not_supported),
-        ),
       ),
     );
   }
 
   Widget _buildBookingDetails(BuildContext context) {
-    return Expanded(
-      flex: 7,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            model.venueName ?? "Venue Name",
-            style: AppTextStyle.primaryText(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            model.venueAddress ?? "Venue Address",
-            style: const TextStyle(fontSize: 14, color: Colors.grey),
-          ),
-          const SizedBox(height: 12),
-          _buildInfoRow(
-            Icons.sports,
-            provider.selectedSport ?? "Selected Sport",
-          ),
-          const SizedBox(height: 8),
-          _buildInfoRow(
-            Icons.calendar_today,
-            _formatDate(provider.selectedDate),
-          ),
-          const SizedBox(height: 8),
-          _buildInfoRow(Icons.access_time, _getFormattedTimeRange(context)),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          model.modifiedFacility.facilityName,
+          style: AppTextStyle.primaryText(),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          model.modifiedFacility.address,
+          style: const TextStyle(fontSize: 14, color: Colors.grey),
+        ),
+        const SizedBox(height: 12),
+        _buildInfoRow(
+          Icons.flag,
+          provider.selectedSport ?? "Selected Sport",
+          isBold: true,
+        ),
+        const SizedBox(height: 8),
+        _buildInfoRow(Icons.calendar_today, _formatDate(provider.selectedDate)),
+        const SizedBox(height: 8),
+        _buildInfoRow(Icons.access_time, _getFormattedTimeRange(context)),
+      ],
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String text) {
+  Widget _buildInfoRow(IconData icon, String text, {bool isBold = false}) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: Colors.black54),
-        const SizedBox(width: 6),
-        Text(text, style: const TextStyle(fontSize: 14)),
+        Icon(icon, size: 18, color: Colors.black54),
+        const SizedBox(width: 8),
+        Text(
+          text,
+          style: AppTextStyle.blackText(
+            fontSize: 14,
+            fontWeight: isBold ? FontWeight.w500 : FontWeight.normal,
+          ),
+        ),
       ],
     );
   }
@@ -405,17 +318,30 @@ class BookingInfoCard extends StatelessWidget {
     return DateFormat("dd MMM, yyyy (EEE)").format(date);
   }
 
+  // String _getFormattedTimeRange(BuildContext context) {
+  //   final start = provider.selectedStartTime;
+  //   final endHour = (start.hour + provider.selectedDurationInHours) % 24;
+  //   final end = TimeOfDay(hour: endHour, minute: start.minute);
+
+  //   return "${_formatTime(context, start)} - ${_formatTime(context, end)}";
+  // }
   String _getFormattedTimeRange(BuildContext context) {
     final start = provider.selectedStartTime;
-    final endHour = (start.hour + provider.selectedDurationInHours) % 24;
-    final end = TimeOfDay(hour: endHour, minute: start.minute);
+
+    // Add minMinutesSport to start time
+    final totalStartMinutes = start.hour * 60 + start.minute;
+    final endTotalMinutes =
+        totalStartMinutes + (provider.minMinutesSport ?? 60);
+
+    final endHour = (endTotalMinutes ~/ 60) % 24;
+    final endMinute = endTotalMinutes % 60;
+
+    final end = TimeOfDay(hour: endHour, minute: endMinute);
 
     return "${_formatTime(context, start)} - ${_formatTime(context, end)}";
   }
 
   String _formatTime(BuildContext context, TimeOfDay time) {
-    return time.format(
-      context,
-    ); // Automatically formats to 12hr/24hr based on locale
+    return time.format(context);
   }
 }

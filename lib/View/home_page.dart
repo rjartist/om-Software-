@@ -4,10 +4,12 @@ import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/home_tab.dart';
-import 'package:gkmarts/View/BottomNavigationBar/LearnTab/Learn_tab.dart';
+import 'package:gkmarts/View/BottomNavigationBar/HomeTab/profile_page.dart'
+    show ProfilePage;
+import 'package:gkmarts/View/BottomNavigationBar/LearnTab/learn_tab.dart';
 import 'package:gkmarts/View/BottomNavigationBar/MoreTab/more_tab.dart';
-import 'package:gkmarts/View/BottomNavigationBar/PlayTab/paly_tab.dart';
 import 'package:gkmarts/View/BottomNavigationBar/BookTab/book_tab.dart';
+import 'package:gkmarts/View/BottomNavigationBar/PlayTab/play_tab.dart';
 import 'package:provider/provider.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
@@ -44,7 +46,7 @@ class _HomePageState extends State<HomePage> {
     PlayTab(),
     LearnTab(),
     BookTab(),
-    MoreTab(),
+    ProfilePage(homePage: true),
   ];
   @override
   Widget build(BuildContext context) {
@@ -62,7 +64,7 @@ class _HomePageState extends State<HomePage> {
         selectedItemColor: AppColors.primaryColor,
         unselectedItemColor: AppColors.gradientGreyEnd,
         selectedLabelStyle: AppTextStyle.smallBlack(
-          fontWeight: FontWeight.w600, // bold label for active
+          fontWeight: FontWeight.w600,
           color: AppColors.primaryColor,
         ),
         unselectedLabelStyle: AppTextStyle.smallBlack(
@@ -75,14 +77,12 @@ class _HomePageState extends State<HomePage> {
             label: "Home",
           ),
           BottomNavigationBarItem(
-            icon: Icon(
-              currentIndex == 1 ? Icons.people : Icons.people_outline,
-            ),
+            icon: Icon(currentIndex == 1 ? Icons.people : Icons.people_outline),
             label: "Play",
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              currentIndex == 2 ?  Icons.menu_book : Icons.menu_book_outlined,
+              currentIndex == 2 ? Icons.menu_book : Icons.menu_book_outlined,
             ),
             label: "Learn",
           ),
@@ -95,13 +95,25 @@ class _HomePageState extends State<HomePage> {
             label: "Book",
           ),
           BottomNavigationBarItem(
-            icon: Icon(
-              currentIndex == 4 ?Icons.menu : Icons.menu, 
-            ),
+            icon: Icon(currentIndex == 4 ? Icons.menu : Icons.menu),
             label: "More",
           ),
         ],
       ),
+      // floatingActionButton:
+      //     currentIndex == 0 || currentIndex == 1
+      //         ? FloatingActionButton(
+      //           onPressed: () {
+      //             // Add your action here
+      //             ScaffoldMessenger.of(context).showSnackBar(
+      //               const SnackBar(content: Text("Message button pressed")),
+      //             );
+      //           },
+      //           backgroundColor: Colors.red,
+      //           shape: const CircleBorder(),
+      //           child: const Icon(Icons.message, color: Colors.white, size: 28),
+      //         )
+      //         : null,
     );
   }
 }

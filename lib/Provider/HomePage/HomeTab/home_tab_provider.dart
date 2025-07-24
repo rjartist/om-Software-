@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:gkmarts/Models/HomeTab_Models/banner_model.dart';
 import 'package:gkmarts/Models/HomeTab_Models/game_join_model.dart';
-import 'package:gkmarts/Models/HomeTab_Models/venue_model.dart';
+import 'package:gkmarts/Models/BookTabModel/venue_model.dart';
 import 'package:gkmarts/Provider/Connectivity/connectivity_provider.dart';
+import 'package:gkmarts/Provider/Location/location_provider.dart';
 import 'package:gkmarts/Services/Api_service/api_service.dart';
 import 'package:gkmarts/Services/HomeTab/home_tab_service.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +14,7 @@ class HomeTabProvider with ChangeNotifier {
   int unreadNotifications = 6;
   bool isBannerGetting = false;
   bool isBookVenueLoading = false;
+  bool isGamesLoading = false;
   List<VenueModel> venueList = [];
   List<VenueModel> filteredVenueList = [];
 
@@ -58,75 +62,33 @@ class HomeTabProvider with ChangeNotifier {
   Future<void> getBookVenue(BuildContext context) async {
     final isOnline =
         Provider.of<ConnectivityProvider>(context, listen: false).isOnline;
-
     if (!isOnline) return;
 
     isBookVenueLoading = true;
     notifyListeners();
 
     try {
-      // Simulated delay to mimic API call
-      await Future.delayed(const Duration(seconds: 1));
+      final locationProvider = Provider.of<LocationProvider>(
+        context,
+        listen: false,
+      );
+      final city =
+          locationProvider.selectedCity.isNotEmpty
+              ? locationProvider.selectedCity
+              : "Pune";
 
-      // Dummy static response
-      final dummyResponse = {
-        "data": [
-          {
-            "venueName": "Mavericks Cricket Academy",
-            "venueAddress":
-                "Shankar Kalate Nagar, Opp. Silver Fitness Club, Wakad, Pune 57",
-            "imageUrl":
-                "https://images.unsplash.com/photo-1663832952954-170d73947ba7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y3JpY2tldCUyMGZpZWxkfGVufDB8fDB8fHww",
-            "rating": 4.2,
-            "totalReviews": 38,
-            "price": 12000,
-          },
-          {
-            "venueName": "Royal Banquet",
-            "venueAddress": "New Delhi, India",
-            "imageUrl":
-                "https://images.unsplash.com/photo-1663832952954-170d73947ba7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y3JpY2tldCUyMGZpZWxkfGVufDB8fDB8fHww",
-            "rating": 3.8,
-            "totalReviews": 27,
-            "price": 8500,
-          },
-          {
-            "venueName": "Green Lawn Resort",
-            "venueAddress": "Pune, India",
-            "imageUrl":
-                "https://images.unsplash.com/photo-1663832952954-170d73947ba7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y3JpY2tldCUyMGZpZWxkfGVufDB8fDB8fHww",
-            "rating": 4.5,
-            "totalReviews": 49,
-            "price": 14500,
-          },
-          {
-            "venueName": "Skyline Terrace",
-            "venueAddress": "Bangalore, India",
-            "imageUrl":
-                "https://images.unsplash.com/photo-1663832952954-170d73947ba7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y3JpY2tldCUyMGZpZWxkfGVufDB8fDB8fHww",
-            "rating": 4.0,
-            "totalReviews": 18,
-            "price": 11000,
-          },
-          {
-            "venueName": "Lakeside Palace",
-            "venueAddress": "Udaipur, India",
-            "imageUrl":
-                "https://images.unsplash.com/photo-1663832952954-170d73947ba7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y3JpY2tldCUyMGZpZWxkfGVufDB8fDB8fHww",
-            "rating": 4.7,
-            "totalReviews": 56,
-            "price": 18000,
-          },
-        ],
-      };
+      final response = await HomeTabService().getAllVenueServices(city: city);
 
-      final List<Map<String, dynamic>> list =
-          (dummyResponse['data'] as List<dynamic>).cast<Map<String, dynamic>>();
+      if (response.isSuccess) {
+        final data = jsonDecode(response.responseData);
+        final List<dynamic> facilitiesList = data['facilities'] ?? [];
 
-      venueList = list.map((e) => VenueModel.fromJson(e)).toList();
-      setVenueList(venueList);
+        venueList = facilitiesList.map((e) => VenueModel.fromJson(e)).toList();
+        setVenueList(venueList);
+      } else {
+        debugPrint("API Error: ${response.message}");
+      }
     } catch (e) {
-      // Optional: log error, but no user alert
       debugPrint("Venue fetch error: $e");
     } finally {
       isBookVenueLoading = false;
@@ -151,8 +113,8 @@ class HomeTabProvider with ChangeNotifier {
         "data": [
           {
             "gameName": "Cricket Friendly Match",
-            "date": "2025-07-10",
-            "time": "Sat 16 Mar,",
+            "date": "Sat 16 Mar",
+            "time": " 8:00 AM - 9:00 AM",
             "address": "Wankhede Stadium, Mumbai",
             "hostName": "Rahul Verma",
             "hostPhoto":
@@ -177,8 +139,8 @@ class HomeTabProvider with ChangeNotifier {
           },
           {
             "gameName": "Cricket Friendly Match",
-            "date": "2025-07-10",
-            "time": "Sat 16 Mar,",
+            "date": "Sat 16 Mar",
+            "time": " 8:00 AM - 9:00 AM",
             "address": "Wankhede Stadium, Mumbai",
             "hostName": "Rahul Verma",
             "hostPhoto":

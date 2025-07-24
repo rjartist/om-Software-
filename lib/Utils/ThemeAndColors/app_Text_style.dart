@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 
 class AppTextStyle {
-  static const String _fontFamily = 'Roboto';
+  static const String _fontFamily = 'Poppins';
 
   static TextStyle base({
     double fontSize = 14,
@@ -87,10 +87,17 @@ class AppTextStyle {
   }) => base(fontSize: fontSize, color: color, fontStyle: FontStyle.italic);
 
   static TextStyle titleText() =>
-      base(fontSize: 18, color: Colors.black, fontWeight: FontWeight.w600);
-      
+      base(fontSize: 18, color: Colors.black, fontWeight: FontWeight.w500);
+
   static TextStyle titleSmallText() =>
       base(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w500);
+
+  static TextStyle gradientText({
+    
+    double fontSize = 16,
+    FontWeight fontWeight = FontWeight.w500,
+    Color color = AppColors.primaryColor,
+  }) => base(fontSize: fontSize, fontWeight: fontWeight, color: color);
 }
 
 SizedBox hSizeBox(double width) => SizedBox(width: width);

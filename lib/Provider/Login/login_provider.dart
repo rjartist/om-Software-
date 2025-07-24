@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:gkmarts/Models/UserModel/user_model.dart';
 import 'package:gkmarts/Provider/Connectivity/connectivity_provider.dart';
+import 'package:gkmarts/Provider/Location/location_provider.dart';
 import 'package:gkmarts/Services/AuthServices/auth_services.dart';
 import 'package:gkmarts/Services/AuthServices/login_auth_service.dart';
 import 'package:gkmarts/View/Auth_view/login.dart';
@@ -93,6 +94,83 @@ class LoginProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Future<void> login(BuildContext context) async {
+  //   final isOnline = context.read<ConnectivityProvider>().isOnline;
+
+  //   if (!isOnline) {
+  //     GlobalSnackbar.error(context, "No internet connection");
+  //     return;
+  //   }
+
+  //   FocusScope.of(context).unfocus();
+  //   final email = emailController.text.trim();
+  //   final password = passwordController.text;
+
+  //   // Validate inputs
+  //   validateEmail(email);
+  //   if (_emailError.isNotEmpty) {
+  //     GlobalSnackbar.error(context, _emailError);
+  //     return;
+  //   }
+
+  //   if (email.isEmpty || password.isEmpty) {
+  //     GlobalSnackbar.error(context, "Please enter email and password");
+  //     return;
+  //   }
+
+  //   isLoading = true;
+  //   notifyListeners();
+
+  //   try {
+  //     final reqBody = {"email": email, "password": password};
+
+  //     final response = await LoginAuthService().loginService(reqBody);
+
+  //     if (response.isSuccess) {
+  //       final Map<String, dynamic> data = jsonDecode(response.responseData);
+
+  //       final userModel = UserModel.fromJson(data);
+  //       await setUser(userModel);
+
+  //       GlobalSnackbar.success(
+  //         navigatorKey.currentContext!,
+  //         "Login successful",
+  //       );
+
+  //       final token = data['accessToken'];
+  //       if (token != null && token is String) {
+  //         await AuthService().saveTokens(token, "");
+  //       }
+
+  //       clearControllers();
+  //       final locationProvider = context.read<LocationProvider>();
+  //       locationProvider.fetchAndSaveLocation();
+
+  //       Navigator.pushReplacement(
+  //         navigatorKey.currentContext!,
+  //         PageTransition(
+  //           type: PageTransitionType.fade,
+  //           duration: const Duration(milliseconds: 300),
+  //           child: HomePage(),
+  //         ),
+  //       );
+  //     } else {
+  //       GlobalSnackbar.error(
+  //         navigatorKey.currentContext!,
+  //         response.message ?? "Login failed",
+  //       );
+  //     }
+  //   } catch (e) {
+  //     GlobalSnackbar.error(
+  //       navigatorKey.currentContext!,
+  //       "Login failed: ${e.toString()}",
+  //     );
+  //   } finally {
+  //     isLoading = false;
+  //     notifyListeners();
+  //   }
+  // }
+
   Future<void> login(BuildContext context) async {
     final isOnline = context.read<ConnectivityProvider>().isOnline;
 
@@ -105,7 +183,7 @@ class LoginProvider extends ChangeNotifier {
     final email = emailController.text.trim();
     final password = passwordController.text;
 
-    // Validate inputs
+    // Validate email
     validateEmail(email);
     if (_emailError.isNotEmpty) {
       GlobalSnackbar.error(context, _emailError);
@@ -126,25 +204,23 @@ class LoginProvider extends ChangeNotifier {
       final response = await LoginAuthService().loginService(reqBody);
 
       if (response.isSuccess) {
-        final Map<String, dynamic> data = jsonDecode(response.responseData);
-
+        final data = jsonDecode(response.responseData);
         final userModel = UserModel.fromJson(data);
         await setUser(userModel);
 
-        GlobalSnackbar.success(
-          navigatorKey.currentContext!,
-          "Login successful",
-        );
-
+        // Save tokens
         final token = data['accessToken'];
         if (token != null && token is String) {
-          await AuthService().saveTokens(token, "");
+          await AuthService.saveTokens(token, "");
         }
 
         clearControllers();
 
+        GlobalSnackbar.success(context, "Login successful");
+
+        // Navigate
         Navigator.pushReplacement(
-          navigatorKey.currentContext!,
+          context,
           PageTransition(
             type: PageTransitionType.fade,
             duration: const Duration(milliseconds: 300),
@@ -152,16 +228,10 @@ class LoginProvider extends ChangeNotifier {
           ),
         );
       } else {
-        GlobalSnackbar.error(
-          navigatorKey.currentContext!,
-          response.message ?? "Login failed",
-        );
+        GlobalSnackbar.error(context, response.message ?? "Login failed");
       }
     } catch (e) {
-      GlobalSnackbar.error(
-        navigatorKey.currentContext!,
-        "Login failed: ${e.toString()}",
-      );
+      GlobalSnackbar.error(context, "Login failed: ${e.toString()}");
     } finally {
       isLoading = false;
       notifyListeners();
@@ -350,22 +420,87 @@ class LoginProvider extends ChangeNotifier {
       GlobalSnackbar.error(context, "No internet connection");
       return;
     }
-    try {
-     await AuthService().clearTokens();
-      await SharedPrefHelper.clearAll();
-      _user = null;
-      notifyListeners();
 
-      // Navigate to Login screen
-      Navigator.pushAndRemoveUntil(
-        navigatorKey.currentContext!,
-        MaterialPageRoute(builder: (_) => const Login()),
-        (route) => false,
-      );
-      clearControllers();
-      GlobalSnackbar.success(navigatorKey.currentContext!, "Logout successful");
+    try {
+      // Call the logout API
+      final response = await LoginAuthService().logoutService();
+
+      if (response.isSuccess) {
+        // Clear user data and tokens
+        await AuthService.clearTokens();
+        await SharedPrefHelper.clearAll();
+        _user = null;
+        clearControllers();
+        notifyListeners();
+
+        GlobalSnackbar.success(
+          navigatorKey.currentContext!,
+          "Logged out successfully",
+        );
+
+        // Navigate to login screen
+        Navigator.pushAndRemoveUntil(
+          navigatorKey.currentContext!,
+          MaterialPageRoute(builder: (_) => const Login()),
+          (route) => false,
+        );
+      } else {
+        GlobalSnackbar.error(
+          navigatorKey.currentContext!,
+          response.message ?? "Logout failed. Please try again.",
+        );
+      }
     } catch (e) {
-      GlobalSnackbar.error(navigatorKey.currentContext!, "Logout failed:");
+      GlobalSnackbar.error(
+        navigatorKey.currentContext!,
+        "Logout failed: ${e.toString()}",
+      );
+    }
+  }
+
+  Future<void> deleteAccount(BuildContext context) async {
+    final isOnline = context.read<ConnectivityProvider>().isOnline;
+
+    if (!isOnline) {
+      GlobalSnackbar.error(context, "No internet connection");
+      return;
+    }
+
+    try {
+      // Call delete API
+      final response = await LoginAuthService().deleteAccountService(context);
+
+      if (response.isSuccess) {
+        // Clear session and user info
+        await AuthService.clearTokens();
+        await SharedPrefHelper.clearAll();
+        _user = null;
+        notifyListeners();
+
+        clearControllers(); // Clear any login form controllers if needed
+
+        GlobalSnackbar.success(
+          navigatorKey.currentContext!,
+          "Account deleted successfully",
+        );
+
+        // Navigate to login screen
+        Navigator.pushAndRemoveUntil(
+          navigatorKey.currentContext!,
+          MaterialPageRoute(builder: (_) => const Login()),
+          (route) => false,
+        );
+      } else {
+        GlobalSnackbar.error(
+          navigatorKey.currentContext!,
+          response.message ?? "Account deletion failed",
+        );
+      }
+    } catch (e) {
+      GlobalSnackbar.error(
+        navigatorKey.currentContext!,
+        "Account deletion failed: ${e.toString()}",
+      );
     }
   }
 

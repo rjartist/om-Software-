@@ -19,7 +19,7 @@ class _OnboardingState extends State<Onboarding> {
 
   final List<Map<String, String>> _pages = [
     {
-      'image': 'assets/images/onboard2.png',
+      'image': 'assets/images/onboard1.png',
       'title': 'Welcome to CX PlayGround',
       'subtitle':
           'Simplify your sports experience with CX PlayGround’s easy booking and real-time availability.',
@@ -35,14 +35,20 @@ class _OnboardingState extends State<Onboarding> {
     //   'subtitle': 'Fast and hassle-free booking for your favorite sports venues.',
     // },
   ];
-@override
-Widget build(BuildContext context) {
-  final Size screenSize = MediaQuery.of(context).size;
+  @override
+  Widget build(BuildContext context) {
+    final Size screenSize = MediaQuery.of(context).size;
 
-  return Scaffold(
-    backgroundColor: Colors.white,
-    body: SafeArea(
-      child: Column(
+    return Scaffold(
+      // appBar: AppBar(
+      //   backgroundColor: Colors.white, // Change to your desired color
+      //   elevation: 0,
+      //   automaticallyImplyLeading: false, // Hides back button if not needed
+      //   toolbarHeight:
+      //       0, // If you want *no visible height*, else use normal height
+      // ),
+      backgroundColor: Colors.white,
+      body: Column(
         children: [
           Expanded(
             child: PageView.builder(
@@ -51,7 +57,7 @@ Widget build(BuildContext context) {
               itemCount: _pages.length,
               itemBuilder: (context, index) {
                 final page = _pages[index];
-
+      
                 return SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
                   child: Column(
@@ -59,12 +65,12 @@ Widget build(BuildContext context) {
                       Image.asset(
                         page['image']!,
                         width: double.infinity,
-                        height: screenSize.height * 0.45,
+                        height: screenSize.height * 0.55,
                         fit: BoxFit.cover,
                       ),
-
+      
                       SizedBox(height: screenSize.height * 0.02),
-
+      
                       // Dots
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -76,17 +82,18 @@ Widget build(BuildContext context) {
                             width: 10,
                             height: 10,
                             decoration: BoxDecoration(
-                              color: _currentIndex == dotIndex
-                                  ? AppColors.primaryColor
-                                  : Colors.grey.shade300,
+                              color:
+                                  _currentIndex == dotIndex
+                                      ? AppColors.primaryColor
+                                      : Colors.grey.shade300,
                               shape: BoxShape.circle,
                             ),
                           ),
                         ),
                       ),
-
+      
                       SizedBox(height: screenSize.height * 0.04),
-
+      
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 28.0),
                         child: Column(
@@ -103,37 +110,37 @@ Widget build(BuildContext context) {
                               style: AppTextStyle.greytext(fontSize: 12),
                               textAlign: TextAlign.center,
                             ),
-
+      
                             SizedBox(height: screenSize.height * 0.1),
-
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    if (_currentIndex < _pages.length - 1) {
-                                      _controller.nextPage(
-                                        duration:
-                                            const Duration(milliseconds: 300),
-                                        curve: Curves.easeInOut,
-                                      );
-                                    }
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.primaryColor,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.arrow_forward,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+      
+                            // Row(
+                            //   mainAxisAlignment: MainAxisAlignment.end,
+                            //   children: [
+                            //     GestureDetector(
+                            //       onTap: () {
+                            //         if (_currentIndex < _pages.length - 1) {
+                            //           _controller.nextPage(
+                            //             duration:
+                            //                 const Duration(milliseconds: 300),
+                            //             curve: Curves.easeInOut,
+                            //           );
+                            //         }
+                            //       },
+                            //       child: Container(
+                            //         padding: const EdgeInsets.all(10),
+                            //         decoration: BoxDecoration(
+                            //           color: AppColors.primaryColor,
+                            //           shape: BoxShape.circle,
+                            //         ),
+                            //         child: const Icon(
+                            //           Icons.arrow_forward,
+                            //           color: Colors.white,
+                            //           size: 20,
+                            //         ),
+                            //       ),
+                            //     ),
+                            //   ],
+                            // ),
                           ],
                         ),
                       ),
@@ -144,23 +151,21 @@ Widget build(BuildContext context) {
               },
             ),
           ),
-
+      
           Divider(
             height: 1,
             color: Colors.grey.shade300,
             indent: 24,
             endIndent: 24,
           ),
-
+      
           SizedBox(height: screenSize.height * 0.015),
-
+      
           Text(
             "Let’s get playing!",
-            style: AppTextStyle.base(
-              color: Colors.black.withOpacity(0.5),
-            ),
+            style: AppTextStyle.base(color: Colors.black.withOpacity(0.5)),
           ),
-
+      
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             child: GlobalButton(
@@ -176,11 +181,10 @@ Widget build(BuildContext context) {
               },
             ),
           ),
-
+      
           SizedBox(height: screenSize.height * 0.01),
         ],
       ),
-    ),
-  );
-}
+    );
+  }
 }

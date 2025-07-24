@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gkmarts/Models/HomeTab_Models/banner_model.dart';
 import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -31,72 +32,35 @@ class HomeBanner extends StatelessWidget {
       children: [
         CarouselSlider.builder(
           itemCount: provider.bannerList.length,
-          // itemBuilder: (context, index, _) {
-          //   final banner = provider.bannerList[index];
-          //   return ClipRRect(
-          //     borderRadius: BorderRadius.circular(12),
-          //     child: CachedNetworkImage(
-          //       imageUrl: banner.imageUrl,
-          //       fit: BoxFit.cover,
-          //       width: double.infinity,
-          //       placeholder: (context, url) => _buildShimmer(),
-          //       errorWidget:
-          //           (context, url, error) => Image.asset(
-          //             'assets/images/carBooking.png.png',
-          //             fit: BoxFit.cover,
-          //             width: double.infinity,
-          //           ),
-          //     ),
-          //   );
-          // },
+
           itemBuilder: (context, index, _) {
             final banner = provider.bannerList[index];
 
             return Stack(
               children: [
-                // 📷 Banner image
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: CachedNetworkImage(
-                    imageUrl: banner.imageUrl,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    placeholder: (context, url) => _buildShimmer(),
-                    errorWidget:
-                        (context, url, error) => Image.asset(
-                          'assets/images/carBooking.png.png',
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                        ),
-                  ),
-                ),
-
-                // 👉 Arrow button overlay
-                Positioned(
-                  right: 12,
-                  bottom: 12,
-                  child: InkWell(
-                    onTap: () {
-                      // Navigate to banner detail or target page
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (_) => TargetPage(banner: banner),
-                      //   ),
-                      // );
-                    },
-                    borderRadius: BorderRadius.circular(24),
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.8),
-                        shape: BoxShape.circle,
+                GestureDetector(
+                  onTap: () {
+                    // 👇 Replace with your actual target page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => TargetPage(banner: banner),
                       ),
-                      child: const Icon(
-                        Icons.arrow_forward,
-                        color: Colors.black,
-                        size: 20,
-                      ),
+                    );
+                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: CachedNetworkImage(
+                      imageUrl: banner.imageUrl,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      placeholder: (context, url) => _buildShimmer(),
+                      errorWidget:
+                          (context, url, error) => Image.asset(
+                            'assets/images/banner1.png',
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                          ),
                     ),
                   ),
                 ),
@@ -147,6 +111,61 @@ class HomeBanner extends StatelessWidget {
           color: Colors.grey,
           borderRadius: BorderRadius.circular(12),
         ),
+      ),
+    );
+  }
+}
+
+class TargetPage extends StatelessWidget {
+  final BannerModel banner;
+
+  const TargetPage({super.key, required this.banner});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("banner.title"),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 1,
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Banner image
+          CachedNetworkImage(
+            imageUrl: banner.imageUrl,
+            placeholder:
+                (context, url) => const SizedBox(
+                  height: 200,
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
+            fit: BoxFit.cover,
+            height: 200,
+            width: double.infinity,
+          ),
+
+          const SizedBox(height: 16),
+
+          // Banner title or description
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+             " banner.title",
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ),
+
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Text(
+              "This is a sample description for the banner. You can customize this section with more details like offers, links, etc.",
+              style: TextStyle(fontSize: 14, color: Colors.black87),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -14,56 +14,73 @@ class BookTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final searchController = TextEditingController();
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: AppColors.bgColor,
-        body: Column(
-          spacing: 8,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const NetworkStatusBanner(),
-            const HomeHeader(),
-            Padding(
-                 padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 4 ),
-              child: Text('Venues Around You', style: AppTextStyle.blackText()),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: TextField(
-                  controller: searchController,
-                  onChanged: (value) {
-                    context.read<HomeTabProvider>().searchVenues(value);
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Type venues...',
-                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                    hintStyle: const TextStyle(color: Colors.grey),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        toolbarHeight: 0,
+      ),
+      backgroundColor: AppColors.bgColor,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const NetworkStatusBanner(),
+          HomeHeader(),
+          vSizeBox(8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Text('Venues Around You', style: AppTextStyle.blackText()),
+          ),
+          vSizeBox(8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(
+                      0.2,
+                    ), // Match the stronger shadow
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: TextField(
+                controller: searchController,
+                onChanged: (value) {
+                  context.read<HomeTabProvider>().searchVenues(value);
+                },
+                decoration: InputDecoration(
+                  hintText: 'Type venues...',
+                  suffixIcon: Padding(
+                    padding: const EdgeInsets.all(12.5),
+                    child: Image.asset(
+                      "assets/images/search.png",
+                      height: 5,
+                      width: 5,
+                      color: AppColors.grey,
                     ),
                   ),
-                  style: const TextStyle(fontSize: 14),
+                  hintStyle:
+                      AppTextStyle.greytext(), // Match with your defined style
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                 ),
+                style: const TextStyle(fontSize: 14),
               ),
             ),
+          ),
 
-            const Expanded(child: Venues()), 
-          ],
-        ),
+          vSizeBox(8),
+          const Expanded(child: Venues()),
+        ],
       ),
     );
   }
