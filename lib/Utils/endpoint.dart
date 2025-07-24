@@ -16,6 +16,7 @@ String getProceedToPayApi = "$prodDomain/api/payment";
 String getcheckTurfAvailableServiceApi = "$prodDomain/api/get-turfs";
 //coins
 String getCoinsApi = "$prodDomain/api/wallet/get";
+String getReviewsApi = "$prodDomain/api/reviews/venue";
 
 String getProfileApi = "$prodDomain/api/user/profile";
 String editProfileApi = "$prodDomain/api/user/profile/edit";

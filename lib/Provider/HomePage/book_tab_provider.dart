@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gkmarts/Models/BookTabModel/coupon_model.dart';
+import 'package:gkmarts/Models/BookTabModel/reviews_model.dart';
 import 'package:gkmarts/Models/BookTabModel/slot_price_model.dart';
 import 'package:gkmarts/Models/BookTabModel/venue_detail_model.dart';
 import 'package:gkmarts/Provider/Connectivity/connectivity_provider.dart';
@@ -21,6 +22,9 @@ class BookTabProvider extends ChangeNotifier {
   bool isgetVenueDetailsGetting = false;
   bool isFavorite = false;
   bool isFavoriteLoading = false;
+  List<ReviewModel> reviewsList = [];
+
+  bool isReviewsLoading = false;
   bool isCouponLoading = false;
   bool isCouponApplying = false;
   bool isSlotPriceLoading = false;
@@ -47,7 +51,6 @@ class BookTabProvider extends ChangeNotifier {
 
   bool isTurfAutoSelected = false;
 
-  int convenienceFee = 0;
   String? paymentDate;
   String? paymentTime;
   String? paymentMethod = "UPI";
@@ -66,11 +69,15 @@ class BookTabProvider extends ChangeNotifier {
   int userRating = 0;
   String userComment = '';
   //----------------------
-  final TextEditingController coinController = TextEditingController();
+  bool showConvenienceBreakdown = false;
+  void toggleConvenienceBreakdown() {
+    showConvenienceBreakdown = !showConvenienceBreakdown;
+    notifyListeners();
+  }
+
   bool useCoins = false;
   int appliedCoins = 0;
-  String? coinError;
-  int coinToRupeeValue = 1; // ✅ default: 1 Coin = ₹1
+  int coinToRupeeValue = 1;
   int? coinWalletId;
 
   void setCoinWalletId(int? id) {
@@ -79,42 +86,28 @@ class BookTabProvider extends ChangeNotifier {
 
   void toggleUseCoins(bool value, int available) {
     useCoins = value;
-    if (!value) {
-      appliedCoins = 0;
-      coinController.text = '0';
-      coinError = null;
-    }
+    appliedCoins = value ? 500 : 0;
     notifyListeners();
   }
 
   void setCoins(int value, int available) {
-    if (value < 0) {
-      coinError = "Cannot use less than 0 coins.";
-    } else if (value > 500) {
-      coinError = "Max 500 coins allowed.";
-    } else if (value > available) {
-      coinError = "You only have $available coins.";
-    } else {
-      coinError = null;
-      appliedCoins = value;
-      coinController.text = value.toString();
-    }
+    appliedCoins = value.clamp(0, 500);
     notifyListeners();
   }
 
-  int get coinDiscount {
-    if (coinError != null) return 0;
-    return appliedCoins * coinToRupeeValue;
-  }
-
-  int get finalPayableAmount =>
-      totalPriceBeforeDiscountall -
-      offerDiscount -
-      coinDiscount +
-      convenienceFee;
-
   //----------
-
+  double get courtFee => totalPriceBeforeDiscountall.toDouble();
+  double get platformFee => courtFee * 0.02;
+  double get gstOnPlatformFee => platformFee * 0.18;
+  double get convenienceFee => platformFee + gstOnPlatformFee;
+  double get subTotal => courtFee - offerDiscount - coinDiscount;
+  int get coinDiscount => appliedCoins * coinToRupeeValue;
+  double get finalPayableAmount => subTotal + convenienceFee;
+  // int get finalPayableAmount =>
+  //     totalPriceBeforeDiscountall -
+  //     offerDiscount -
+  //     coinDiscount +
+  //     convenienceFee;
   int get totalPriceBeforeDiscountall {
     final slot = getSelectedSlotPrice();
     if (slot == null) return 0;
@@ -395,75 +388,8 @@ class BookTabProvider extends ChangeNotifier {
     return "$hour:$minute:00";
   }
 
-  //filter availableTurfIdsForSelectedTimeDate
-  // void updateAvailableTurfIdsForSelectedTimeRange() {
-  //   final endTime = _calculateEndTime();
-  //   final selectedTimeRange =
-  //       "${_formatTimeOfDayWithSeconds(selectedStartTime)} - ${_formatTimeOfDayWithSeconds(endTime)}";
-  //   availableTurfIdsForSelectedTimeDate.clear();
-  //   final matchingSlot = filteredAvailableSlotsForSelectedDate?.slots
-  //       .firstWhere(
-  //         (slot) => slot.timeRange == selectedTimeRange,
-  //         orElse: () => AvailableSlot(timeRange: "", availableUnits: []),
-  //       );
-
-  //   if (matchingSlot != null && matchingSlot.timeRange.isNotEmpty) {
-  //     availableTurfIdsForSelectedTimeDate =
-  //         matchingSlot.availableUnits.map((unit) => unit.unitId).toList();
-  //   }
-  // }
-
-  // void updateAvailableTurfIdsForSelectedTimeRange() {
-  //   final endTime = _calculateEndTime();
-  //   final selectedTimeRange =
-  //       "${_formatTimeOfDayWithSeconds(selectedStartTime)} - ${_formatTimeOfDayWithSeconds(endTime)}";
-  //   availableTurfIdsForSelectedTimeDate.clear();
-
-  //   final startDateTime = DateTime(
-  //     0,
-  //     1,
-  //     1,
-  //     selectedStartTime.hour,
-  //     selectedStartTime.minute,
-  //   );
-  //   final endDateTime = DateTime(0, 1, 1, endTime.hour, endTime.minute);
-
-  //   final slots = filteredAvailableSlotsForSelectedDate?.slots ?? [];
-
-  //   final matchingSlots =
-  //       slots.where((slot) {
-  //         final parts = slot.timeRange.split(" - ");
-  //         if (parts.length != 2) return false;
-
-  //         final slotStart = _parseTime(parts[0]);
-  //         final slotEnd = _parseTime(parts[1]);
-
-  //         return !(slotEnd.isBefore(startDateTime) ||
-  //             slotStart.isAfter(endDateTime));
-  //       }).toList();
-
-  //   if (matchingSlots.isEmpty) return;
-
-  //   final unitIdSets =
-  //       matchingSlots
-  //           .map(
-  //             (slot) => slot.availableUnits.map((unit) => unit.unitId).toSet(),
-  //           )
-  //           .toList();
-
-  //   final commonUnitIds = unitIdSets.fold<Set<int>>(
-  //     unitIdSets.first,
-  //     (a, b) => a.intersection(b),
-  //   );
-
-  //   availableTurfIdsForSelectedTimeDate = commonUnitIds.toList();
-  // }
   void updateAvailableTurfIdsForSelectedTimeRange() {
     final endTime = _calculateEndTime(); // still needed!
-
-    // Optional if you want to use it for debugging/UI display
-    final selectedTimeRange =
-        "${_formatTimeOfDayWithSeconds(selectedStartTime)} - ${_formatTimeOfDayWithSeconds(endTime)}";
 
     // Always clear previous selection
     availableTurfIdsForSelectedTimeDate.clear();
@@ -549,6 +475,17 @@ class BookTabProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // String get timeRangeString {
+  //   final start = selectedStartTime;
+
+  //   final startDateTime = DateTime(0, 1, 1, start.hour, start.minute);
+  //   final endDateTime = startDateTime.add(
+  //     Duration(minutes: minMinutesSport ?? 60),
+  //   );
+
+  //   return "${DateFormat('HH:mm').format(startDateTime)} - ${DateFormat('HH:mm').format(endDateTime)}";
+  // }
+
   String get timeRangeString {
     final start = selectedStartTime;
 
@@ -557,7 +494,7 @@ class BookTabProvider extends ChangeNotifier {
       Duration(minutes: minMinutesSport ?? 60),
     );
 
-    return "${DateFormat('HH:mm').format(startDateTime)} - ${DateFormat('HH:mm').format(endDateTime)}";
+    return "${DateFormat('hh:mm a').format(startDateTime)} - ${DateFormat('hh:mm a').format(endDateTime)}";
   }
 
   get context => null;
@@ -614,7 +551,7 @@ class BookTabProvider extends ChangeNotifier {
 
       return {
         "label":
-            "${formatTimeOnly(slot.startTime)} - ${formatTimeOnly(slot.endTime)} (${slot.slotName})",
+            "${formatTimeOnly12(slot.startTime)} - ${formatTimeOnly12(slot.endTime)} (${slot.slotName})",
         "value": slot.slotId.toString(),
         "isActive": isActive,
       };
@@ -762,28 +699,10 @@ class BookTabProvider extends ChangeNotifier {
       );
 
       if (response.isSuccess) {
-        // final matchingCoupon = couponList.firstWhere(
-        //   (coupon) => coupon.couponCode == selectedCouponCode,
-        //   orElse:
-        //       () => CouponModel(
-        //         couponId: 0,
-        //         couponCode: '',
-        //         discountAmount: 0,
-        //         expiryDate: '',
-        //       ),
-        // );
-
-        // offerDiscount = matchingCoupon.discountAmount ?? 0;
-        // couponAppliedMessage = "Coupon applied successfully!";
-        // isCouponApplied = true;
-        // notifyListeners();
-        // return true;
         final data = jsonDecode(response.responseData);
         final responseData = data['response'];
 
         offerDiscount = responseData['discount_amount'] ?? 0;
-        // If you want to use discounted price, you can store it as well
-        // final discountedPrice = responseData['discounted_price'] ?? totalPrice;
 
         couponAppliedMessage = "Coupon applied successfully!";
         isCouponApplied = true;
@@ -1053,7 +972,7 @@ class BookTabProvider extends ChangeNotifier {
     isCalendarExpanded = false;
     selectedSlot = null;
     offerDiscount = 0;
-    convenienceFee = 0;
+    // convenienceFee = 0;
     selectedStartTime = TimeOfDay(hour: 16, minute: 0);
     minMinutesSport = 60;
     selectedTurfIndexes.clear();
@@ -1069,7 +988,7 @@ class BookTabProvider extends ChangeNotifier {
     isCouponLoading = false;
     useCoins = false;
     appliedCoins = 0;
-    coinError = null;
+    showConvenienceBreakdown = false;
     notifyListeners();
   }
 
@@ -1083,6 +1002,47 @@ class BookTabProvider extends ChangeNotifier {
     selectedDate = DateTime.now();
     filteredAvailableSlotsForSelectedDate = null;
     notifyListeners();
+  }
+
+  Future<void> getReviews({required int venueId}) async {
+    isReviewsLoading = true;
+    notifyListeners();
+
+    final isOnline =
+        navigatorKey.currentContext!.read<ConnectivityProvider>().isOnline;
+    if (!isOnline) {
+      GlobalSnackbar.error(
+        navigatorKey.currentContext!,
+        "No internet connection",
+      );
+      isReviewsLoading = false;
+      notifyListeners();
+      return;
+    }
+
+    try {
+      final response = await BookTabService().getReviewsService(venueId);
+
+      if (response.isSuccess) {
+        final responseData = jsonDecode(response.responseData);
+
+        final List<dynamic> feedbacksJson = responseData["feedbacks"] ?? [];
+        reviewsList =
+            feedbacksJson.map((json) => ReviewModel.fromJson(json)).toList();
+      } else {
+        reviewsList = [];
+        GlobalSnackbar.error(navigatorKey.currentContext!, response.message);
+      }
+    } catch (e) {
+      debugPrint("Error rating venue: $e");
+      GlobalSnackbar.error(
+        navigatorKey.currentContext!,
+        "Something went wrong",
+      );
+    } finally {
+      isReviewsLoading = false;
+      notifyListeners();
+    }
   }
 
   Future<void> rateVenue({

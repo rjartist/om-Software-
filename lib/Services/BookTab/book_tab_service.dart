@@ -4,6 +4,24 @@ import 'package:gkmarts/Utils/endpoint.dart';
 import 'package:gkmarts/Utils/headers.dart';
 
 class BookTabService {
+Future<RestResponse>getReviewsService(
+    int venueId,
+
+  ) async {
+    try {
+      ApiService apiService = ApiService(
+        endpoint: getReviewsApi,
+        body: jsonEncode({"venueId": venueId}),
+        method: HTTP_METHOD.POST,
+        headers: await HttpHeader.getHeader(),
+      );
+
+      RestResponse response = await apiService.exec();
+      return response;
+    } catch (e) {
+      return RestResponse(isSuccess: false);
+    }
+  }
 
 
    Future<RestResponse> checkTurfAvailableService({

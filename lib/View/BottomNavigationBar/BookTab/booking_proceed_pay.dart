@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gkmarts/Models/BookTabModel/venue_detail_model.dart';
 import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
 import 'package:gkmarts/Provider/HomePage/book_tab_provider.dart';
@@ -41,7 +42,7 @@ class BookingProceedPayPage extends StatelessWidget {
               constraints: BoxConstraints(minHeight: constraints.maxHeight),
               child: IntrinsicHeight(
                 child: Column(
-                  spacing: 20,
+                  spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     BookingInfoCard(model: model, provider: provider),
@@ -109,37 +110,91 @@ class BookingProceedPayPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildSummaryRow(
-                            "Slot Price",
-                            "₹${provider.totalPriceBeforeDiscountall}",
-                            color: const Color(0xFF4B4B4B),
-                          ),
-                          const SizedBox(height: 8),
-                          _buildSummaryRow(
-                            "Offer Discount",
-                            "- ₹${provider.offerDiscount}",
-                            color: AppColors.primaryColor,
+                            "Court Fee",
+                            "₹${provider.courtFee.toStringAsFixed(2)}",
+                            icon: Icons.payments_rounded,
                           ),
 
-                          if (provider.useCoins &&
-                              provider.appliedCoins > 0) ...[
+                          _buildSummaryRow(
+                            "Coupon Discount",
+                            "- ₹${provider.offerDiscount.toStringAsFixed(2)}",
+                            icon: Icons.local_offer_outlined,
+                          ),
+                          // if (provider.useCoins && provider.appliedCoins > 0)
+                          _buildSummaryRow(
+                            "Coin Redemption",
+                            "- ₹${provider.coinDiscount.toStringAsFixed(2)}",
+                            icon: Icons.monetization_on_outlined,
+                          ),
+
+                          const Divider(height: 24),
+
+                          _buildSummaryRow(
+                            "Sub Total",
+                            "₹${provider.subTotal.toStringAsFixed(2)}",
+                            isTotal: true,
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          // Convenience Fee with toggle
+                          InkWell(
+                            onTap: () => provider.toggleConvenienceBreakdown(),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      "Convenience Fee",
+                                      style: AppTextStyle.blackText(
+                                        fontSize: 14,
+                                        // fontWeight: FontWeight.5,
+                                      ),
+                                    ),
+
+                                    const SizedBox(width: 6),
+                                    Icon(
+                                      provider.showConvenienceBreakdown
+                                          ? Icons.keyboard_arrow_up
+                                          : Icons.keyboard_arrow_down,
+                                      size: 20,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ],
+                                ),
+                                Text(
+                                  "₹${provider.convenienceFee.toStringAsFixed(2)}",
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          if (provider.showConvenienceBreakdown) ...[
                             const SizedBox(height: 8),
                             _buildSummaryRow(
-                              "Coin Discount",
-                              "- ₹${provider.coinDiscount}",
-                              color: AppColors.primaryColor,
+                              "Platform Fee (2%)",
+                              "₹${provider.platformFee.toStringAsFixed(2)}",
+                              color: Colors.grey[700],
+                              // icon: Icons.foundation,
+                            ),
+                            _buildSummaryRow(
+                              "GST (18% of Platform Fee)",
+                              "₹${provider.gstOnPlatformFee.toStringAsFixed(2)}",
+                              color: Colors.grey[700],
+                              // icon: Icons.receipt_long,
                             ),
                           ],
 
-                          const SizedBox(height: 8),
-                          _buildSummaryRow(
-                            "Convenience Fee",
-                            "₹${provider.convenienceFee}",
-                            color: const Color(0xFF4B4B4B),
-                          ),
                           const Divider(height: 24),
+
                           _buildSummaryRow(
                             "Total Amount",
-                            "₹${provider.finalPayableAmount}",
+                            "₹${provider.finalPayableAmount.toStringAsFixed(2)}",
                             isTotal: true,
                           ),
                         ],
@@ -216,26 +271,37 @@ class BookingProceedPayPage extends StatelessWidget {
     String value, {
     bool isTotal = false,
     Color? color,
+    IconData? icon,
   }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              if (icon != null) Icon(icon, size: 18, color: Colors.grey[700]),
+              if (icon != null) const SizedBox(width: 6),
+              Text(
+                label,
+                style: AppTextStyle.base(
+                  fontSize: 14,
+                  fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+                  color: Colors.black,
+                ),
+              ),
+            ],
           ),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-            color: color ?? (isTotal ? Colors.black : Colors.grey[700]),
+          Text(
+            value,
+            style: AppTextStyle.base(
+              fontSize: 14,
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              color: color ?? (isTotal ? Colors.black : Colors.grey[800]!),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -248,7 +314,10 @@ class RedeemCoinsWidget extends StatefulWidget {
 }
 
 class _RedeemCoinsWidgetState extends State<RedeemCoinsWidget> {
-    @override
+  final GlobalKey _infoKey = GlobalKey();
+  OverlayEntry? _overlayEntry;
+
+  @override
   void initState() {
     super.initState();
     final coinsModel = context.read<HomeTabProvider>().coinsModel;
@@ -258,134 +327,136 @@ class _RedeemCoinsWidgetState extends State<RedeemCoinsWidget> {
     }
   }
 
+  void _showTooltip(int availableCoins, bool canUseCoins) {
+    final renderBox = _infoKey.currentContext!.findRenderObject() as RenderBox;
+    final targetPosition = renderBox.localToGlobal(Offset.zero);
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    _overlayEntry = OverlayEntry(
+      builder:
+          (context) => Positioned(
+            top: targetPosition.dy + 24,
+            left: targetPosition.dx - 150 + 10, // adjust for center alignment
+            width: 250,
+            child: Material(
+              color: Colors.transparent,
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 200),
+                opacity: 1,
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[900],
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 8,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Available Balance: $availableCoins coins",
+                        style: AppTextStyle.whiteText(fontSize: 12),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        "This booking will use exactly 500 coins (worth ₹500).",
+                        style: TextStyle(color: Colors.white, fontSize: 12),
+                      ),
+                      if (!canUseCoins) ...[
+                        const SizedBox(height: 4),
+                        const Text(
+                          "You need at least 500 coins.",
+                          style: TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 11.5,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+    );
+
+    Overlay.of(context).insert(_overlayEntry!);
+
+    Future.delayed(const Duration(seconds: 3), () {
+      _overlayEntry?.remove();
+      _overlayEntry = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer2<HomeTabProvider, BookTabProvider>(
       builder: (context, homeProvider, bookProvider, _) {
         final availableCoins =
             homeProvider.coinsModel?.remainingBonusCoins ?? 0;
-      
-        final maxUsable = 500;
-        final appliedCoins = bookProvider.appliedCoins;
         final isToggleOn = bookProvider.useCoins;
+        final canUseCoins = availableCoins >= 500;
 
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 3),
           decoration: BoxDecoration(
             color: Colors.white,
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
               ),
             ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Top Row
+              /// Title + Info Button
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Use Coins (1 Coin = ₹${bookProvider.coinToRupeeValue})",
+                    "Apply Bonus Coins",
                     style: AppTextStyle.primaryText(
-                      fontSize: 15,
+                      fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  Switch(
-                    value: isToggleOn,
-                    activeColor: AppColors.primaryColor,
-                    onChanged: (value) {
-                      bookProvider.toggleUseCoins(value, availableCoins);
-                    },
+                  const SizedBox(width: 6),
+                  GestureDetector(
+                    key: _infoKey,
+                    onTap: () => _showTooltip(availableCoins, canUseCoins),
+                    child: const Icon(
+                      Icons.info_outline,
+                      size: 18,
+                      color: Colors.grey,
+                    ),
                   ),
                 ],
               ),
 
-              // Available coins and max usable
-              Text(
-                "Available: $availableCoins | Max usable: $maxUsable",
-                style: AppTextStyle.greytext(fontSize: 12),
-              ),
-
-              const SizedBox(height: 10),
-
-              // If toggle ON -> input + buttons
-              if (isToggleOn)
-                Column(
-                  children: [
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.remove_circle_outline),
-                          onPressed: () {
-                            int newValue = appliedCoins - 50;
-                            bookProvider.setCoins(
-                              newValue.clamp(0, maxUsable),
-                              availableCoins,
-                            );
-                          },
-                        ),
-                        Expanded(
-                          child: TextField(
-                            keyboardType: TextInputType.number,
-                            textAlign: TextAlign.center,
-                            controller: bookProvider.coinController,
-                            onChanged: (value) {
-                              final entered = int.tryParse(value) ?? 0;
-                              bookProvider.setCoins(entered, availableCoins);
-                            },
-                            decoration: InputDecoration(
-                              hintText: "Enter coins",
-                              isDense: true,
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: 10,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(
-                                  color: AppColors.borderColor,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(
-                                  color: AppColors.primaryColor,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.add_circle_outline),
-                          onPressed: () {
-                            int newValue = appliedCoins + 50;
-                            bookProvider.setCoins(
-                              newValue.clamp(0, maxUsable),
-                              availableCoins,
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-
-                    // Error message
-                    if (bookProvider.coinError != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 6),
-                        child: Text(
-                          bookProvider.coinError!,
-                          style: const TextStyle(
-                            color: Colors.red,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                  ],
+              /// Toggle
+              Transform.scale(
+                scale: 0.8,
+                child: Switch(
+                  value: isToggleOn,
+                  activeColor: AppColors.primaryColor,
+                  onChanged:
+                      canUseCoins
+                          ? (value) {
+                            bookProvider.toggleUseCoins(value, 500);
+                            bookProvider.setCoins(value ? 500 : 0, 500);
+                          }
+                          : null,
                 ),
+              ),
             ],
           ),
         );

@@ -302,143 +302,6 @@ class _BookingDateTimePageState extends State<BookingDateTimePage> {
     );
   }
 
-  // Widget buildAvailableTurfSelector(
-  //   BuildContext context,
-  //   BookTabProvider provider,
-  // ) {
-  //   final availableTurfs = provider.getAvailableTurfsForSelectedSlotAndDate();
-  //   final availableTurfIds = provider.availableTurfIdsForSelectedTimeDate;
-  //   final screenHeight = MediaQuery.of(context).size.height;
-
-  //   final bool isSlotAndTimeSelected =
-  //       provider.selectedSlot != null &&
-  //       (provider.selectedStartTime.hour != 0 ||
-  //           provider.selectedStartTime.minute != 0);
-
-  //   if (availableTurfs.isEmpty && isSlotAndTimeSelected) {
-  //     return Container(
-  //       padding: EdgeInsets.symmetric(horizontal: 20),
-  //       height: 80,
-  //       alignment: Alignment.center,
-  //       child: Text(
-  //         "No turfs are available for the selected date and time. Please reselect and try again.",
-  //         style: AppTextStyle.greytext(),
-  //         textAlign: TextAlign.center,
-  //         maxLines: 4,
-  //         overflow: TextOverflow.ellipsis,
-  //       ),
-  //     );
-  //   }
-
-  //   if (availableTurfs.isEmpty && !isSlotAndTimeSelected) {
-  //     return const SizedBox(height: 60);
-  //   }
-
-  //   return ConstrainedBox(
-  //     constraints: BoxConstraints(maxHeight: screenHeight * 0.3),
-  //     child: SingleChildScrollView(
-  //       child: Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Text("Select Turf(s)", style: AppTextStyle.titleSmallText()),
-  //           const SizedBox(height: 8),
-  //           Wrap(
-  //             spacing: 12,
-  //             runSpacing: 12,
-  //             children: List.generate(availableTurfs.length, (index) {
-  //               final turf = availableTurfs[index];
-  //               final int unitId = turf['unitId'] ?? 0;
-  //               final String unitName = turf['unitName'] ?? "Turf ${index + 1}";
-
-  //               final bool isAvailable = availableTurfIds.contains(unitId);
-  //               final bool isSelected = provider.selectedTurfIndexes.contains(
-  //                 index,
-  //               );
-
-  //               return GestureDetector(
-  //                 onTap: () {
-  //                   if (isAvailable) {
-  //                     provider.toggleTurfSelection(index, unitId);
-  //                   } else {
-  //                     GlobalSnackbar.bottomError(
-  //                       context,
-  //                       "This turf is already booked for the selected date and time.",
-  //                     );
-  //                   }
-  //                 },
-  //                 child: Container(
-  //                   constraints: const BoxConstraints(
-  //                     minWidth: 80,
-  //                     maxWidth: 160,
-  //                   ),
-  //                   padding: const EdgeInsets.symmetric(horizontal: 12),
-  //                   height: 40,
-  //                   alignment: Alignment.center,
-  //                   decoration: BoxDecoration(
-  //                     color:
-  //                         isSelected
-  //                             ? null
-  //                             : isAvailable
-  //                             ? Colors.transparent
-  //                             : Colors.grey.shade300, // 🟩 Booked: darker grey
-  //                     gradient:
-  //                         isSelected
-  //                             ? const LinearGradient(
-  //                               begin: Alignment.topCenter,
-  //                               end: Alignment.bottomCenter,
-  //                               colors: [
-  //                                 AppColors.profileSectionButtonColor,
-  //                                 AppColors.profileSectionButtonColor2,
-  //                               ],
-  //                             )
-  //                             : null,
-  //                     borderRadius: BorderRadius.circular(8),
-  //                     border: Border.all(color: AppColors.borderColor),
-  //                   ),
-  //                   child: Row(
-  //                     mainAxisSize: MainAxisSize.min,
-  //                     children: [
-  //                       FittedBox(
-  //                         fit: BoxFit.scaleDown,
-  //                         child: Text(
-  //                           unitName,
-  //                           textAlign: TextAlign.center,
-  //                           style: TextStyle(
-  //                             color:
-  //                                 isAvailable
-  //                                     ? (isSelected
-  //                                         ? Colors.white
-  //                                         : Colors.black)
-  //                                     : Colors
-  //                                         .black54, // 🔒 Booked: dark grey text
-  //                             fontWeight:
-  //                                 isSelected
-  //                                     ? FontWeight.bold
-  //                                     : FontWeight.normal,
-  //                           ),
-  //                         ),
-  //                       ),
-  //                       if (!isAvailable)
-  //                         const Padding(
-  //                           padding: EdgeInsets.only(left: 6),
-  //                           child: Icon(
-  //                             Icons.lock,
-  //                             size: 16,
-  //                             color: Colors.black54, // 🔒 Lock Icon
-  //                           ),
-  //                         ),
-  //                     ],
-  //                   ),
-  //                 ),
-  //               );
-  //             }),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
   void showPriceChartBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -516,9 +379,24 @@ class _BookingDateTimePageState extends State<BookingDateTimePage> {
                                           day,
                                         ),
                                     onDaySelected: (selectedDay, _) {
+                                      provider.clearDateTimeRange();
                                       provider.selectDate(selectedDay);
+
+                                      final isToday = isSameDay(
+                                        DateTime.now(),
+                                        selectedDay,
+                                      );
+                                      final currentTime =
+                                          isToday ? DateTime.now() : null;
+
+                                      provider.getSlotOptionsByDate(
+                                        selectedDate: selectedDay,
+                                        currentTime: currentTime ?? selectedDay,
+                                      );
+
                                       Navigator.pop(context);
                                     },
+
                                     calendarStyle: const CalendarStyle(
                                       selectedDecoration: BoxDecoration(
                                         color: AppColors.primaryColor,
@@ -757,6 +635,44 @@ class TimeAndDurationWidget extends StatelessWidget {
           // TIME Box
           Expanded(
             child: GestureDetector(
+              // onTap: () async {
+              //   if (!isSlotSelected) {
+              //     GlobalSnackbar.bottomError(
+              //       navigatorKey.currentContext!,
+              //       "Please select a slot first.",
+              //     );
+              //     return;
+              //   }
+
+              //   final slotStart = slotPrice?.startTime ?? "00:00:00";
+              //   final slotEnd = slotPrice?.endTime ?? "00:00:00";
+
+              //   final slotStartParts =
+              //       slotStart.split(":").map(int.parse).toList();
+              //   final slotEndParts = slotEnd.split(":").map(int.parse).toList();
+
+              //   final picked = await showTimePicker(
+              //     context: context,
+              //     initialTime: provider.selectedStartTime,
+              //   );
+
+              //   if (picked != null) {
+              //     final pickedMinutes = picked.hour * 60 + picked.minute;
+              //     final slotStartMinutes =
+              //         slotStartParts[0] * 60 + slotStartParts[1];
+              //     final slotEndMinutes = slotEndParts[0] * 60 + slotEndParts[1];
+
+              //     if (pickedMinutes >= slotStartMinutes &&
+              //         pickedMinutes < slotEndMinutes) {
+              //       provider.setStartTime(picked);
+              //     } else {
+              //       GlobalSnackbar.bottomError(
+              //         navigatorKey.currentContext!,
+              //         "Please select a time within the slot range.",
+              //       );
+              //     }
+              //   }
+              // },
               onTap: () async {
                 if (!isSlotSelected) {
                   GlobalSnackbar.bottomError(
@@ -773,28 +689,37 @@ class TimeAndDurationWidget extends StatelessWidget {
                     slotStart.split(":").map(int.parse).toList();
                 final slotEndParts = slotEnd.split(":").map(int.parse).toList();
 
-                final picked = await showTimePicker(
-                  context: context,
-                  initialTime: provider.selectedStartTime,
+                final slotStartTime = TimeOfDay(
+                  hour: slotStartParts[0],
+                  minute: slotStartParts[1],
+                );
+                final slotEndTime = TimeOfDay(
+                  hour: slotEndParts[0],
+                  minute: slotEndParts[1],
                 );
 
-                if (picked != null) {
-                  final pickedMinutes = picked.hour * 60 + picked.minute;
-                  final slotStartMinutes =
-                      slotStartParts[0] * 60 + slotStartParts[1];
-                  final slotEndMinutes = slotEndParts[0] * 60 + slotEndParts[1];
+                final selected = await showModalBottomSheet<TimeOfDay>(
+                  context: context,
+                  backgroundColor: Colors.white,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(16),
+                    ),
+                  ),
+                  builder:
+                      (_) => SlotTimePickerSheet(
+                        start: slotStartTime,
+                        end: slotEndTime,
+                        intervalMinutes:
+                            provider.slotPriceModel?.minimumMinutesSport ?? 30,
+                      ),
+                );
 
-                  if (pickedMinutes >= slotStartMinutes &&
-                      pickedMinutes < slotEndMinutes) {
-                    provider.setStartTime(picked);
-                  } else {
-                    GlobalSnackbar.bottomError(
-                      navigatorKey.currentContext!,
-                      "Please select a time within the slot range.",
-                    );
-                  }
+                if (selected != null) {
+                  provider.setStartTime(selected);
                 }
               },
+
               child: Container(
                 height: boxHeight,
                 margin: EdgeInsets.only(right: boxSpacing / 2),
@@ -946,6 +871,92 @@ class TimeAndDurationWidget extends StatelessWidget {
     } else {
       return "$minutes min";
     }
+  }
+}
+
+class SlotTimePickerSheet extends StatelessWidget {
+  final TimeOfDay start;
+  final TimeOfDay end;
+  final int intervalMinutes;
+
+  const SlotTimePickerSheet({
+    super.key,
+    required this.start,
+    required this.end,
+    required this.intervalMinutes,
+  });
+
+  List<Map<String, TimeOfDay>> _generateTimeSlots() {
+    final slots = <Map<String, TimeOfDay>>[];
+    var current = start;
+
+    while (_isBefore(current, end)) {
+      final next = _addMinutes(current, intervalMinutes);
+      if (_isBefore(next, end) || _isSame(next, end)) {
+        slots.add({"start": current, "end": next});
+      }
+      current = next;
+    }
+
+    return slots;
+  }
+
+  bool _isBefore(TimeOfDay a, TimeOfDay b) {
+    return a.hour < b.hour || (a.hour == b.hour && a.minute < b.minute);
+  }
+
+  bool _isSame(TimeOfDay a, TimeOfDay b) {
+    return a.hour == b.hour && a.minute == b.minute;
+  }
+
+  TimeOfDay _addMinutes(TimeOfDay time, int minutesToAdd) {
+    final totalMinutes = time.hour * 60 + time.minute + minutesToAdd;
+    final hour = totalMinutes ~/ 60;
+    final minute = totalMinutes % 60;
+    return TimeOfDay(hour: hour, minute: minute);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final slots = _generateTimeSlots();
+
+    return SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            child: Text(
+              "Select Time Slot",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+          ),
+          const Divider(height: 1),
+          Flexible(
+            child: ListView.separated(
+              shrinkWrap: true,
+              itemCount: slots.length,
+              separatorBuilder: (_, __) => const Divider(height: 1),
+              itemBuilder: (context, index) {
+                final slot = slots[index];
+                final start = slot["start"]!;
+                final end = slot["end"]!;
+                final slotText =
+                    "${start.format(context)} – ${end.format(context)}";
+
+                return ListTile(
+                  title: Text(slotText, style: const TextStyle(fontSize: 15)),
+                  onTap: () {
+                    // Send only the start time back
+                    Navigator.pop(context, start);
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -1135,7 +1146,7 @@ class PriceChartBottomSheetTable extends StatelessWidget {
                                 Expanded(
                                   child: Center(
                                     child: Text(
-                                      "${formatTimeOnly(slot.startTime)} - ${formatTimeOnly(slot.endTime)}",
+                                      "${formatTimeOnly12(slot.startTime)} - ${formatTimeOnly12(slot.endTime)}",
                                       style: AppTextStyle.smallGrey(),
                                     ),
                                   ),

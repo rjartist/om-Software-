@@ -37,11 +37,17 @@ Widget buildNetworkOrSvgImage(
   }
 }
 
-String formatTimeOnly(String time) {
+String formatTime24(String time) {
   final parts = time.split(":");
   final dateTime = DateTime(0, 1, 1, int.parse(parts[0]), int.parse(parts[1]));
   return DateFormat('HH:mm').format(dateTime); // 24-hour format
 }
+String formatTimeOnly12(String time24) {
+  final parts = time24.split(":").map(int.parse).toList();
+  final dateTime = DateTime(0, 1, 1, parts[0], parts[1]);
+  return DateFormat('hh:mm a').format(dateTime); // 12-hour format
+}
+
 
 String formatTimeApi(TimeOfDay time) {
   final now = DateTime.now();
