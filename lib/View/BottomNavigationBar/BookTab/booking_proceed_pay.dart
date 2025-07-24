@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gkmarts/Models/BookTabModel/venue_detail_model.dart';
+import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
 import 'package:gkmarts/Provider/HomePage/book_tab_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
@@ -26,101 +27,133 @@ class BookingProceedPayPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
       appBar: GlobalAppBar(title: "Booking", showBackButton: true),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          spacing: 20,
-          children: [
-            BookingInfoCard(model: model, provider: provider),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ApplyCouponPage()),
-                );
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(
-                    0,
-                  ), // You can set it to 12 if you want rounded
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: 16,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+            ),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: IntrinsicHeight(
+                child: Column(
+                  spacing: 20,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Apply Coupon",
-                      style: AppTextStyle.primaryText(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                    BookingInfoCard(model: model, provider: provider),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ApplyCouponPage(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Apply Coupon",
+                              style: AppTextStyle.primaryText(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                              color: AppColors.primaryColor,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      size: 16,
-                      color: AppColors.primaryColor,
+
+                    const RedeemCoinsWidget(),
+
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(0),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSummaryRow(
+                            "Slot Price",
+                            "₹${provider.totalPriceBeforeDiscountall}",
+                            color: const Color(0xFF4B4B4B),
+                          ),
+                          const SizedBox(height: 8),
+                          _buildSummaryRow(
+                            "Offer Discount",
+                            "- ₹${provider.offerDiscount}",
+                            color: AppColors.primaryColor,
+                          ),
+
+                          if (provider.useCoins &&
+                              provider.appliedCoins > 0) ...[
+                            const SizedBox(height: 8),
+                            _buildSummaryRow(
+                              "Coin Discount",
+                              "- ₹${provider.coinDiscount}",
+                              color: AppColors.primaryColor,
+                            ),
+                          ],
+
+                          const SizedBox(height: 8),
+                          _buildSummaryRow(
+                            "Convenience Fee",
+                            "₹${provider.convenienceFee}",
+                            color: const Color(0xFF4B4B4B),
+                          ),
+                          const Divider(height: 24),
+                          _buildSummaryRow(
+                            "Total Amount",
+                            "₹${provider.finalPayableAmount}",
+                            isTotal: true,
+                          ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(height: 80), // space for bottom bar
                   ],
                 ),
               ),
             ),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSummaryRow(
-                    "Slot Price",
-                    "₹${provider.totalPriceBeforeDiscountall}",
-                    color: const Color(0xFF4B4B4B),
-                  ),
-                  const SizedBox(height: 8),
-                  _buildSummaryRow(
-                    "Offer Discount",
-                    "- ₹${provider.offerDiscount}",
-                    color: AppColors.primaryColor,
-                  ),
-                  const SizedBox(height: 8),
-                  _buildSummaryRow(
-                    "Convenience Fee",
-                    "₹${provider.convenienceFee}",
-                    color: const Color(0xFF4B4B4B),
-                  ),
-                  const Divider(height: 24),
-                  _buildSummaryRow(
-                    "Total Amount",
-                    "₹${provider.finalPayableAmount}",
-                    isTotal: true,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
+
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
         child: GestureDetector(
@@ -203,6 +236,160 @@ class BookingProceedPayPage extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class RedeemCoinsWidget extends StatefulWidget {
+  const RedeemCoinsWidget({super.key});
+
+  @override
+  State<RedeemCoinsWidget> createState() => _RedeemCoinsWidgetState();
+}
+
+class _RedeemCoinsWidgetState extends State<RedeemCoinsWidget> {
+    @override
+  void initState() {
+    super.initState();
+    final coinsModel = context.read<HomeTabProvider>().coinsModel;
+    final coinWalletId = coinsModel?.coinwalletid;
+    if (coinWalletId != null) {
+      context.read<BookTabProvider>().setCoinWalletId(coinWalletId);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer2<HomeTabProvider, BookTabProvider>(
+      builder: (context, homeProvider, bookProvider, _) {
+        final availableCoins =
+            homeProvider.coinsModel?.remainingBonusCoins ?? 0;
+      
+        final maxUsable = 500;
+        final appliedCoins = bookProvider.appliedCoins;
+        final isToggleOn = bookProvider.useCoins;
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Top Row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Use Coins (1 Coin = ₹${bookProvider.coinToRupeeValue})",
+                    style: AppTextStyle.primaryText(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Switch(
+                    value: isToggleOn,
+                    activeColor: AppColors.primaryColor,
+                    onChanged: (value) {
+                      bookProvider.toggleUseCoins(value, availableCoins);
+                    },
+                  ),
+                ],
+              ),
+
+              // Available coins and max usable
+              Text(
+                "Available: $availableCoins | Max usable: $maxUsable",
+                style: AppTextStyle.greytext(fontSize: 12),
+              ),
+
+              const SizedBox(height: 10),
+
+              // If toggle ON -> input + buttons
+              if (isToggleOn)
+                Column(
+                  children: [
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.remove_circle_outline),
+                          onPressed: () {
+                            int newValue = appliedCoins - 50;
+                            bookProvider.setCoins(
+                              newValue.clamp(0, maxUsable),
+                              availableCoins,
+                            );
+                          },
+                        ),
+                        Expanded(
+                          child: TextField(
+                            keyboardType: TextInputType.number,
+                            textAlign: TextAlign.center,
+                            controller: bookProvider.coinController,
+                            onChanged: (value) {
+                              final entered = int.tryParse(value) ?? 0;
+                              bookProvider.setCoins(entered, availableCoins);
+                            },
+                            decoration: InputDecoration(
+                              hintText: "Enter coins",
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 10,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                  color: AppColors.borderColor,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                  color: AppColors.primaryColor,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.add_circle_outline),
+                          onPressed: () {
+                            int newValue = appliedCoins + 50;
+                            bookProvider.setCoins(
+                              newValue.clamp(0, maxUsable),
+                              availableCoins,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+
+                    // Error message
+                    if (bookProvider.coinError != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Text(
+                          bookProvider.coinError!,
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

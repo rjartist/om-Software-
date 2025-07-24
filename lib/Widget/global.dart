@@ -6,16 +6,17 @@ import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/Widget/global_button.dart';
 import 'package:intl/intl.dart';
 
-
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-
 void printLog(dynamic data) {
-  if (!kReleaseMode)  printLog(data.toString());
+  if (!kReleaseMode) printLog(data.toString());
 }
 
-
-Widget buildNetworkOrSvgImage(String imageUrl, {double width = 32, double height = 32}) {
+Widget buildNetworkOrSvgImage(
+  String imageUrl, {
+  double width = 32,
+  double height = 32,
+}) {
   if (imageUrl.isEmpty) {
     return SizedBox(width: width, height: height);
   } else if (imageUrl.toLowerCase().endsWith('.svg')) {
@@ -26,7 +27,7 @@ Widget buildNetworkOrSvgImage(String imageUrl, {double width = 32, double height
       placeholderBuilder: (_) => SizedBox(width: width, height: height),
     );
   } else {
-     return Image.network(
+    return Image.network(
       imageUrl,
       width: width,
       height: height,
@@ -44,7 +45,13 @@ String formatTimeOnly(String time) {
 
 String formatTimeApi(TimeOfDay time) {
   final now = DateTime.now();
-  final dateTime = DateTime(now.year, now.month, now.day, time.hour, time.minute);
+  final dateTime = DateTime(
+    now.year,
+    now.month,
+    now.day,
+    time.hour,
+    time.minute,
+  );
   return DateFormat('HH:mm').format(dateTime);
 }
 
@@ -57,16 +64,17 @@ String formatTime(String time) {
   }
 }
 
-
+/// Format any DateTime to "d MMMM yyyy" (e.g., 12 December 2025)
+String formatFullDate(DateTime date) {
+  return DateFormat('d MMMM yyyy').format(date);
+}
 
 class CoomingSoonDialogHelper {
   static void showComingSoon(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) => const ComingSoonDialog(),
-    );
+    showDialog(context: context, builder: (_) => const ComingSoonDialog());
   }
 }
+
 class ComingSoonDialog extends StatelessWidget {
   final String title;
   final String message;
@@ -93,13 +101,14 @@ class ComingSoonDialog extends StatelessWidget {
                 color: AppColors.primaryColor.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.access_time_filled, size: 48, color: AppColors.primaryColor),
+              child: const Icon(
+                Icons.access_time_filled,
+                size: 48,
+                color: AppColors.primaryColor,
+              ),
             ),
             const SizedBox(height: 16),
-            Text(
-              title,
-              style: AppTextStyle.titleText(),
-            ),
+            Text(title, style: AppTextStyle.titleText()),
             const SizedBox(height: 8),
             Text(
               message,
@@ -121,5 +130,3 @@ class ComingSoonDialog extends StatelessWidget {
     );
   }
 }
-
-

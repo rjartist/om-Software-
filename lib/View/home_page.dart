@@ -9,7 +9,9 @@ import 'package:gkmarts/View/BottomNavigationBar/HomeTab/profile_page.dart'
 import 'package:gkmarts/View/BottomNavigationBar/LearnTab/learn_tab.dart';
 import 'package:gkmarts/View/BottomNavigationBar/MoreTab/more_tab.dart';
 import 'package:gkmarts/View/BottomNavigationBar/BookTab/book_tab.dart';
+import 'package:gkmarts/View/BottomNavigationBar/PlayTab/chat_screen.dart';
 import 'package:gkmarts/View/BottomNavigationBar/PlayTab/play_tab.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
@@ -39,6 +41,7 @@ class _HomePageState extends State<HomePage> {
     homeTabProvider.getBanner(context);
     homeTabProvider.getBookVenue(context);
     homeTabProvider.getJoinGame(context);
+    homeTabProvider.getCoinsData(context);
   }
 
   final List<Widget> _pages = const [
@@ -100,20 +103,25 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      // floatingActionButton:
-      //     currentIndex == 0 || currentIndex == 1
-      //         ? FloatingActionButton(
-      //           onPressed: () {
-      //             // Add your action here
-      //             ScaffoldMessenger.of(context).showSnackBar(
-      //               const SnackBar(content: Text("Message button pressed")),
-      //             );
-      //           },
-      //           backgroundColor: Colors.red,
-      //           shape: const CircleBorder(),
-      //           child: const Icon(Icons.message, color: Colors.white, size: 28),
-      //         )
-      //         : null,
+      floatingActionButton:
+          currentIndex == 0 || currentIndex == 1
+              ? FloatingActionButton(
+                onPressed: () {
+                  // Add your action here
+                  Navigator.push(
+                    context,
+                    PageTransition(
+                      type: PageTransitionType.rightToLeft,
+                      duration: const Duration(milliseconds: 300),
+                      child: ChatScreen(),
+                    ),
+                  );
+                },
+                backgroundColor: Colors.red,
+                shape: const CircleBorder(),
+                child: const Icon(Icons.message, color: Colors.white, size: 28),
+              )
+              : null,
     );
   }
 }

@@ -141,7 +141,9 @@ class _SettingsState extends State<Settings> {
                                           ),
                                         ),
                                         child: ElevatedButton(
-                                          onPressed: () {},
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
                                           style: ElevatedButton.styleFrom(
                                             elevation: 0,
                                             backgroundColor: AppColors.bgColor,

@@ -7,6 +7,7 @@ import 'package:gkmarts/Models/BookTabModel/coupon_model.dart';
 import 'package:gkmarts/Models/BookTabModel/slot_price_model.dart';
 import 'package:gkmarts/Models/BookTabModel/venue_detail_model.dart';
 import 'package:gkmarts/Provider/Connectivity/connectivity_provider.dart';
+import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
 import 'package:gkmarts/Services/BookTab/book_tab_service.dart';
 import 'package:gkmarts/View/BottomNavigationBar/BookTab/congratulation_booking.dart';
 import 'package:gkmarts/Widget/global.dart';
@@ -44,6 +45,8 @@ class BookTabProvider extends ChangeNotifier {
   AvailableSlotDate? filteredAvailableSlotsForSelectedDate; //---------
   List<int> availableTurfIdsForSelectedTimeDate = []; //--
 
+  bool isTurfAutoSelected = false;
+
   int convenienceFee = 0;
   String? paymentDate;
   String? paymentTime;
@@ -62,9 +65,77 @@ class BookTabProvider extends ChangeNotifier {
 
   int userRating = 0;
   String userComment = '';
-  //----------
+  //----------------------
+  final TextEditingController coinController = TextEditingController();
+  bool useCoins = false;
+  int appliedCoins = 0;
+  String? coinError;
+  int coinToRupeeValue = 1; // ✅ default: 1 Coin = ₹1
+  int? coinWalletId;
+
+  void setCoinWalletId(int? id) {
+    coinWalletId = id;
+  }
+
+  void toggleUseCoins(bool value, int available) {
+    useCoins = value;
+    if (!value) {
+      appliedCoins = 0;
+      coinController.text = '0';
+      coinError = null;
+    }
+    notifyListeners();
+  }
+
+  void setCoins(int value, int available) {
+    if (value < 0) {
+      coinError = "Cannot use less than 0 coins.";
+    } else if (value > 500) {
+      coinError = "Max 500 coins allowed.";
+    } else if (value > available) {
+      coinError = "You only have $available coins.";
+    } else {
+      coinError = null;
+      appliedCoins = value;
+      coinController.text = value.toString();
+    }
+    notifyListeners();
+  }
+
+  int get coinDiscount {
+    if (coinError != null) return 0;
+    return appliedCoins * coinToRupeeValue;
+  }
+
+  int get finalPayableAmount =>
+      totalPriceBeforeDiscountall -
+      offerDiscount -
+      coinDiscount +
+      convenienceFee;
 
   //----------
+
+  int get totalPriceBeforeDiscountall {
+    final slot = getSelectedSlotPrice();
+    if (slot == null) return 0;
+
+    final int ratePerHour = slot.rate;
+    final int turfCount = selectedTurfIndexes.length;
+    final int durationInMinutes = minMinutesSport ?? 0;
+
+    if (turfCount == 0 || durationInMinutes == 0) return 0;
+
+    final double ratePerMinute = ratePerHour / 60.0;
+    final double total = turfCount * durationInMinutes * ratePerMinute;
+
+    return total.round(); // or .ceil() if you want to always round up
+  }
+
+  void selectCoupon(String code) {
+    selectedCouponCode = code;
+    couponController.text = code;
+    notifyListeners();
+  }
 
   void toggleTurfSelection(int index, int unitId) {
     if (unitId == 0) {
@@ -98,44 +169,6 @@ class BookTabProvider extends ChangeNotifier {
   }
 
   void applyCouponCode(String code) {
-    selectedCouponCode = code;
-    couponController.text = code;
-    notifyListeners();
-  }
-
-  int get finalPayableAmount =>
-      totalPriceBeforeDiscountall - offerDiscount + convenienceFee;
-
-  // int get totalPriceBeforeDiscountall {
-  //   final slot = getSelectedSlotPrice();
-  //   if (slot == null) return 0;
-
-  //   final int ratePerHour = slot.rate;
-  //   final int turfCount = selectedTurfIndexes.length;
-
-  //   if (turfCount == 0 || minMinutesSport == 0) return 0;
-
-  //   // return turfCount * selectedDurationInHours * ratePerHour;
-  //   return turfCount * (minMinutesSport ?? 60 / 60).ceil() * ratePerHour;
-  // }
-
-  int get totalPriceBeforeDiscountall {
-    final slot = getSelectedSlotPrice();
-    if (slot == null) return 0;
-
-    final int ratePerHour = slot.rate;
-    final int turfCount = selectedTurfIndexes.length;
-    final int durationInMinutes = minMinutesSport ?? 0;
-
-    if (turfCount == 0 || durationInMinutes == 0) return 0;
-
-    final double ratePerMinute = ratePerHour / 60.0;
-    final double total = turfCount * durationInMinutes * ratePerMinute;
-
-    return total.round(); // or .ceil() if you want to always round up
-  }
-
-  void selectCoupon(String code) {
     selectedCouponCode = code;
     couponController.text = code;
     notifyListeners();
@@ -207,6 +240,7 @@ class BookTabProvider extends ChangeNotifier {
     selectedDate = date;
     isCalendarExpanded = false;
     _filterSlotsOfselctedDate();
+    autoSelectFirstAvailableSlot();
     notifyListeners();
   }
 
@@ -246,6 +280,7 @@ class BookTabProvider extends ChangeNotifier {
 
   void incrementDuration() {
     final slot = getSelectedSlotPrice();
+    isTurfAutoSelected = false;
     if (slot == null) return;
 
     final slotEndParts = slot.endTime.split(":").map(int.parse).toList();
@@ -285,94 +320,11 @@ class BookTabProvider extends ChangeNotifier {
   void decrementDuration() {
     final baseMinutes = slotPriceModel?.minimumMinutesSport ?? 60;
     if (minMinutesSport != null && minMinutesSport! > baseMinutes) {
+      isTurfAutoSelected = false;
       minMinutesSport = minMinutesSport! - baseMinutes;
       updateAvailableTurfIdsForSelectedTimeRange();
       notifyListeners();
     }
-  }
-
-  void setStartTime(TimeOfDay time) {
-    final slot = getSelectedSlotPrice();
-    if (slot == null) return;
-
-    final now = DateTime.now();
-    final isToday = isSameDay(selectedDate, now);
-
-    if (isToday) {
-      final nowMinutes = now.hour * 60 + now.minute;
-      final pickedMinutes = time.hour * 60 + time.minute;
-
-      if (pickedMinutes < nowMinutes) {
-        GlobalSnackbar.bottomError(
-          navigatorKey.currentContext!,
-          "You cannot select a past time for today.",
-        );
-        return;
-      }
-    }
-
-    final slotEndParts = slot.endTime.split(":").map(int.parse).toList();
-    final slotEndDateTime = DateTime(0, 1, 1, slotEndParts[0], slotEndParts[1]);
-
-    final startDateTime = DateTime(0, 1, 1, time.hour, time.minute);
-    final safeDuration = Duration(
-      minutes: minMinutesSport ?? 60,
-    ); // fallback to 60
-    final newEndDateTime = startDateTime.add(safeDuration);
-
-    if (newEndDateTime.isAfter(slotEndDateTime)) {
-      GlobalSnackbar.bottomError(
-        navigatorKey.currentContext!,
-        "Selected time + duration exceeds slot end time.",
-        duration: Duration(seconds: 3),
-      );
-      return;
-    }
-
-    selectedStartTime = time;
-    updateAvailableTurfIdsForSelectedTimeRange();
-    notifyListeners();
-  }
-
-  String get timeRangeString {
-    final start = selectedStartTime;
-
-    final startDateTime = DateTime(0, 1, 1, start.hour, start.minute);
-    final endDateTime = startDateTime.add(
-      Duration(minutes: minMinutesSport ?? 60),
-    );
-    //   final endTime = TimeOfDay(
-    //   hour: endDateTime.hour,
-    //   minute: endDateTime.minute,
-    // );
-    return "${DateFormat('HH:mm').format(startDateTime)} - ${DateFormat('HH:mm').format(endDateTime)}";
-  }
-
-  get context => null;
-
-  void selectSlot(String slot) {
-    selectedSlot = slot;
-    selectedTurfIndexes.clear();
-    selectedTurfIds.clear();
-
-    // final turfs = getAvailableTurfsForSelectedSlotAndDate();
-    // if (turfs.isNotEmpty) {
-    //   final firstTurf = turfs.first;
-    //   final int unitId = firstTurf["unitId"] ?? 0;
-    //   selectedTurfIndexes.add(0); // Auto-select first turf index
-    //   selectedTurfIds.add(unitId);
-    // }
-    final slotPrice = getSelectedSlotPrice();
-    if (slotPrice != null) {
-      updateTimeRangeBasedOnSlot(slotPrice);
-    }
-
-    notifyListeners();
-  }
-
-  void toggleCalendar() {
-    isCalendarExpanded = !isCalendarExpanded;
-    notifyListeners();
   }
 
   void updateTimeRangeBasedOnSlot(SlotPrice slot) {
@@ -444,21 +396,188 @@ class BookTabProvider extends ChangeNotifier {
   }
 
   //filter availableTurfIdsForSelectedTimeDate
+  // void updateAvailableTurfIdsForSelectedTimeRange() {
+  //   final endTime = _calculateEndTime();
+  //   final selectedTimeRange =
+  //       "${_formatTimeOfDayWithSeconds(selectedStartTime)} - ${_formatTimeOfDayWithSeconds(endTime)}";
+  //   availableTurfIdsForSelectedTimeDate.clear();
+  //   final matchingSlot = filteredAvailableSlotsForSelectedDate?.slots
+  //       .firstWhere(
+  //         (slot) => slot.timeRange == selectedTimeRange,
+  //         orElse: () => AvailableSlot(timeRange: "", availableUnits: []),
+  //       );
+
+  //   if (matchingSlot != null && matchingSlot.timeRange.isNotEmpty) {
+  //     availableTurfIdsForSelectedTimeDate =
+  //         matchingSlot.availableUnits.map((unit) => unit.unitId).toList();
+  //   }
+  // }
+
+  // void updateAvailableTurfIdsForSelectedTimeRange() {
+  //   final endTime = _calculateEndTime();
+  //   final selectedTimeRange =
+  //       "${_formatTimeOfDayWithSeconds(selectedStartTime)} - ${_formatTimeOfDayWithSeconds(endTime)}";
+  //   availableTurfIdsForSelectedTimeDate.clear();
+
+  //   final startDateTime = DateTime(
+  //     0,
+  //     1,
+  //     1,
+  //     selectedStartTime.hour,
+  //     selectedStartTime.minute,
+  //   );
+  //   final endDateTime = DateTime(0, 1, 1, endTime.hour, endTime.minute);
+
+  //   final slots = filteredAvailableSlotsForSelectedDate?.slots ?? [];
+
+  //   final matchingSlots =
+  //       slots.where((slot) {
+  //         final parts = slot.timeRange.split(" - ");
+  //         if (parts.length != 2) return false;
+
+  //         final slotStart = _parseTime(parts[0]);
+  //         final slotEnd = _parseTime(parts[1]);
+
+  //         return !(slotEnd.isBefore(startDateTime) ||
+  //             slotStart.isAfter(endDateTime));
+  //       }).toList();
+
+  //   if (matchingSlots.isEmpty) return;
+
+  //   final unitIdSets =
+  //       matchingSlots
+  //           .map(
+  //             (slot) => slot.availableUnits.map((unit) => unit.unitId).toSet(),
+  //           )
+  //           .toList();
+
+  //   final commonUnitIds = unitIdSets.fold<Set<int>>(
+  //     unitIdSets.first,
+  //     (a, b) => a.intersection(b),
+  //   );
+
+  //   availableTurfIdsForSelectedTimeDate = commonUnitIds.toList();
+  // }
   void updateAvailableTurfIdsForSelectedTimeRange() {
-    final endTime = _calculateEndTime();
+    final endTime = _calculateEndTime(); // still needed!
+
+    // Optional if you want to use it for debugging/UI display
     final selectedTimeRange =
         "${_formatTimeOfDayWithSeconds(selectedStartTime)} - ${_formatTimeOfDayWithSeconds(endTime)}";
-    availableTurfIdsForSelectedTimeDate.clear();
-    final matchingSlot = filteredAvailableSlotsForSelectedDate?.slots
-        .firstWhere(
-          (slot) => slot.timeRange == selectedTimeRange,
-          orElse: () => AvailableSlot(timeRange: "", availableUnits: []),
-        );
 
-    if (matchingSlot != null && matchingSlot.timeRange.isNotEmpty) {
-      availableTurfIdsForSelectedTimeDate =
-          matchingSlot.availableUnits.map((unit) => unit.unitId).toList();
+    // Always clear previous selection
+    availableTurfIdsForSelectedTimeDate.clear();
+
+    final startDateTime = DateTime(
+      0,
+      1,
+      1,
+      selectedStartTime.hour,
+      selectedStartTime.minute,
+    );
+    final endDateTime = DateTime(0, 1, 1, endTime.hour, endTime.minute);
+
+    final slots = filteredAvailableSlotsForSelectedDate?.slots ?? [];
+
+    // Filter only slots fully inside the selected time range
+    final matchingSlots =
+        slots.where((slot) {
+          final parts = slot.timeRange.split(" - ");
+          if (parts.length != 2) return false;
+
+          final slotStart = _parseTime(parts[0]);
+          final slotEnd = _parseTime(parts[1]);
+
+          return !slotStart.isBefore(startDateTime) &&
+              !slotEnd.isAfter(endDateTime);
+        }).toList();
+
+    if (matchingSlots.isEmpty) return;
+
+    final unitIdSets =
+        matchingSlots
+            .map(
+              (slot) => slot.availableUnits.map((unit) => unit.unitId).toSet(),
+            )
+            .toList();
+
+    final commonUnitIds = unitIdSets.reduce((a, b) => a.intersection(b));
+
+    availableTurfIdsForSelectedTimeDate = commonUnitIds.toList();
+  }
+
+  void setStartTime(TimeOfDay time) {
+    final slot = getSelectedSlotPrice();
+    if (slot == null) return;
+
+    final now = DateTime.now();
+    final isToday = isSameDay(selectedDate, now);
+
+    if (isToday) {
+      final nowMinutes = now.hour * 60 + now.minute;
+      final pickedMinutes = time.hour * 60 + time.minute;
+
+      if (pickedMinutes < nowMinutes) {
+        GlobalSnackbar.bottomError(
+          navigatorKey.currentContext!,
+          "You cannot select a past time for today.",
+        );
+        return;
+      }
     }
+
+    final slotEndParts = slot.endTime.split(":").map(int.parse).toList();
+    final slotEndDateTime = DateTime(0, 1, 1, slotEndParts[0], slotEndParts[1]);
+
+    final startDateTime = DateTime(0, 1, 1, time.hour, time.minute);
+    final safeDuration = Duration(
+      minutes: minMinutesSport ?? 60,
+    ); // fallback to 60
+    final newEndDateTime = startDateTime.add(safeDuration);
+
+    if (newEndDateTime.isAfter(slotEndDateTime)) {
+      GlobalSnackbar.bottomError(
+        navigatorKey.currentContext!,
+        "Selected time + duration exceeds slot end time.",
+        duration: Duration(seconds: 3),
+      );
+      return;
+    }
+
+    selectedStartTime = time;
+    updateAvailableTurfIdsForSelectedTimeRange();
+    notifyListeners();
+  }
+
+  String get timeRangeString {
+    final start = selectedStartTime;
+
+    final startDateTime = DateTime(0, 1, 1, start.hour, start.minute);
+    final endDateTime = startDateTime.add(
+      Duration(minutes: minMinutesSport ?? 60),
+    );
+
+    return "${DateFormat('HH:mm').format(startDateTime)} - ${DateFormat('HH:mm').format(endDateTime)}";
+  }
+
+  get context => null;
+
+  void selectSlot(String slot) {
+    selectedSlot = slot;
+    selectedTurfIndexes.clear();
+    selectedTurfIds.clear();
+    isTurfAutoSelected = false;
+    final slotPrice = getSelectedSlotPrice();
+    if (slotPrice != null) {
+      updateTimeRangeBasedOnSlot(slotPrice);
+    }
+
+    notifyListeners();
+  }
+
+  void toggleCalendar() {
+    isCalendarExpanded = !isCalendarExpanded;
+    notifyListeners();
   }
 
   SlotPrice? getSelectedSlotPrice() {
@@ -547,6 +666,38 @@ class BookTabProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void autoSelectFirstAvailableSlot() {
+    final now = DateTime.now();
+    final isToday = isSameDay(selectedDate, now);
+
+    final slotOptions = getSlotOptionsByDate(
+      selectedDate: selectedDate,
+      currentTime:
+          isToday
+              ? now
+              : DateTime(
+                selectedDate.year,
+                selectedDate.month,
+                selectedDate.day,
+              ),
+    );
+
+    final firstActiveSlot = slotOptions.firstWhere(
+      (slot) => slot["isActive"] == true,
+      orElse: () => <String, Object>{},
+    );
+
+    if (firstActiveSlot.isNotEmpty && selectedSlot == null) {
+      final value = firstActiveSlot["value"];
+      if (value is String) {
+        selectSlot(value);
+      }
+    }
+
+    // ✅ Do nothing if no active slots
+    // Elsewhere you already show "No slots available"
+  }
+
   //----------
   Future<void> getSlotPrices(int venueId, int sportId) async {
     isSlotPriceLoading = true;
@@ -572,6 +723,7 @@ class BookTabProvider extends ChangeNotifier {
         slotPriceModel = SlotPriceModel.fromJson(data['response']);
         minMinutesSport = slotPriceModel?.minimumMinutesSport ?? 60;
         _filterSlotsOfselctedDate();
+        autoSelectFirstAvailableSlot();
         notifyListeners();
       } else {
         GlobalSnackbar.error(navigatorKey.currentContext!, response.message);
@@ -610,18 +762,29 @@ class BookTabProvider extends ChangeNotifier {
       );
 
       if (response.isSuccess) {
-        final matchingCoupon = couponList.firstWhere(
-          (coupon) => coupon.couponCode == selectedCouponCode,
-          orElse:
-              () => CouponModel(
-                couponId: 0,
-                couponCode: '',
-                discountAmount: 0,
-                expiryDate: '',
-              ),
-        );
+        // final matchingCoupon = couponList.firstWhere(
+        //   (coupon) => coupon.couponCode == selectedCouponCode,
+        //   orElse:
+        //       () => CouponModel(
+        //         couponId: 0,
+        //         couponCode: '',
+        //         discountAmount: 0,
+        //         expiryDate: '',
+        //       ),
+        // );
 
-        offerDiscount = matchingCoupon.discountAmount ?? 0;
+        // offerDiscount = matchingCoupon.discountAmount ?? 0;
+        // couponAppliedMessage = "Coupon applied successfully!";
+        // isCouponApplied = true;
+        // notifyListeners();
+        // return true;
+        final data = jsonDecode(response.responseData);
+        final responseData = data['response'];
+
+        offerDiscount = responseData['discount_amount'] ?? 0;
+        // If you want to use discounted price, you can store it as well
+        // final discountedPrice = responseData['discounted_price'] ?? totalPrice;
+
         couponAppliedMessage = "Coupon applied successfully!";
         isCouponApplied = true;
         notifyListeners();
@@ -904,6 +1067,9 @@ class BookTabProvider extends ChangeNotifier {
     isCouponApplied = false;
     isCouponApplying = false;
     isCouponLoading = false;
+    useCoins = false;
+    appliedCoins = 0;
+    coinError = null;
     notifyListeners();
   }
 
@@ -914,6 +1080,7 @@ class BookTabProvider extends ChangeNotifier {
     availableTurfIdsForSelectedTimeDate.clear();
     minMinutesSport = 60;
     selectedTurfIds.clear();
+    selectedDate = DateTime.now();
     filteredAvailableSlotsForSelectedDate = null;
     notifyListeners();
   }
@@ -992,6 +1159,9 @@ class BookTabProvider extends ChangeNotifier {
         "totalPrice": totalPriceBeforeDiscountall,
         "discountAmount": offerDiscount,
         "discountPrice": finalPayableAmount,
+        "coinWalletId": coinWalletId,
+        "usedCoins": appliedCoins,
+        "coinDiscountUsed": coinDiscount,
       };
       debugPrint("Proceed to Pay Req Body: $reqBody");
       final response = await BookTabService().proceedToPayService(
@@ -1005,6 +1175,10 @@ class BookTabProvider extends ChangeNotifier {
         paymentId = responseData['response']['paymentId'];
         paymentDate = DateFormat("dd MMMM yyyy").format(now);
         paymentTime = DateFormat("hh:mm a").format(now);
+        // 🔁 Refresh coin data after booking success
+        navigatorKey.currentContext!.read<HomeTabProvider>().getCoinsData(
+          navigatorKey.currentContext!,
+        );
 
         Future.delayed(const Duration(milliseconds: 300), () {
           Navigator.pushReplacement(
@@ -1014,13 +1188,6 @@ class BookTabProvider extends ChangeNotifier {
             ),
           );
         });
-
-        GlobalSnackbar.success(
-          navigatorKey.currentContext!,
-          response.message.isNotEmpty
-              ? response.message
-              : "Payment Proceeded Successfully",
-        );
       } else {
         GlobalSnackbar.error(navigatorKey.currentContext!, response.message);
       }

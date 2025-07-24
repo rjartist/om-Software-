@@ -460,18 +460,37 @@ class Service {
 class Payment {
   int? paymentId;
   int? collectPayment;
+  String? paymentMethod;
+  String? createdAt;
+  String? paymentDate;
+  String? paymentTime;
 
-  Payment({this.paymentId, this.collectPayment});
+  Payment({
+    this.paymentId,
+    this.collectPayment,
+    this.paymentMethod,
+    this.createdAt,
+    this.paymentDate,
+    this.paymentTime,
+  });
 
   Payment.fromJson(Map<String, dynamic> json) {
     paymentId = json['payment_id'];
     collectPayment = json['collect_payment'];
+    paymentMethod = json['payment_method'];
+    createdAt = json['created_at'];
+    paymentDate = json['payment_date'];
+    paymentTime = json['payment_time'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['payment_id'] = this.paymentId;
     data['collect_payment'] = this.collectPayment;
+    data['payment_method'] = this.paymentMethod;
+    data['created_at'] = this.createdAt;
+    data['payment_date'] = this.paymentDate;
+    data['payment_time'] = this.paymentTime;
     return data;
   }
 }

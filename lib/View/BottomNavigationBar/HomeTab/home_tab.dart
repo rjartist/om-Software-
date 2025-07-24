@@ -12,13 +12,29 @@ import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/View/BottomNavigationBar/BookTab/venue_details_page.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/home_banner.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/home_header.dart';
+import 'package:gkmarts/View/BottomNavigationBar/PlayTab/calendar_screen_main.dart';
 import 'package:gkmarts/Widget/global.dart';
+import 'package:gkmarts/Widget/global_button.dart';
 import 'package:gkmarts/Widget/network_status_banner.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
-class HomeTab extends StatelessWidget {
+class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
+
+  @override
+  State<HomeTab> createState() => _HomeTabState();
+}
+
+class _HomeTabState extends State<HomeTab> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      context.read<HomeTabProvider>().showCoinPopupOnce(context);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +58,7 @@ class HomeTab extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: HomeBanner(),
             ),
-            PaymentButtonWidget(),
+            // PaymentButtonWidget(),
             vSizeBox(8),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -116,7 +132,7 @@ class HomeTab extends StatelessWidget {
             ),
 
             JoinGameSection(),
-            _startPlayingSection(),
+            _startPlayingSection(context),
           ],
         ),
       ),
@@ -141,7 +157,7 @@ class HomeTab extends StatelessWidget {
   }
 }
 
-Widget _startPlayingSection() {
+Widget _startPlayingSection(BuildContext context) {
   return Container(
     margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     padding: const EdgeInsets.all(16),
@@ -227,7 +243,14 @@ Widget _startPlayingSection() {
                 child: InkWell(
                   borderRadius: BorderRadius.circular(6),
                   onTap: () {
-                    // Handle tap
+                    Navigator.push(
+                      context,
+                      PageTransition(
+                        type: PageTransitionType.rightToLeft,
+                        duration: const Duration(milliseconds: 300),
+                        child: CalendarScreenMain(),
+                      ),
+                    );
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(
@@ -991,16 +1014,41 @@ class PaymentButtonWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          // ElevatedButton(
+          //   onPressed: () async {
+          //     final provider = PhonePePaymentProvider();
+          //     await provider.initializeSDK("user123");
+          //     await provider.startPhonePeTransaction();
+          //   },
+          //   child: const Text("Pay with PhonePe"),
+          // ),
+          // const SizedBox(height: 20),
+          // Text("Result: ${paymentProvider.result ?? ''}"),
+          //   ElevatedButton(
+          //   onPressed: () async {
+          //     Navigator.push(context, MaterialPageRoute(builder: (context) => PhonePePaymentScreen()));
+          //   },
+          //   child: const Text("Navigat PhonePePaymentScreen"),
+          // ),
           ElevatedButton(
             onPressed: () async {
-              final provider = PhonePePaymentProvider();
-              await provider.initializeSDK("user123");
-              await provider.startPhonePeTransaction();
+              await paymentProvider.initPhonePeSDK();
             },
-            child: const Text("Pay with PhonePe"),
+            child: const Text("Initialize PhonePe SDK"),
           ),
           const SizedBox(height: 20),
-          Text("Result: ${paymentProvider.result ?? ''}"),
+          ElevatedButton(
+            onPressed:
+                paymentProvider.isInitialized
+                    ? () async => await paymentProvider.startTransaction()
+                    : null,
+            child: const Text("Pay with PhonePe"),
+          ),
+          const SizedBox(height: 30),
+          Text(
+            paymentProvider.resultMessage,
+            style: const TextStyle(fontSize: 16),
+          ),
         ],
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gkmarts/Provider/Bookings/booking_list_provider.dart';
 import 'package:gkmarts/Provider/Bookings/bookings_count_provider.dart';
+import 'package:gkmarts/Provider/Bookings/cancel_booking_provider.dart';
 import 'package:gkmarts/Provider/Connectivity/connectivity_provider.dart';
 import 'package:gkmarts/Provider/Favorites/my_favorites_provider.dart';
 import 'package:gkmarts/Provider/HomePage/Bottom_navigationBar/bottom_navigationbar.dart';
@@ -37,6 +38,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => MyFavoritesProvider()),
         ChangeNotifierProvider(create: (_) => PhonePePaymentProvider ()),
         ChangeNotifierProvider(create: (_) => BookingsCountProvider()),
+        ChangeNotifierProvider(create: (_) => CancelBookingProvider()),
       ],
       child: const MyApp(),
     ),

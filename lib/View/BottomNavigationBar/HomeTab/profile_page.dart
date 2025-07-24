@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gkmarts/Provider/Bookings/bookings_count_provider.dart';
 import 'package:gkmarts/Provider/Profile/profile_page_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/edit_profile_page.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/my_bookings.dart';
+import 'package:gkmarts/View/BottomNavigationBar/HomeTab/my_coins.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/my_favorites.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/settings.dart';
 import 'package:gkmarts/Widget/global_appbar.dart';
@@ -217,6 +219,22 @@ class _ProfilePageState extends State<ProfilePage> {
                                 );
                               },
                             ),
+
+                            _profileTile(
+                              "assets/images/coins.svg",
+                              "My Coins",
+                              () {
+                                Navigator.push(
+                                  context,
+                                  PageTransition(
+                                    type: PageTransitionType.rightToLeft,
+                                    duration: const Duration(milliseconds: 300),
+                                    child: const MyCoins(),
+                                  ),
+                                );
+                              },
+                              isSvg: true,
+                            ),
                             _profileTile(
                               "assets/images/support.png",
                               "Help & Support",
@@ -287,15 +305,31 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _profileTile(String icon, String title, VoidCallback onTap) {
+  Widget _profileTile(
+    String icon,
+    String title,
+    VoidCallback onTap, {
+    bool isSvg = false,
+  }) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      leading: Image.asset(
-        icon,
-        height: 22,
-        width: 22,
-        color: AppColors.primaryColor,
-      ),
+      leading:
+          isSvg
+              ? SvgPicture.asset(
+                icon,
+                height: 22,
+                width: 22,
+                // colorFilter: const ColorFilter.mode(
+                //   AppColors.primaryColor,
+                //   BlendMode.srcIn,
+                // ),
+              )
+              : Image.asset(
+                icon,
+                height: 22,
+                width: 22,
+                color: AppColors.primaryColor,
+              ),
       title: Text(title, style: AppTextStyle.blackText(fontSize: 15)),
       onTap: onTap,
     );
@@ -385,7 +419,10 @@ class _ProfilePageState extends State<ProfilePage> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text("GO TO MY BOOKINGS"),
+                child: Text(
+                  "GO TO MY BOOKINGS",
+                  style: AppTextStyle.whiteText(),
+                ),
               ),
             ],
           ),

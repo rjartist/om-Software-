@@ -79,6 +79,7 @@ class GlobalButton extends StatelessWidget {
     );
   }
 }
+
 class GlobalPrimaryButton extends StatelessWidget {
   final String text;
   final VoidCallback onTap;
@@ -107,18 +108,113 @@ class GlobalPrimaryButton extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: isEnabled
-                ? [
-                    AppColors.profileSectionButtonColor,
-                    AppColors.profileSectionButtonColor2,
-                  ]
-                : [Colors.grey, Colors.grey],
+            colors:
+                isEnabled
+                    ? [
+                      AppColors.profileSectionButtonColor,
+                      AppColors.profileSectionButtonColor2,
+                    ]
+                    : [Colors.grey, Colors.grey],
           ),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Text(
           text,
           style: AppTextStyle.whiteText(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class GlobalPrimarySmallButton extends StatelessWidget {
+  final String text;
+  final VoidCallback onTap;
+  final double width;
+  final double height;
+  final bool isEnabled; // Add this flag
+
+  const GlobalPrimarySmallButton({
+    super.key,
+    required this.text,
+    required this.onTap,
+    this.width = 100,
+    this.height = 30,
+    this.isEnabled = true, // Default true
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: isEnabled ? onTap : null,
+      child: Container(
+        width: width,
+        height: height,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors:
+                isEnabled
+                    ? [
+                      AppColors.profileSectionButtonColor,
+                      AppColors.profileSectionButtonColor2,
+                    ]
+                    : [Colors.grey, Colors.grey],
+          ),
+          borderRadius: BorderRadius.circular(5),
+        ),
+        child: Text(
+          text,
+          style: AppTextStyle.whiteText(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class GlobalGreySmallButton extends StatelessWidget {
+  final String text;
+  final VoidCallback onTap;
+  final double width;
+  final double height;
+  final bool isEnabled; // Add this flag
+
+  const GlobalGreySmallButton({
+    super.key,
+    required this.text,
+    required this.onTap,
+    this.width = 100,
+    this.height = 30,
+    this.isEnabled = true, // Default true
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: isEnabled ? onTap : null,
+      child: Container(
+        width: width,
+        height: height,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [AppColors.bgContainer, AppColors.bgContainer],
+          ),
+          borderRadius: BorderRadius.circular(5),
+        ),
+        child: Text(
+          text,
+          style: AppTextStyle.blackText(
             fontSize: 12,
             fontWeight: FontWeight.w500,
           ),
@@ -171,6 +267,60 @@ class GlobalSmallButton extends StatelessWidget {
         ),
         onPressed: onTap,
         child: Text(text),
+      ),
+    );
+  }
+}
+
+class GlobalCancelButton extends StatelessWidget {
+  final String text;
+  final VoidCallback onTap;
+  final double width;
+  final double height;
+  final Color backgroundColor;
+  final Color textColor;
+  final double borderRadius;
+  final Color? borderColor;
+
+  const GlobalCancelButton({
+    super.key,
+    required this.text,
+    required this.onTap,
+    this.width = 191,
+    this.height = 43,
+    this.backgroundColor = AppColors.primaryColor,
+    this.textColor = Colors.white,
+    this.borderRadius = 10,
+    this.borderColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      height: height,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          elevation: 0,
+          backgroundColor: backgroundColor,
+          foregroundColor: textColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(borderRadius),
+            side:
+                borderColor != null
+                    ? BorderSide(color: borderColor!)
+                    : BorderSide.none,
+          ),
+          textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+        ),
+        onPressed: onTap,
+        child: Text(
+          text,
+          style: AppTextStyle.blackText(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ),
     );
   }

@@ -1,13 +1,18 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:gkmarts/Models/GenaralModels/coins_model.dart';
 import 'package:gkmarts/Models/HomeTab_Models/banner_model.dart';
 import 'package:gkmarts/Models/HomeTab_Models/game_join_model.dart';
 import 'package:gkmarts/Models/BookTabModel/venue_model.dart';
 import 'package:gkmarts/Provider/Connectivity/connectivity_provider.dart';
 import 'package:gkmarts/Provider/Location/location_provider.dart';
-import 'package:gkmarts/Services/Api_service/api_service.dart';
 import 'package:gkmarts/Services/HomeTab/home_tab_service.dart';
+import 'package:gkmarts/Utils/SharedPrefHelper/shared_local_storage.dart';
+import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
+import 'package:gkmarts/View/BottomNavigationBar/HomeTab/my_coins.dart';
+import 'package:gkmarts/Widget/global.dart';
+import 'package:gkmarts/Widget/global_button.dart';
 import 'package:provider/provider.dart';
 
 class HomeTabProvider with ChangeNotifier {
@@ -27,6 +32,119 @@ class HomeTabProvider with ChangeNotifier {
   //--
   int _selectedServiceIndex = -1;
   int get selectedServiceIndex => _selectedServiceIndex;
+  CoinsModel? coinsModel;
+  bool isCoinsLoading = false;
+
+  Future<void> showCoinPopupOnce(BuildContext context) async {
+    // final coins = coinsModel?.remainingBonusCoins ?? 0;
+    // showCoinPopup(context, coins);
+    
+    if (!SharedPrefHelper.hasShownCoinPopup()) {
+      final coins = coinsModel?.remainingBonusCoins ?? 0;
+      if (coins > 0) {
+        await SharedPrefHelper.markCoinPopupShown();
+        showCoinPopup(context, coins);
+      }
+    }
+  }
+
+  void showCoinPopup(BuildContext context, int coins) {
+    final expiryDate = coinsModel?.bonusExpiry;
+    final formattedExpiry =
+        expiryDate != null ? formatFullDate(expiryDate) : 'soon';
+
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Lottie.asset(
+                //   'assets/animations/coins.json', // ✅ Add your Lottie animation file
+                //   height: 150,
+                //   repeat: false,
+                // ),
+                const SizedBox(height: 12),
+                Text(
+                  "Bonus Coins 🎉",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  "You’ve received $coins bonus coins!\nUse them on your bookings within the next 90 days .\n\nYou can redeem these coins across up to 10 bookings.\n\nHurry! Coins expire on $formattedExpiry.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                ),
+                const SizedBox(height: 16),
+
+                GlobalSmallButton(
+                  text: "View My Coins",
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const MyCoins()),
+                    );
+                  },
+                  backgroundColor: AppColors.white,
+                  textColor: AppColors.primaryColor,
+                  borderColor: AppColors.borderColor,
+                ),
+                const SizedBox(height: 20),
+                GlobalButton(
+                  text: "Got it!",
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> getCoinsData(BuildContext context) async {
+    final isOnline =
+        Provider.of<ConnectivityProvider>(context, listen: false).isOnline;
+    if (!isOnline) return;
+
+    isCoinsLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await HomeTabService().getUserCoinsService();
+
+      if (response.isSuccess) {
+        final data = jsonDecode(response.responseData);
+        if (data['success'] == true) {
+          coinsModel = CoinsModel.fromJson(data);
+        } else {
+          debugPrint("Coins API returned success=false");
+        }
+      } else {
+        debugPrint("Coins API error: ${response.message}");
+      }
+    } catch (e) {
+      debugPrint("Coins fetch error: $e");
+    } finally {
+      isCoinsLoading = false;
+      notifyListeners();
+    }
+  }
 
   void setVenueList(List<VenueModel> venues) {
     venueList = venues;

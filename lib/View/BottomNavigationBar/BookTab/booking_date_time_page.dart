@@ -144,102 +144,6 @@ class _BookingDateTimePageState extends State<BookingDateTimePage> {
     );
   }
 
-  // Widget buildAvailableTurfSelector(
-  //   BuildContext context,
-  //   BookTabProvider provider,
-  // ) {
-  //   final availableTurfs = provider.getAvailableTurfsForSelectedSlotAndDate();
-  //   final screenHeight = MediaQuery.of(context).size.height;
-  //   final bool isSlotAndTimeSelected =
-  //       provider.selectedSlot != null &&
-  //       (provider.selectedStartTime.hour != 0 ||
-  //           provider.selectedStartTime.minute != 0);
-  //   if (availableTurfs.isEmpty && isSlotAndTimeSelected) {
-  //     return Container(
-  //       padding: EdgeInsets.symmetric(horizontal: 20),
-  //       height: 80,
-
-  //       alignment: Alignment.center,
-  //       child: Text(
-  //         "No turfs are available for the selected date and time. Please reselect and try again. ",
-  //         style: AppTextStyle.greytext(),
-  //         textAlign: TextAlign.center,
-  //         maxLines: 4,
-  //         overflow: TextOverflow.ellipsis,
-  //       ),
-  //     );
-  //   }
-
-  //   if (availableTurfs.isEmpty && !isSlotAndTimeSelected) {
-  //     return const SizedBox(height: 60);
-  //   }
-
-  //   return ConstrainedBox(
-  //     constraints: BoxConstraints(
-  //       maxHeight: screenHeight * 0.3, // Limit height for safety
-  //     ),
-  //     child: SingleChildScrollView(
-  //       child: Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Text("Select Turf(s)", style: AppTextStyle.titleSmallText()),
-  //           const SizedBox(height: 8),
-  //           Wrap(
-  //             spacing: 12,
-  //             runSpacing: 12,
-  //             children: List.generate(availableTurfs.length, (index) {
-  //               final turf = availableTurfs[index];
-  //               final isSelected = provider.selectedTurfIndexes.contains(index);
-
-  //               return GestureDetector(
-  //                 onTap: () {
-  //                   provider.toggleTurfSelection(index, turf['unitId']);
-  //                 },
-  //                 child: Container(
-  //                   constraints: const BoxConstraints(
-  //                     minWidth: 80,
-  //                     maxWidth: 150,
-  //                   ),
-  //                   padding: const EdgeInsets.symmetric(horizontal: 12),
-  //                   height: 40,
-  //                   alignment: Alignment.center,
-  //                   decoration: BoxDecoration(
-  //                     color: isSelected ? null : Colors.transparent,
-  //                     gradient:
-  //                         isSelected
-  //                             ? const LinearGradient(
-  //                               begin: Alignment.topCenter,
-  //                               end: Alignment.bottomCenter,
-  //                               colors: [
-  //                                 AppColors.profileSectionButtonColor,
-  //                                 AppColors.profileSectionButtonColor2,
-  //                               ],
-  //                             )
-  //                             : null,
-  //                     borderRadius: BorderRadius.circular(8),
-  //                     border: Border.all(color: AppColors.borderColor),
-  //                   ),
-  //                   child: FittedBox(
-  //                     fit: BoxFit.scaleDown,
-  //                     child: Text(
-  //                       turf['unitName'] ?? "Turf ${index + 1}",
-  //                       textAlign: TextAlign.center,
-  //                       style: TextStyle(
-  //                         color: isSelected ? Colors.white : Colors.black,
-  //                         fontWeight:
-  //                             isSelected ? FontWeight.bold : FontWeight.normal,
-  //                       ),
-  //                     ),
-  //                   ),
-  //                 ),
-  //               );
-  //             }),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
   Widget buildAvailableTurfSelector(
     BuildContext context,
     BookTabProvider provider,
@@ -255,7 +159,7 @@ class _BookingDateTimePageState extends State<BookingDateTimePage> {
 
     if (availableTurfs.isEmpty && isSlotAndTimeSelected) {
       return Container(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         height: 80,
         alignment: Alignment.center,
         child: Text(
@@ -270,6 +174,30 @@ class _BookingDateTimePageState extends State<BookingDateTimePage> {
 
     if (availableTurfs.isEmpty && !isSlotAndTimeSelected) {
       return const SizedBox(height: 60);
+    }
+
+    // ✅ Deselect previously selected unavailable turfs
+    provider.selectedTurfIndexes.removeWhere((index) {
+      if (index >= availableTurfs.length) return true; // prevent out-of-bounds
+      final turf = availableTurfs[index];
+      final unitId = turf['unitId'] ?? 0;
+      return !availableTurfIds.contains(unitId);
+    });
+
+    // ✅ Auto-select first available turf
+    if (!provider.isTurfAutoSelected &&
+        provider.selectedTurfIds.isEmpty &&
+        availableTurfs.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final firstAvailableIndex = availableTurfs.indexWhere(
+          (turf) => availableTurfIds.contains(turf['unitId']),
+        );
+        if (firstAvailableIndex != -1) {
+          final turf = availableTurfs[firstAvailableIndex];
+          provider.toggleTurfSelection(firstAvailableIndex, turf['unitId']);
+          provider.isTurfAutoSelected = true;
+        }
+      });
     }
 
     return ConstrainedBox(
@@ -305,12 +233,9 @@ class _BookingDateTimePageState extends State<BookingDateTimePage> {
                     }
                   },
                   child: Container(
-                    constraints: const BoxConstraints(
-                      minWidth: 80,
-                      maxWidth: 160,
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    width: 170,
                     height: 40,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color:
@@ -318,7 +243,7 @@ class _BookingDateTimePageState extends State<BookingDateTimePage> {
                               ? null
                               : isAvailable
                               ? Colors.transparent
-                              : Colors.grey.shade300, // 🟩 Booked: darker grey
+                              : Colors.grey.shade300,
                       gradient:
                           isSelected
                               ? const LinearGradient(
@@ -336,10 +261,11 @@ class _BookingDateTimePageState extends State<BookingDateTimePage> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
+                        Expanded(
                           child: Text(
                             unitName,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color:
@@ -347,8 +273,7 @@ class _BookingDateTimePageState extends State<BookingDateTimePage> {
                                       ? (isSelected
                                           ? Colors.white
                                           : Colors.black)
-                                      : Colors
-                                          .black54, // 🔒 Booked: dark grey text
+                                      : Colors.black54,
                               fontWeight:
                                   isSelected
                                       ? FontWeight.bold
@@ -362,7 +287,7 @@ class _BookingDateTimePageState extends State<BookingDateTimePage> {
                             child: Icon(
                               Icons.lock,
                               size: 16,
-                              color: Colors.black54, // 🔒 Lock Icon
+                              color: Colors.black54,
                             ),
                           ),
                       ],
@@ -376,6 +301,143 @@ class _BookingDateTimePageState extends State<BookingDateTimePage> {
       ),
     );
   }
+
+  // Widget buildAvailableTurfSelector(
+  //   BuildContext context,
+  //   BookTabProvider provider,
+  // ) {
+  //   final availableTurfs = provider.getAvailableTurfsForSelectedSlotAndDate();
+  //   final availableTurfIds = provider.availableTurfIdsForSelectedTimeDate;
+  //   final screenHeight = MediaQuery.of(context).size.height;
+
+  //   final bool isSlotAndTimeSelected =
+  //       provider.selectedSlot != null &&
+  //       (provider.selectedStartTime.hour != 0 ||
+  //           provider.selectedStartTime.minute != 0);
+
+  //   if (availableTurfs.isEmpty && isSlotAndTimeSelected) {
+  //     return Container(
+  //       padding: EdgeInsets.symmetric(horizontal: 20),
+  //       height: 80,
+  //       alignment: Alignment.center,
+  //       child: Text(
+  //         "No turfs are available for the selected date and time. Please reselect and try again.",
+  //         style: AppTextStyle.greytext(),
+  //         textAlign: TextAlign.center,
+  //         maxLines: 4,
+  //         overflow: TextOverflow.ellipsis,
+  //       ),
+  //     );
+  //   }
+
+  //   if (availableTurfs.isEmpty && !isSlotAndTimeSelected) {
+  //     return const SizedBox(height: 60);
+  //   }
+
+  //   return ConstrainedBox(
+  //     constraints: BoxConstraints(maxHeight: screenHeight * 0.3),
+  //     child: SingleChildScrollView(
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Text("Select Turf(s)", style: AppTextStyle.titleSmallText()),
+  //           const SizedBox(height: 8),
+  //           Wrap(
+  //             spacing: 12,
+  //             runSpacing: 12,
+  //             children: List.generate(availableTurfs.length, (index) {
+  //               final turf = availableTurfs[index];
+  //               final int unitId = turf['unitId'] ?? 0;
+  //               final String unitName = turf['unitName'] ?? "Turf ${index + 1}";
+
+  //               final bool isAvailable = availableTurfIds.contains(unitId);
+  //               final bool isSelected = provider.selectedTurfIndexes.contains(
+  //                 index,
+  //               );
+
+  //               return GestureDetector(
+  //                 onTap: () {
+  //                   if (isAvailable) {
+  //                     provider.toggleTurfSelection(index, unitId);
+  //                   } else {
+  //                     GlobalSnackbar.bottomError(
+  //                       context,
+  //                       "This turf is already booked for the selected date and time.",
+  //                     );
+  //                   }
+  //                 },
+  //                 child: Container(
+  //                   constraints: const BoxConstraints(
+  //                     minWidth: 80,
+  //                     maxWidth: 160,
+  //                   ),
+  //                   padding: const EdgeInsets.symmetric(horizontal: 12),
+  //                   height: 40,
+  //                   alignment: Alignment.center,
+  //                   decoration: BoxDecoration(
+  //                     color:
+  //                         isSelected
+  //                             ? null
+  //                             : isAvailable
+  //                             ? Colors.transparent
+  //                             : Colors.grey.shade300, // 🟩 Booked: darker grey
+  //                     gradient:
+  //                         isSelected
+  //                             ? const LinearGradient(
+  //                               begin: Alignment.topCenter,
+  //                               end: Alignment.bottomCenter,
+  //                               colors: [
+  //                                 AppColors.profileSectionButtonColor,
+  //                                 AppColors.profileSectionButtonColor2,
+  //                               ],
+  //                             )
+  //                             : null,
+  //                     borderRadius: BorderRadius.circular(8),
+  //                     border: Border.all(color: AppColors.borderColor),
+  //                   ),
+  //                   child: Row(
+  //                     mainAxisSize: MainAxisSize.min,
+  //                     children: [
+  //                       FittedBox(
+  //                         fit: BoxFit.scaleDown,
+  //                         child: Text(
+  //                           unitName,
+  //                           textAlign: TextAlign.center,
+  //                           style: TextStyle(
+  //                             color:
+  //                                 isAvailable
+  //                                     ? (isSelected
+  //                                         ? Colors.white
+  //                                         : Colors.black)
+  //                                     : Colors
+  //                                         .black54, // 🔒 Booked: dark grey text
+  //                             fontWeight:
+  //                                 isSelected
+  //                                     ? FontWeight.bold
+  //                                     : FontWeight.normal,
+  //                           ),
+  //                         ),
+  //                       ),
+  //                       if (!isAvailable)
+  //                         const Padding(
+  //                           padding: EdgeInsets.only(left: 6),
+  //                           child: Icon(
+  //                             Icons.lock,
+  //                             size: 16,
+  //                             color: Colors.black54, // 🔒 Lock Icon
+  //                           ),
+  //                         ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //               );
+  //             }),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   void showPriceChartBottomSheet(BuildContext context) {
     showModalBottomSheet(

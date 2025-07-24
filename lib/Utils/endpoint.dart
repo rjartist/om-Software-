@@ -14,6 +14,8 @@ String getApplyCouponApi = "$prodDomain/api/booking/apply-coupon";
 String getRateVenueApi = "$prodDomain/api/reviews/submit";
 String getProceedToPayApi = "$prodDomain/api/payment";
 String getcheckTurfAvailableServiceApi = "$prodDomain/api/get-turfs";
+//coins
+String getCoinsApi = "$prodDomain/api/wallet/get";
 
 String getProfileApi = "$prodDomain/api/user/profile";
 String editProfileApi = "$prodDomain/api/user/profile/edit";
@@ -23,3 +25,4 @@ String getSlotPriceApi = "$prodDomain/api/get-slot-price";
 
 String getfavoritesApi = "$prodDomain/api/user/favorites";
 String getBookingCountApi = "$prodDomain/api/get-bookings-count";
+String cancelBookingApi = "$prodDomain/api/cancel-booking-request";

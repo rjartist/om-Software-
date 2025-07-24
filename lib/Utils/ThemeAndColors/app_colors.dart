@@ -17,6 +17,7 @@ class AppColors {
   static const Color primaryTextColor = Color(0xFF212121);
   static const Color secondaryTextColor = Color(0xFF616161);
   static const Color hintTextColor = Color(0xFF9E9E9E);
+  static const Color greytext = Color(0xFF797979);
 
   static const Color gradientStart = Color(0xFFBF360C); // Dark Orange (#FF8C00)
   static const Color gradientEnd = Color(

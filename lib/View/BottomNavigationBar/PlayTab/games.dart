@@ -200,7 +200,7 @@ class Games extends StatelessWidget {
                                 ],
                               ),
                               Text(
-                                "Sat 16 Mar, 8:00 AM - 9:00 AM",
+                                "16 Mar, at | 8:00 AM - 9:00 AM",
                                 style: AppTextStyle.blackText(fontSize: 10),
                               ),
                               Row(

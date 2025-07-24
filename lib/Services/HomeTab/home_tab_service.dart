@@ -5,6 +5,21 @@ import 'package:gkmarts/Utils/endpoint.dart';
 import 'package:gkmarts/Utils/headers.dart';
 
 class HomeTabService {
+  Future<RestResponse> getUserCoinsService() async {
+    try {
+      ApiService apiService = ApiService(
+        endpoint: getCoinsApi,
+        body: "",
+        method: HTTP_METHOD.POST,
+        headers: await HttpHeader.getHeader(),
+      );
+      RestResponse response = await apiService.exec();
+      return response;
+    } catch (e) {
+      return RestResponse(isSuccess: false);
+    }
+  }
+
   Future<RestResponse> getAllVenueServices({required String city}) async {
     try {
       ApiService apiService = ApiService(
@@ -20,8 +35,6 @@ class HomeTabService {
       return RestResponse(isSuccess: false);
     }
   }
-
-
 
   Future<RestResponse> getBannerService() async {
     try {
