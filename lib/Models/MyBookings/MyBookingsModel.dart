@@ -1,57 +1,47 @@
 class MyBookingsModel {
-  bool? success;
-  String? message;
-  List<PastBookings>? pastBookings;
-  List<FutureBookings>? futureBookings;
-  List<CancelledBookings>? cancelledBookings;
+  final bool? success;
+  final String? message;
+  final int? totalBookingCount;
+  final int? upcomingBookingCount;
+  final int? pastBookingCount;
+  final int? cancelledBookingCount;
+  final List<PastBookings>? pastBookings;
+  final List<FutureBookings>? futureBookings;
+  final List<CancelledBookings>? cancelledBookings;
 
   MyBookingsModel({
     this.success,
     this.message,
+    this.totalBookingCount,
+    this.upcomingBookingCount,
+    this.pastBookingCount,
+    this.cancelledBookingCount,
     this.pastBookings,
     this.futureBookings,
     this.cancelledBookings,
   });
 
-  MyBookingsModel.fromJson(Map<String, dynamic> json) {
-    success = json['success'];
-    message = json['message'];
-    if (json['pastBookings'] != null) {
-      pastBookings = <PastBookings>[];
-      json['pastBookings'].forEach((v) {
-        pastBookings!.add(new PastBookings.fromJson(v));
-      });
-    }
-    if (json['futureBookings'] != null) {
-      futureBookings = <FutureBookings>[];
-      json['futureBookings'].forEach((v) {
-        futureBookings!.add(new FutureBookings.fromJson(v));
-      });
-    }
-    if (json['cancelledBookings'] != null) {
-      cancelledBookings = <CancelledBookings>[];
-      json['cancelledBookings'].forEach((v) {
-        cancelledBookings!.add(new CancelledBookings.fromJson(v));
-      });
-    }
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['success'] = this.success;
-    data['message'] = this.message;
-    if (this.pastBookings != null) {
-      data['pastBookings'] = this.pastBookings!.map((v) => v.toJson()).toList();
-    }
-    if (this.futureBookings != null) {
-      data['futureBookings'] =
-          this.futureBookings!.map((v) => v.toJson()).toList();
-    }
-    if (this.cancelledBookings != null) {
-      data['cancelledBookings'] =
-          this.cancelledBookings!.map((v) => v.toJson()).toList();
-    }
-    return data;
+  factory MyBookingsModel.fromJson(Map<String, dynamic> json) {
+    return MyBookingsModel(
+      success: json['success'],
+      message: json['message'],
+      totalBookingCount: json['totalBookingCount'],
+      upcomingBookingCount: json['upcomingBookingCount'],
+      pastBookingCount: json['pastBookingCount'],
+      cancelledBookingCount: json['cancelledBookingCount'],
+      pastBookings:
+          (json['pastBookings'] as List<dynamic>?)
+              ?.map((e) => PastBookings.fromJson(e))
+              .toList(),
+      futureBookings:
+          (json['futureBookings'] as List<dynamic>?)
+              ?.map((e) => FutureBookings.fromJson(e))
+              .toList(),
+      cancelledBookings:
+          (json['cancelledBookings'] as List<dynamic>?)
+              ?.map((e) => CancelledBookings.fromJson(e))
+              .toList(),
+    );
   }
 }
 
@@ -63,7 +53,10 @@ class PastBookings {
   List<FacilityBookingSlots>? facilityBookingSlots;
   Payment? payment;
   BookingCancellationRequest? bookingCancellationRequest;
+  List<UserCoinTransactions>? userCoinTransactions;
   String? cancellationStatus;
+  bool? coinsUsed;
+  int? coinsUsedCount;
 
   PastBookings({
     this.bookingId,
@@ -73,7 +66,10 @@ class PastBookings {
     this.facilityBookingSlots,
     this.payment,
     this.bookingCancellationRequest,
+    this.userCoinTransactions,
     this.cancellationStatus,
+    this.coinsUsed,
+    this.coinsUsedCount,
   });
 
   PastBookings.fromJson(Map<String, dynamic> json) {
@@ -95,7 +91,15 @@ class PastBookings {
               json['booking_cancellation_request'],
             )
             : null;
+    if (json['user_coin_transactions'] != null) {
+      userCoinTransactions = <UserCoinTransactions>[];
+      json['user_coin_transactions'].forEach((v) {
+        userCoinTransactions!.add(new UserCoinTransactions.fromJson(v));
+      });
+    }
     cancellationStatus = json['cancellation_status'];
+    coinsUsed = json['coins_used'];
+    coinsUsedCount = json['coins_used_count'];
   }
 
   Map<String, dynamic> toJson() {
@@ -115,7 +119,13 @@ class PastBookings {
       data['booking_cancellation_request'] =
           this.bookingCancellationRequest!.toJson();
     }
+    if (this.userCoinTransactions != null) {
+      data['user_coin_transactions'] =
+          this.userCoinTransactions!.map((v) => v.toJson()).toList();
+    }
     data['cancellation_status'] = this.cancellationStatus;
+    data['coins_used'] = this.coinsUsed;
+    data['coins_used_count'] = this.coinsUsedCount;
     return data;
   }
 }
@@ -193,7 +203,10 @@ class CancelledBookings {
   List<FacilityBookingSlots>? facilityBookingSlots;
   Payment? payment;
   BookingCancellationRequest? bookingCancellationRequest;
+  List<UserCoinTransactions>? userCoinTransactions;
   String? cancellationStatus;
+  bool? coinsUsed;
+  int? coinsUsedCount;
 
   CancelledBookings({
     this.bookingId,
@@ -203,7 +216,10 @@ class CancelledBookings {
     this.facilityBookingSlots,
     this.payment,
     this.bookingCancellationRequest,
+    this.userCoinTransactions,
     this.cancellationStatus,
+    this.coinsUsed,
+    this.coinsUsedCount,
   });
 
   CancelledBookings.fromJson(Map<String, dynamic> json) {
@@ -225,7 +241,15 @@ class CancelledBookings {
               json['booking_cancellation_request'],
             )
             : null;
+    if (json['user_coin_transactions'] != null) {
+      userCoinTransactions = <UserCoinTransactions>[];
+      json['user_coin_transactions'].forEach((v) {
+        userCoinTransactions!.add(new UserCoinTransactions.fromJson(v));
+      });
+    }
     cancellationStatus = json['cancellation_status'];
+    coinsUsed = json['coins_used'];
+    coinsUsedCount = json['coins_used_count'];
   }
 
   Map<String, dynamic> toJson() {
@@ -245,7 +269,13 @@ class CancelledBookings {
       data['booking_cancellation_request'] =
           this.bookingCancellationRequest!.toJson();
     }
+    if (this.userCoinTransactions != null) {
+      data['user_coin_transactions'] =
+          this.userCoinTransactions!.map((v) => v.toJson()).toList();
+    }
     data['cancellation_status'] = this.cancellationStatus;
+    data['coins_used'] = this.coinsUsed;
+    data['coins_used_count'] = this.coinsUsedCount;
     return data;
   }
 }
@@ -459,7 +489,7 @@ class Service {
 
 class Payment {
   int? paymentId;
-  int? collectPayment;
+  String? collectPayment; // <-- updated here
   String? paymentMethod;
   String? createdAt;
   String? paymentDate;
@@ -476,7 +506,7 @@ class Payment {
 
   Payment.fromJson(Map<String, dynamic> json) {
     paymentId = json['payment_id'];
-    collectPayment = json['collect_payment'];
+    collectPayment = json['collect_payment']?.toString(); // <-- safe cast
     paymentMethod = json['payment_method'];
     createdAt = json['created_at'];
     paymentDate = json['payment_date'];
@@ -484,13 +514,13 @@ class Payment {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['payment_id'] = this.paymentId;
-    data['collect_payment'] = this.collectPayment;
-    data['payment_method'] = this.paymentMethod;
-    data['created_at'] = this.createdAt;
-    data['payment_date'] = this.paymentDate;
-    data['payment_time'] = this.paymentTime;
+    final Map<String, dynamic> data = {};
+    data['payment_id'] = paymentId;
+    data['collect_payment'] = collectPayment;
+    data['payment_method'] = paymentMethod;
+    data['created_at'] = createdAt;
+    data['payment_date'] = paymentDate;
+    data['payment_time'] = paymentTime;
     return data;
   }
 }
@@ -510,6 +540,25 @@ class BookingCancellationRequest {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['booking_id'] = this.bookingId;
     data['status'] = this.status;
+    return data;
+  }
+}
+
+class UserCoinTransactions {
+  String? status;
+  int? usedCoins;
+
+  UserCoinTransactions({this.status, this.usedCoins});
+
+  UserCoinTransactions.fromJson(Map<String, dynamic> json) {
+    status = json['status'];
+    usedCoins = json['used_coins'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['status'] = this.status;
+    data['used_coins'] = this.usedCoins;
     return data;
   }
 }

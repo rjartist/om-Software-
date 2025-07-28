@@ -4,8 +4,10 @@ import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/View/BottomNavigationBar/BookTab/venues.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/home_header.dart';
+import 'package:gkmarts/View/BottomNavigationBar/PlayTab/Create%20Game/create_game.dart';
 import 'package:gkmarts/View/BottomNavigationBar/PlayTab/games.dart';
 import 'package:gkmarts/Widget/network_status_banner.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 
 class PlayTab extends StatelessWidget {
@@ -31,7 +33,47 @@ class PlayTab extends StatelessWidget {
           vSizeBox(10),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: Text('Games Around You', style: AppTextStyle.blackText()),
+            child: Row(
+              children: [
+                Text('Games Around You', style: AppTextStyle.blackText()),
+                Spacer(),
+                OutlinedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      PageTransition(
+                        type: PageTransitionType.rightToLeft,
+                        duration: const Duration(milliseconds: 300),
+                        child: CreateGame(),
+                      ),
+                    );
+                  },
+                  style: OutlinedButton.styleFrom(
+                    fixedSize: const Size(98, 20), // Exact size
+                    padding: EdgeInsets.zero, // Remove extra space
+                    side: const BorderSide(color: Colors.red),
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.red,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity:
+                        VisualDensity.compact, // ✅ Makes button tighter
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      "Create",
+                      style: AppTextStyle.primaryText(
+                        fontSize:
+                            14, // 👈 Shrink font to fit 20 height perfectly
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           vSizeBox(8),
           Padding(

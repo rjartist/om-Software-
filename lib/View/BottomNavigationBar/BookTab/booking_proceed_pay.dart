@@ -330,7 +330,6 @@ class _RedeemCoinsWidgetState extends State<RedeemCoinsWidget> {
   void _showTooltip(int availableCoins, bool canUseCoins) {
     final renderBox = _infoKey.currentContext!.findRenderObject() as RenderBox;
     final targetPosition = renderBox.localToGlobal(Offset.zero);
-    final screenWidth = MediaQuery.of(context).size.width;
 
     _overlayEntry = OverlayEntry(
       builder:
@@ -451,10 +450,18 @@ class _RedeemCoinsWidgetState extends State<RedeemCoinsWidget> {
                   onChanged:
                       canUseCoins
                           ? (value) {
-                            bookProvider.toggleUseCoins(value, 500);
-                            bookProvider.setCoins(value ? 500 : 0, 500);
+                            bookProvider.toggleUseCoins(value, availableCoins);
+                            bookProvider.setCoins(
+                              value ? 500 : 0,
+                              availableCoins,
+                            );
                           }
-                          : null,
+                          : (value) {
+                            _showTooltip(
+                              availableCoins,
+                              false,
+                            ); // optional fallback
+                          },
                 ),
               ),
             ],

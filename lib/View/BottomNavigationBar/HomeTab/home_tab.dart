@@ -12,7 +12,9 @@ import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/View/BottomNavigationBar/BookTab/venue_details_page.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/home_banner.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/home_header.dart';
+import 'package:gkmarts/View/BottomNavigationBar/PlayTab/Create%20Game/create_game.dart';
 import 'package:gkmarts/View/BottomNavigationBar/PlayTab/calendar_screen_main.dart';
+import 'package:gkmarts/View/BottomNavigationBar/PlayTab/play_tab.dart';
 import 'package:gkmarts/Widget/global.dart';
 import 'package:gkmarts/Widget/global_button.dart';
 import 'package:gkmarts/Widget/network_status_banner.dart';
@@ -181,7 +183,14 @@ Widget _startPlayingSection(BuildContext context) {
             Text("START PLAYING", style: AppTextStyle.titleText()),
             OutlinedButton(
               onPressed: () {
-                // Handle Create tap
+                Navigator.push(
+                  context,
+                  PageTransition(
+                    type: PageTransitionType.rightToLeft,
+                    duration: const Duration(milliseconds: 300),
+                    child: CreateGame(),
+                  ),
+                );
               },
               style: OutlinedButton.styleFrom(
                 fixedSize: const Size(98, 20), // Exact size
@@ -525,19 +534,40 @@ class JoinGameSection extends StatelessWidget {
                             const Spacer(),
 
                             Center(
-                              child: Container(
-                                width: 146,
-                                height: 40,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade300,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: const Text(
-                                  "Join Game",
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.w500,
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    PageTransition(
+                                      type: PageTransitionType.rightToLeft,
+                                      duration: const Duration(
+                                        milliseconds: 300,
+                                      ),
+                                      child: PlayTab(),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  width: 146,
+                                  height: 40,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    // color: Colors.grey.shade300,
+                                    borderRadius: BorderRadius.circular(10),
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        AppColors.profileSectionButtonColor,
+                                        AppColors.profileSectionButtonColor2,
+                                      ],
+                                    ),
+                                  ),
+                                  child: Text(
+                                    "Join Game",
+                                    style: AppTextStyle.whiteText(
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ),
                               ),

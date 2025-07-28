@@ -4,28 +4,43 @@ import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart'
     show AppTextStyle;
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/View/BottomNavigationBar/PlayTab/all_players.dart';
+import 'package:gkmarts/View/BottomNavigationBar/PlayTab/Create%20Game/chat_screen.dart';
 import 'package:gkmarts/Widget/global_appbar.dart';
 import 'package:gkmarts/Widget/global_textfiled.dart' show GlobalTextField;
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 
-class GamesDetail extends StatefulWidget {
-  final bool playTab;
-  GamesDetail({super.key, required this.playTab});
+class CreatedGameDetails extends StatefulWidget {
+  final String? sport;
+  final String? time;
+  final String? date;
+  final String? venue;
+  final String? skill;
+  final String? players;
+  final String? cost;
+  final List<String>? instructions;
+  CreatedGameDetails({
+    super.key,
+    this.sport,
+    this.time,
+    this.date,
+    this.venue,
+    this.skill,
+    this.players,
+    this.cost,
+    this.instructions,
+  });
 
   @override
-  State<GamesDetail> createState() => _GamesDetailState();
+  State<CreatedGameDetails> createState() => _CreatedGameDetailsState();
 }
 
-class _GamesDetailState extends State<GamesDetail> {
+class _CreatedGameDetailsState extends State<CreatedGameDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
-      appBar:
-          widget.playTab == true
-              ? GlobalAppBar(title: "Games Around You", showBackButton: true)
-              : GlobalAppBar(title: "Game Detail", showBackButton: true),
+      appBar: GlobalAppBar(title: "", showBackButton: true),
       body: Consumer<LoginProvider>(
         builder: (context, provider, _) {
           final user = provider.user;
@@ -36,14 +51,14 @@ class _GamesDetailState extends State<GamesDetail> {
               Padding(
                 padding: const EdgeInsets.only(left: 15, top: 15),
                 child: Text(
-                  "Badminton",
+                  widget.sport!,
                   style: AppTextStyle.blackText(fontSize: 20),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 15, bottom: 15),
+                padding: const EdgeInsets.only(left: 15, bottom: 15, top: 5),
                 child: Text(
-                  "07:00 AM - 08:00 AM, 12 Oct, 2025",
+                  "${widget.time!}, ${widget.date!}",
                   style: AppTextStyle.primaryText(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -68,7 +83,7 @@ class _GamesDetailState extends State<GamesDetail> {
                         ),
                         SizedBox(width: 5),
                         Text(
-                          "Balewadi Stadium, Pune",
+                          widget.venue!,
                           style: AppTextStyle.blackText(
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
@@ -92,14 +107,14 @@ class _GamesDetailState extends State<GamesDetail> {
                       right: 15,
                     ),
                     child: Column(
-                      spacing: 15,
+                      spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           "Game Details",
                           style: AppTextStyle.blackText(
                             fontSize: 15,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         Row(
@@ -108,16 +123,16 @@ class _GamesDetailState extends State<GamesDetail> {
                               child: Text(
                                 "Venue:",
                                 style: AppTextStyle.blackText(
-                                  fontSize: 13,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ),
                             Expanded(
                               child: Text(
-                                "Balewadi Stadium, Pune",
+                                widget.venue!,
                                 style: AppTextStyle.primaryText(
-                                  fontSize: 13,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -130,81 +145,78 @@ class _GamesDetailState extends State<GamesDetail> {
                               child: Text(
                                 "Game Skill:",
                                 style: AppTextStyle.blackText(
-                                  fontSize: 13,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ),
-
                             Expanded(
                               child: Text(
-                                "Beginner",
+                                widget.skill!,
                                 style: AppTextStyle.primaryText(
-                                  fontSize: 13,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                "Play and Join:",
-                                style: AppTextStyle.blackText(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-
-                            Expanded(
-                              child: Text(
-                                "₹100/Player",
-                                style: AppTextStyle.primaryText(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                "Instructions:",
-                                style: AppTextStyle.blackText(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Bring Your Own Equipment",
-                                    style: AppTextStyle.primaryText(
-                                      fontSize: 13,
+                        widget.players!.isNotEmpty || widget.cost!.isNotEmpty
+                            ? Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    "Play and Join:",
+                                    style: AppTextStyle.blackText(
+                                      fontSize: 12,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
-                                  Text(
-                                    "Cost Shared",
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    "₹${widget.cost!}/Player",
                                     style: AppTextStyle.primaryText(
-                                      fontSize: 13,
+                                      fontSize: 12,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                                ),
+                              ],
+                            )
+                            : SizedBox(),
+                        widget.instructions!.isNotEmpty
+                            ? Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    "Instruction:",
+                                    style: AppTextStyle.blackText(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children:
+                                        widget.instructions!.map((item) {
+                                          return Text(
+                                            "• $item",
+                                            style: AppTextStyle.primaryText(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          );
+                                        }).toList(),
+                                  ),
+                                ),
+                              ],
+                            )
+                            : SizedBox(),
                       ],
                     ),
                   ),
@@ -216,59 +228,119 @@ class _GamesDetailState extends State<GamesDetail> {
                   color: AppColors.white,
                   child: Padding(
                     padding: const EdgeInsets.all(15),
-                    child: Row(
+                    child: Column(
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        Row(
                           children: [
-                            Text(
-                              "Players (1)",
-                              style: AppTextStyle.blackText(fontSize: 14),
-                            ),
-                            SizedBox(height: 15),
-                            Row(
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                CircleAvatar(
-                                  radius: 25,
-                                  backgroundImage: AssetImage(
-                                    "assets/images/dummyProfile1.jpg",
-                                  ),
-                                ),
-                                SizedBox(width: 5),
                                 Text(
-                                  "Mayur Patil",
-                                  style: AppTextStyle.blackText(fontSize: 12),
+                                  "Players (1)",
+                                  style: AppTextStyle.blackText(fontSize: 14),
                                 ),
-                                SizedBox(width: 5),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: AppColors.bgContainer,
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                      right: 5,
-                                      left: 5,
-                                      top: 2.5,
-                                      bottom: 2.5,
-                                    ),
-                                    child: Text(
-                                      "HOST",
-                                      style: AppTextStyle.blackText(
-                                        fontSize: 8,
+                                SizedBox(height: 15),
+                                Row(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 25,
+                                      backgroundImage: AssetImage(
+                                        "assets/images/dummyProfile1.jpg",
                                       ),
                                     ),
-                                  ),
+                                    SizedBox(width: 5),
+                                    Text(
+                                      "Mayur Patil",
+                                      style: AppTextStyle.blackText(
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                    SizedBox(width: 5),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: AppColors.bgContainer,
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
+
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                          right: 5,
+                                          left: 5,
+                                          top: 2.5,
+                                          bottom: 2.5,
+                                        ),
+                                        child: Text(
+                                          "HOST",
+                                          style: AppTextStyle.blackText(
+                                            fontSize: 8,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
+                            Spacer(),
+                            Expanded(
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    PageTransition(
+                                      type: PageTransitionType.rightToLeft,
+                                      duration: const Duration(
+                                        milliseconds: 300,
+                                      ),
+                                      child: const AllPlayers(),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  height: 80,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    color: AppColors.bgGreyContainer,
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    spacing: 10,
+                                    children: [
+                                      Icon(
+                                        Icons.arrow_forward_ios_outlined,
+                                        size: 16,
+                                      ),
+                                      Text(
+                                        "All Players",
+                                        style: AppTextStyle.blackText(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
-                        Spacer(),
-                        Expanded(
-                          child: InkWell(
-                            onTap: () {
+                        SizedBox(height: 20),
+                        Container(
+                          height: 40,
+                          width: MediaQuery.sizeOf(context).width,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                AppColors.profileSectionButtonColor,
+                                AppColors.profileSectionButtonColor2,
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: ElevatedButton(
+                            onPressed: () {
                               Navigator.push(
                                 context,
                                 PageTransition(
@@ -278,28 +350,19 @@ class _GamesDetailState extends State<GamesDetail> {
                                 ),
                               );
                             },
-                            child: Container(
-                              height: 80,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15),
-                                color: AppColors.bgGreyContainer,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                spacing: 10,
-                                children: [
-                                  Icon(
-                                    Icons.arrow_forward_ios_outlined,
-                                    size: 16,
-                                  ),
-                                  Text(
-                                    "All Players",
-                                    style: AppTextStyle.blackText(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                  ),
-                                ],
+                            ),
+
+                            child: Text(
+                              "INVITE PLAYERS +",
+                              style: AppTextStyle.whiteText(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 12,
                               ),
                             ),
                           ),
@@ -314,41 +377,11 @@ class _GamesDetailState extends State<GamesDetail> {
         },
       ),
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(bottom: 25, left: 15, right: 15),
+        padding: const EdgeInsets.only(bottom: 40, left: 15, right: 15),
         child: Row(
           spacing: 15,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Expanded(
-              child: Container(
-                height: 45,
-                // width: 190,
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: ElevatedButton(
-                  onPressed: () {
-                    _showSendQueryBottomSheet(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-
-                  child: Text(
-                    "SEND QUERY",
-                    style: AppTextStyle.blackText(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              ),
-            ),
             Expanded(
               child: Container(
                 height: 45,
@@ -366,7 +399,14 @@ class _GamesDetailState extends State<GamesDetail> {
                 ),
                 child: ElevatedButton(
                   onPressed: () {
-                    _showJoinGameBottomSheet(context);
+                    Navigator.push(
+                      context,
+                      PageTransition(
+                        type: PageTransitionType.rightToLeft,
+                        duration: const Duration(milliseconds: 300),
+                        child: const ChatScreen(),
+                      ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
@@ -377,7 +417,7 @@ class _GamesDetailState extends State<GamesDetail> {
                   ),
 
                   child: Text(
-                    "JOIN GAME",
+                    "GAME CHAT",
                     style: AppTextStyle.whiteText(
                       fontWeight: FontWeight.w500,
                       fontSize: 14,

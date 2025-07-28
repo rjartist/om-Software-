@@ -9,7 +9,8 @@ import 'package:gkmarts/View/BottomNavigationBar/HomeTab/profile_page.dart'
 import 'package:gkmarts/View/BottomNavigationBar/LearnTab/learn_tab.dart';
 import 'package:gkmarts/View/BottomNavigationBar/MoreTab/more_tab.dart';
 import 'package:gkmarts/View/BottomNavigationBar/BookTab/book_tab.dart';
-import 'package:gkmarts/View/BottomNavigationBar/PlayTab/chat_screen.dart';
+import 'package:gkmarts/View/BottomNavigationBar/PlayTab/all_conversation.dart';
+import 'package:gkmarts/View/BottomNavigationBar/PlayTab/Create%20Game/chat_screen.dart';
 import 'package:gkmarts/View/BottomNavigationBar/PlayTab/play_tab.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
@@ -113,7 +114,7 @@ class _HomePageState extends State<HomePage> {
                     PageTransition(
                       type: PageTransitionType.rightToLeft,
                       duration: const Duration(milliseconds: 300),
-                      child: ChatScreen(),
+                      child: AllConversation(),
                     ),
                   );
                 },

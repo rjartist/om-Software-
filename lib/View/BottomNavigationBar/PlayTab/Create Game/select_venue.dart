@@ -1,49 +1,43 @@
 import 'package:flutter/material.dart';
-import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
-import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
+import 'package:gkmarts/Provider/Login/login_provider.dart';
+import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart'
+    show AppTextStyle;
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/View/BottomNavigationBar/BookTab/venues.dart';
-import 'package:gkmarts/View/BottomNavigationBar/HomeTab/home_header.dart';
-import 'package:gkmarts/Widget/network_status_banner.dart';
+import 'package:gkmarts/View/BottomNavigationBar/PlayTab/Create%20Game/select_sport.dart';
+import 'package:gkmarts/View/BottomNavigationBar/PlayTab/game_chat_details_screen.dart';
+import 'package:gkmarts/Widget/global_appbar.dart';
+import 'package:gkmarts/Widget/global_textfiled.dart' show GlobalTextField;
+import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 
-class BookTab extends StatelessWidget {
-  const BookTab({super.key});
+class SelectVenue extends StatefulWidget {
+  const SelectVenue({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final searchController = TextEditingController();
+  State<SelectVenue> createState() => _SelectVenueState();
+}
 
+class _SelectVenueState extends State<SelectVenue> {
+  final searchController = TextEditingController();
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        toolbarHeight: 0,
-      ),
       backgroundColor: AppColors.bgColor,
+      appBar: GlobalAppBar(title: "Select Venue", showBackButton: true),
       body: Column(
+        spacing: 20,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const NetworkStatusBanner(),
-          HomeHeader(),
-          vSizeBox(8),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: Text('Venues Around You', style: AppTextStyle.blackText()),
-          ),
-          vSizeBox(8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.only(left: 15, right: 15, top: 20),
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(
-                      0.2,
-                    ), // Match the stronger shadow
+                    color: Colors.black.withOpacity(0.2),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -51,11 +45,10 @@ class BookTab extends StatelessWidget {
               ),
               child: TextField(
                 controller: searchController,
-                onChanged: (value) {
-                  context.read<HomeTabProvider>().searchVenues(value);
-                },
+                onChanged: (value) {},
                 decoration: InputDecoration(
-                  hintText: 'Type venues...',
+                  hintText: 'Type Sport',
+                  // prefixIcon: const Icon(Icons.search, color: Colors.grey),
                   suffixIcon: Padding(
                     padding: const EdgeInsets.all(12.5),
                     child: Image.asset(
@@ -65,8 +58,7 @@ class BookTab extends StatelessWidget {
                       color: AppColors.grey,
                     ),
                   ),
-                  hintStyle:
-                      AppTextStyle.greytext(), // Match with your defined style
+                  hintStyle: AppTextStyle.greytext(),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -77,9 +69,7 @@ class BookTab extends StatelessWidget {
               ),
             ),
           ),
-
-          vSizeBox(8),
-           Expanded(child: Venues(gamePage: false)),
+          Expanded(child: Venues(gamePage: true,)),
         ],
       ),
     );

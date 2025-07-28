@@ -45,37 +45,28 @@ class Games extends StatelessWidget {
           itemBuilder: (context, index) {
             // final venue = provider.filteredVenueList[index];
 
-            return InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  PageTransition(
-                    type: PageTransitionType.rightToLeft,
-                    duration: const Duration(milliseconds: 300),
-                    child: const GamesDetail(),
-                  ),
-                );
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(top: 5),
-                child: Container(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 6,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Column(
+            return Padding(
+              padding: const EdgeInsets.only(top: 5),
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Padding(
@@ -167,7 +158,10 @@ class Games extends StatelessWidget {
                               ),
                             ],
                           ),
-                          Column(
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Column(
                             spacing: 10,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -200,7 +194,7 @@ class Games extends StatelessWidget {
                                 ],
                               ),
                               Text(
-                                "16 Mar, at | 8:00 AM - 9:00 AM",
+                                "16 Mar, Sat | 8:00 AM - 9:00 AM",
                                 style: AppTextStyle.blackText(fontSize: 10),
                               ),
                               Row(
@@ -218,49 +212,54 @@ class Games extends StatelessWidget {
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      Container(
-                        width: 150,
-                        height: 35,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              AppColors.profileSectionButtonColor,
-                              AppColors.profileSectionButtonColor2,
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(8),
                         ),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            // context
-                            //     .read<LoginProvider>()
-                            //     .logout(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            // fixedSize: Size(150, 35),
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Container(
+                      width: 150,
+                      height: 35,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            AppColors.profileSectionButtonColor,
+                            AppColors.profileSectionButtonColor2,
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            PageTransition(
+                              type: PageTransitionType.rightToLeft,
+                              duration: const Duration(milliseconds: 300),
+                              child: GamesDetail(playTab: true),
                             ),
-                          ),
-                          child: Text(
-                            "Join Game",
-                            style: AppTextStyle.whiteText(
-                              fontWeight: FontWeight.w400,
-                              fontSize: 12,
-                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          // fixedSize: Size(150, 35),
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
                         ),
+                        child: Text(
+                          "Join Game",
+                          style: AppTextStyle.whiteText(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 12,
+                          ),
+                        ),
                       ),
-                      SizedBox(height: 15),
-                    ],
-                  ),
+                    ),
+                    SizedBox(height: 15),
+                  ],
                 ),
               ),
             );

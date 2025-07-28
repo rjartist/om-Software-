@@ -220,8 +220,10 @@ class _ProfilePageState extends State<ProfilePage> {
                               },
                             ),
 
-                            _profileTile(
-                              "assets/images/coins.svg",
+                            _iconTile(
+                              // Icons .account_balance_wallet, 
+                              Icons.monetization_on,
+                              //  Icons.currency_rupee,
                               "My Coins",
                               () {
                                 Navigator.push(
@@ -233,8 +235,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ),
                                 );
                               },
-                              isSvg: true,
                             ),
+
                             _profileTile(
                               "assets/images/support.png",
                               "Help & Support",
@@ -281,6 +283,15 @@ class _ProfilePageState extends State<ProfilePage> {
           },
         ),
       ),
+    );
+  }
+
+  Widget _iconTile(IconData iconData, String title, VoidCallback onTap) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: Icon(iconData, color: AppColors.primaryColor, size: 24),
+      title: Text(title, style: AppTextStyle.blackText(fontSize: 15)),
+      onTap: onTap,
     );
   }
 

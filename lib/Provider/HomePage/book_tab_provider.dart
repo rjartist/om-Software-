@@ -22,7 +22,7 @@ class BookTabProvider extends ChangeNotifier {
   bool isgetVenueDetailsGetting = false;
   bool isFavorite = false;
   bool isFavoriteLoading = false;
-  List<ReviewModel> reviewsList = [];
+  VenueReviewsResponseModel? venueReviews;
 
   bool isReviewsLoading = false;
   bool isCouponLoading = false;
@@ -85,13 +85,19 @@ class BookTabProvider extends ChangeNotifier {
   }
 
   void toggleUseCoins(bool value, int available) {
-    useCoins = value;
-    appliedCoins = value ? 500 : 0;
+    if (value && available < 500) {
+      // Don't allow toggling if not enough coins
+      useCoins = false;
+      appliedCoins = 0;
+    } else {
+      useCoins = value;
+      appliedCoins = value ? 500 : 0;
+    }
     notifyListeners();
   }
 
   void setCoins(int value, int available) {
-    appliedCoins = value.clamp(0, 500);
+    appliedCoins = available >= 500 ? value.clamp(0, 500) : 0;
     notifyListeners();
   }
 
@@ -103,11 +109,7 @@ class BookTabProvider extends ChangeNotifier {
   double get subTotal => courtFee - offerDiscount - coinDiscount;
   int get coinDiscount => appliedCoins * coinToRupeeValue;
   double get finalPayableAmount => subTotal + convenienceFee;
-  // int get finalPayableAmount =>
-  //     totalPriceBeforeDiscountall -
-  //     offerDiscount -
-  //     coinDiscount +
-  //     convenienceFee;
+
   int get totalPriceBeforeDiscountall {
     final slot = getSelectedSlotPrice();
     if (slot == null) return 0;
@@ -1010,6 +1012,7 @@ class BookTabProvider extends ChangeNotifier {
 
     final isOnline =
         navigatorKey.currentContext!.read<ConnectivityProvider>().isOnline;
+
     if (!isOnline) {
       GlobalSnackbar.error(
         navigatorKey.currentContext!,
@@ -1026,11 +1029,10 @@ class BookTabProvider extends ChangeNotifier {
       if (response.isSuccess) {
         final responseData = jsonDecode(response.responseData);
 
-        final List<dynamic> feedbacksJson = responseData["feedbacks"] ?? [];
-        reviewsList =
-            feedbacksJson.map((json) => ReviewModel.fromJson(json)).toList();
+        // ✅ Store entire model
+        venueReviews = VenueReviewsResponseModel.fromJson(responseData);
       } else {
-        reviewsList = [];
+        venueReviews = null;
         GlobalSnackbar.error(navigatorKey.currentContext!, response.message);
       }
     } catch (e) {
@@ -1045,7 +1047,7 @@ class BookTabProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> rateVenue({
+  Future<void> rateVenueProvider({
     required int venueId,
     required int bookingId,
     required int rating,
@@ -1116,13 +1118,18 @@ class BookTabProvider extends ChangeNotifier {
         "startTime": formatTimeApi(selectedStartTime),
         "endTime": formatTimeApi(_calculateEndTime()),
         "turfIds": selectedTurfIds,
-        "totalPrice": totalPriceBeforeDiscountall,
-        "discountAmount": offerDiscount,
-        "discountPrice": finalPayableAmount,
+
+        "basePrice": totalPriceBeforeDiscountall,
+        "couponDiscountAmount": offerDiscount,
+        "coinDiscountUsed": coinDiscount,
         "coinWalletId": coinWalletId,
         "usedCoins": appliedCoins,
-        "coinDiscountUsed": coinDiscount,
+        "platformFees": platformFee.toStringAsFixed(2),
+        "gst": gstOnPlatformFee.toStringAsFixed(2),
+        "convenienceFees": convenienceFee.toStringAsFixed(2),
+        "totalPrice": finalPayableAmount.toStringAsFixed(2),
       };
+
       debugPrint("Proceed to Pay Req Body: $reqBody");
       final response = await BookTabService().proceedToPayService(
         reqBody: reqBody,

@@ -7,7 +7,8 @@ import 'package:gkmarts/View/BottomNavigationBar/BookTab/venue_details_page.dart
 import 'package:provider/provider.dart';
 
 class Venues extends StatelessWidget {
-  const Venues({super.key});
+  final bool gamePage;
+  Venues({super.key, required this.gamePage});
 
   @override
   Widget build(BuildContext context) {
@@ -56,15 +57,19 @@ class Venues extends StatelessWidget {
                   color: Colors.white,
                   child: InkWell(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (_) => VenueDetailsPage(
-                                facilityId: venue.facilityId,
-                              ),
-                        ),
-                      );
+                      if (gamePage == false) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (_) => VenueDetailsPage(
+                                  facilityId: venue.facilityId,
+                                ),
+                          ),
+                        );
+                      } else {
+                        Navigator.pop(context, venue.venueName);
+                      }
                     },
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

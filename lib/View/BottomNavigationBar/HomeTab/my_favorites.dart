@@ -86,7 +86,7 @@ class _MyFavoritesState extends State<MyFavorites> {
                             alignment: AlignmentDirectional.topEnd,
                             children: [
                               ClipRRect(
-                               borderRadius: BorderRadius.circular(10),
+                               borderRadius: BorderRadius.circular(10),                        
                                 child: CachedNetworkImage(
                                   imageUrl:
                                       item[index].facilityImages!.first.image

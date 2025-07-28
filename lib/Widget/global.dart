@@ -42,12 +42,12 @@ String formatTime24(String time) {
   final dateTime = DateTime(0, 1, 1, int.parse(parts[0]), int.parse(parts[1]));
   return DateFormat('HH:mm').format(dateTime); // 24-hour format
 }
+
 String formatTimeOnly12(String time24) {
   final parts = time24.split(":").map(int.parse).toList();
   final dateTime = DateTime(0, 1, 1, parts[0], parts[1]);
   return DateFormat('hh:mm a').format(dateTime); // 12-hour format
 }
-
 
 String formatTimeApi(TimeOfDay time) {
   final now = DateTime.now();
@@ -73,6 +73,15 @@ String formatTime(String time) {
 /// Format any DateTime to "d MMMM yyyy" (e.g., 12 December 2025)
 String formatFullDate(DateTime date) {
   return DateFormat('d MMMM yyyy').format(date);
+}
+
+String formatFullDateString(String dateStr) {
+  try {
+    final date = DateTime.parse(dateStr);
+    return DateFormat('d MMMM yyyy').format(date); // e.g., 17 July 2025
+  } catch (e) {
+    return dateStr; // fallback if parsing fails
+  }
 }
 
 class CoomingSoonDialogHelper {

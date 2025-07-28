@@ -109,14 +109,14 @@ class _MyCoinsCardState extends State<MyCoinsCard> {
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [ 
+          children: [
             // Header
             Row(
               children: [
-                SvgPicture.asset(
-                  "assets/images/coins.svg",
-                  height: 28,
-                  width: 28,
+                Icon(
+                  Icons.monetization_on,
+                  color: AppColors.primaryColor,
+                  size: 24,
                 ),
                 const SizedBox(width: 10),
                 Text("My Coins", style: AppTextStyle.titleText()),
@@ -126,9 +126,34 @@ class _MyCoinsCardState extends State<MyCoinsCard> {
             const SizedBox(height: 16),
 
             // Current Balance
-            _infoRow(
-              title: "Current Balance",
-              value: "${model.remainingBonusCoins} / ${model.totalCoins} coins",
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Current Balance",
+                  style: AppTextStyle.blackText(fontSize: 14),
+                ),
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "${model.remainingBonusCoins}",
+                        style: AppTextStyle.blackText(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600, // bold part
+                        ),
+                      ),
+                      TextSpan(
+                        text: " / ${model.totalCoins} coins",
+                        style: AppTextStyle.blackText(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400, // normal part
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
 
             const SizedBox(height: 8),
@@ -184,14 +209,14 @@ class _MyCoinsCardState extends State<MyCoinsCard> {
             // Usage Info Box
             Container(
               decoration: BoxDecoration(
-                color: Colors.blue[50],
+                color: Colors.red[50],
                 borderRadius: BorderRadius.circular(12),
               ),
               padding: const EdgeInsets.all(12),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.info_outline, color: Colors.blue),
+                  const Icon(Icons.info_outline, color: Colors.redAccent),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(

@@ -31,6 +31,7 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
         context,
         listen: false,
       ).getVenueDetails(widget.facilityId);
+      context.read<BookTabProvider>().getReviews(venueId: widget.facilityId);
     });
   }
 
@@ -89,6 +90,100 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
     );
   }
 
+  // Widget _buildVenueInfo(
+  //   BuildContext context,
+  //   VenueDetailModel model,
+  //   BookTabProvider provider,
+  // ) {
+  //   return Padding(
+  //     padding: const EdgeInsets.symmetric(horizontal: 16),
+  //     child: Column(
+  //       spacing: 8,
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         vSizeBox(5),
+  //         Text(
+  //           model.modifiedFacility.facilityName,
+  //           style: AppTextStyle.titleText(),
+  //         ),
+  //         Row(
+  //           crossAxisAlignment: CrossAxisAlignment.center,
+  //           children: [
+  //             Container(
+  //               padding: const EdgeInsets.all(4),
+
+  //               child: const Icon(
+  //                 Icons.access_time,
+  //                 size: 14,
+  //                 color: Colors.black,
+  //               ),
+  //             ),
+  //             const SizedBox(width: 6),
+  //             Text(
+  //               "${formatTime(model.modifiedFacility.facilityStartHour)} - ${formatTime(model.modifiedFacility.facilityEndHour)}",
+  //               style: AppTextStyle.blackText(fontSize: 12),
+  //               overflow: TextOverflow.ellipsis,
+  //             ),
+  //           ],
+  //         ),
+
+  //         Row(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             const Icon(Icons.location_on, color: Colors.red, size: 18),
+  //             const SizedBox(width: 4),
+  //             Expanded(
+  //               child: Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   Text(
+  //                     model.modifiedFacility.address,
+  //                     style: AppTextStyle.blackText(fontSize: 14),
+  //                   ),
+  //                   const SizedBox(height: 4),
+
+  //                   const SizedBox(height: 4),
+  //                   OutlinedButton.icon(
+  //                     onPressed: () {
+  //                       provider.openMapForVenue(
+  //                         context,
+  //                         model.modifiedFacility.googleMapUrl,
+  //                       );
+  //                     },
+  //                     style: OutlinedButton.styleFrom(
+  //                       side: BorderSide(color: AppColors.borderColor),
+
+  //                       shape: RoundedRectangleBorder(
+  //                         borderRadius: BorderRadius.circular(4),
+  //                       ),
+  //                       padding: const EdgeInsets.symmetric(
+  //                         horizontal: 12,
+  //                         vertical: 6,
+  //                       ),
+  //                       foregroundColor: Colors.red,
+  //                     ),
+  //                     icon: Image.asset(
+  //                       'assets/images/google_map_icon.png',
+  //                       height: 16,
+  //                       width: 16,
+  //                     ),
+  //                     label: Text(
+  //                       'Show on Map',
+  //                       style: AppTextStyle.smallBlack(
+  //                         fontWeight: FontWeight.w600,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
   Widget _buildVenueInfo(
     BuildContext context,
     VenueDetailModel model,
@@ -97,40 +192,38 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
-        spacing: 8,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          vSizeBox(5),
+          const SizedBox(height: 8),
+
+          // Facility Name
           Text(
             model.modifiedFacility.facilityName,
             style: AppTextStyle.titleText(),
           ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(4),
 
-                child: const Icon(
-                  Icons.access_time,
-                  size: 14,
-                  color: Colors.black,
-                ),
-              ),
+          const SizedBox(height: 8),
+
+          // Timings
+          Row(
+            children: [
+              const Icon(Icons.access_time, size: 16, color: Colors.black54),
               const SizedBox(width: 6),
               Text(
                 "${formatTime(model.modifiedFacility.facilityStartHour)} - ${formatTime(model.modifiedFacility.facilityEndHour)}",
                 style: AppTextStyle.blackText(fontSize: 12),
-                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
 
+          const SizedBox(height: 12),
+
+          // Address + Show on Map
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Icon(Icons.location_on, color: Colors.red, size: 18),
-              const SizedBox(width: 4),
+              const SizedBox(width: 6),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,9 +232,7 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
                       model.modifiedFacility.address,
                       style: AppTextStyle.blackText(fontSize: 14),
                     ),
-                    const SizedBox(height: 4),
-
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 8),
                     OutlinedButton.icon(
                       onPressed: () {
                         provider.openMapForVenue(
@@ -150,14 +241,13 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
                         );
                       },
                       style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: AppColors.borderColor),
-
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4),
-                        ),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 12,
                           vertical: 6,
+                        ),
+                        side: BorderSide(color: AppColors.borderColor),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
                         ),
                         foregroundColor: Colors.red,
                       ),
@@ -306,8 +396,8 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
   }
 
   Widget _buildVenueMeta(BuildContext context, VenueDetailModel model) {
-    final feedback = model.modifiedFacility.feedback;
-
+    final bookprovider = Provider.of<BookTabProvider>(context);
+    final venueReviews = bookprovider.venueReviews;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -331,14 +421,25 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
                       const Icon(Icons.star, color: Colors.orange, size: 18),
                       const SizedBox(width: 4),
                       Text(
-                        // "${feedback.averageRating} (${feedback.totalCount} ratings)",
-                        "(${feedback.totalCount} REVIEWS)",
-                        style: AppTextStyle.blackText(),
+                        venueReviews != null
+                            ? "${venueReviews.averageRating.toStringAsFixed(2)} Rating"
+                            : "0.0",
+                        style: AppTextStyle.blackText(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        venueReviews != null
+                            ? "(${venueReviews.totalReviews} reviews)"
+                            : "(0 reviews)",
+                        style: AppTextStyle.greytext(fontSize: 12),
                       ),
                     ],
                   ),
                   const SizedBox(height: 6),
-                  _outlinedSmallButton("VIEW REVIEWS", () {
+                  _outlinedSmallButton("See Reviews", () {
                     showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
@@ -349,19 +450,12 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
                       ),
                       builder: (_) => ViewVenueReviewsBottomSheet(model: model),
                     );
-                  }),
+                  }),          
                 ],
               ),
-              // Column(
-              //   crossAxisAlignment: CrossAxisAlignment.start,
-              //   children: [
-              //     Text("NA+ total Games"),
-              //     const SizedBox(height: 6),
-              //     _outlinedSmallButton("UPCOMING", () {}),
-              //   ],
-              // ),
             ],
           ),
+            // RateVenueBottomSheet(model: model), 
         ],
       ),
     );
@@ -624,18 +718,9 @@ class ViewVenueReviewsBottomSheet extends StatefulWidget {
 class _ViewVenueReviewsBottomSheetState
     extends State<ViewVenueReviewsBottomSheet> {
   @override
-  void initState() {
-    super.initState();
-    Future.microtask(() {
-      context.read<BookTabProvider>().getReviews(
-        venueId: widget.model.modifiedFacility.facilityId,
-      );
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     final provider = context.watch<BookTabProvider>();
+    final venueReviews = provider.venueReviews;
 
     return DraggableScrollableSheet(
       expand: false,
@@ -676,7 +761,7 @@ class _ViewVenueReviewsBottomSheetState
 
                 if (provider.isReviewsLoading)
                   const Center(child: CircularProgressIndicator())
-                else if (provider.reviewsList.isEmpty)
+                else if (venueReviews == null || venueReviews.reviews.isEmpty)
                   Center(
                     child: Text(
                       "No reviews available.",
@@ -684,56 +769,61 @@ class _ViewVenueReviewsBottomSheetState
                     ),
                   )
                 else ...[
-                  // Average Rating (if available)
+                  // ⭐ Average Rating Section
                   Center(
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(Icons.star, color: Colors.orange, size: 20),
                         const SizedBox(width: 4),
-                        // Text(
-                        //   provider.averageRating.toStringAsFixed(1),
-                        //   style: AppTextStyle.blackText(),
-                        // ),
-                        const SizedBox(width: 4),
-                        // Text(
-                        //   "(${provider.reviews.length} reviews)",
-                        //   style: AppTextStyle.greytext(),
-                        // ),
+                        Text(
+                          venueReviews.averageRating.toStringAsFixed(1),
+                          style: AppTextStyle.blackText(fontSize: 16),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          "(${venueReviews.totalReviews} reviews)",
+                          style: AppTextStyle.greytext(fontSize: 14),
+                        ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 20),
 
-                  // Reviews List
+                  // 📝 Reviews List
                   Expanded(
                     child: ListView.separated(
                       controller: scrollController,
-                      itemCount: provider.reviewsList.length,
+                      itemCount: venueReviews.reviews.length,
                       separatorBuilder:
                           (_, __) => const Divider(height: 24, thickness: 0.8),
                       itemBuilder: (_, index) {
-                        final review = provider.reviewsList[index];
-                        final initials =
-                            review.user.name
-                                .split(" ")
-                                .map((e) => e[0])
-                                .take(2)
-                                .join()
-                                .toUpperCase();
+                        final review = venueReviews.reviews[index];
 
                         return Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            CircleAvatar(
-                              radius: 20,
-                              backgroundColor: Colors.blueGrey[100],
-                              child: Text(
-                                initials,
-                                style: AppTextStyle.blackText(fontSize: 14),
+                            // Profile image
+                            ClipOval(
+                              child: Image.network(
+                                review.user.profileImage,
+                                width: 40,
+                                height: 40,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Image.asset(
+                                    'assets/images/userIcon.png',
+                                    width: 35,
+                                    height: 35,
+                                    fit: BoxFit.cover,
+                                  );
+                                },
                               ),
                             ),
+
                             const SizedBox(width: 12),
+
+                            // Review content
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -743,27 +833,34 @@ class _ViewVenueReviewsBottomSheetState
                                     style: AppTextStyle.blackText(fontSize: 14),
                                   ),
                                   const SizedBox(height: 2),
-                                  // Row(
-                                  //   children: List.generate(5, (i) {
-                                  //     return Icon(
-                                  //       i < review.user.
-                                  //           ? Icons.star
-                                  //           : Icons.star_border,
-                                  //       size: 16,
-                                  //       color: Colors.orange,
-                                  //     );
-                                  //   }),
-                                  // ),
+
+                                  // Star rating
+                                  Row(
+                                    children: List.generate(5, (i) {
+                                      return Icon(
+                                        i < review.rating
+                                            ? Icons.star
+                                            : Icons.star_border,
+                                        size: 16,
+                                        color: Colors.orange,
+                                      );
+                                    }),
+                                  ),
+
+                                  if ((review.feedback ?? "").isNotEmpty) ...[
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      review.feedback!,
+                                      style: AppTextStyle.greytext(
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
                                   const SizedBox(height: 4),
                                   Text(
-                                    review.feedback,
-                                    style: AppTextStyle.greytext(fontSize: 13),
+                                    formatFullDateString(review.createdAt),
+                                    style: AppTextStyle.greytext(fontSize: 11),
                                   ),
-                                  const SizedBox(height: 4),
-                                  // Text(
-                                  //   review.date,
-                                  //   style: AppTextStyle.greytext(fontSize: 11),
-                                  // ),
                                 ],
                               ),
                             ),
@@ -781,116 +878,129 @@ class _ViewVenueReviewsBottomSheetState
     );
   }
 }
-
-// class RateVenueBottomSheet extends StatelessWidget {
-//   final VenueDetailModel model;
-
-//   const RateVenueBottomSheet({super.key, required this.model});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final provider = Provider.of<BookTabProvider>(context);
-
-//     return Material(
-//       color: Colors.white, // Proper background while respecting shape
-//       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-//       child: Padding(
-//         padding: EdgeInsets.only(
-//           bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-//           left: 16,
-//           right: 16,
-//           top: 20,
-//         ),
-//         child: Column(
-//           mainAxisSize: MainAxisSize.min,
-//           crossAxisAlignment: CrossAxisAlignment.center,
-//           children: [
-//             // Drag handle
-//             Container(
-//               width: 40,
-//               height: 4,
-//               decoration: BoxDecoration(
-//                 color: Colors.grey[300],
-//                 borderRadius: BorderRadius.circular(10),
-//               ),
-//             ),
-//             const SizedBox(height: 16),
-//             Text(
-//               model.modifiedFacility.facilityName,
-//               style: AppTextStyle.titleText(),
-//               textAlign: TextAlign.center,
-//             ),
-//             const SizedBox(height: 12),
-
-//             // Star Rating
-//             Row(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               children: List.generate(5, (index) {
-//                 final isSelected = index < provider.userRating;
-//                 return IconButton(
-//                   icon: Icon(
-//                     isSelected ? Icons.star : Icons.star_border,
-//                     color: Colors.orange,
-//                     size: 30,
-//                   ),
-//                   onPressed: () {
-//                     provider.updateUserRating(index + 1);
-//                   },
-//                 );
-//               }),
-//             ),
-//             const SizedBox(height: 12),
-
-//             // Comment Input
-//             TextField(
-//               onChanged: provider.updateUserComment,
-//               maxLines: 3,
-//               textAlign: TextAlign.center,
-//               decoration: InputDecoration(
-//                 hintText: "Write your feedback...",
-//                 hintStyle: TextStyle(color: Colors.grey[600]),
-//                 border: OutlineInputBorder(
-//                   borderRadius: BorderRadius.circular(8),
-//                 ),
-//               ),
-//             ),
-//             const SizedBox(height: 16),
-
-//             // Buttons
-//             Row(
-//               children: [
-//                 Expanded(
-//                   child: Center(
-//                     child: InkWell(
-//                       onTap: () {
-//                         provider.resetRating();
-//                         Navigator.pop(context);
-//                       },
-//                       child: Text("Cancel"),
-//                     ),
-//                   ),
-//                 ),
-//                 const SizedBox(width: 12),
-//                 GlobalPrimaryButton(
-//                   text: "Rate",
-//                   onTap: () {
-//                     provider.resetRating();
-//                     Navigator.pop(context);
-//                   },
-//                 ),
-//               ],
-//             ),
-//           ],
-//         ),
+// ElevatedButton(
+//   onPressed: () {
+//     showModalBottomSheet(
+//       context: context,
+//       isScrollControlled: true,
+//       shape: const RoundedRectangleBorder(
+//         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
 //       ),
+//       builder: (_) => RateVenueBottomSheet(model: yourVenueDetailModel),
 //     );
-//   }
-// }
+//   },
+//   child: Text("Rate Venue"),
+// )
+
+class RateVenueBottomSheet extends StatelessWidget {
+  final VenueDetailModel model;
+
+  const RateVenueBottomSheet({super.key, required this.model});
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = Provider.of<BookTabProvider>(context);
+
+    return Material(
+      color: Colors.white, // Proper background while respecting shape
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      child: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+          left: 16,
+          right: 16,
+          top: 20,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Drag handle
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              model.modifiedFacility.facilityName,
+              style: AppTextStyle.titleText(),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+
+            // Star Rating
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(5, (index) {
+                final isSelected = index < provider.userRating;
+                return IconButton(
+                  icon: Icon(
+                    isSelected ? Icons.star : Icons.star_border,
+                    color: Colors.orange,
+                    size: 30,
+                  ),
+                  onPressed: () {
+                    provider.updateUserRating(index + 1);
+                  },
+                );
+              }),
+            ),
+            const SizedBox(height: 12),
+
+            // Comment Input
+            TextField(
+              onChanged: provider.updateUserComment,
+              maxLines: 3,
+              textAlign: TextAlign.center,
+              decoration: InputDecoration(
+                hintText: "Write your feedback...",
+                hintStyle: TextStyle(color: Colors.grey[600]),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Buttons
+            Row(
+              children: [
+                Expanded(
+                  child: Center(
+                    child: InkWell(
+                      onTap: () {
+                      
+                        provider.resetRating();
+                        Navigator.pop(context);
+                      },
+                      child: Text("Cancel"),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                GlobalPrimaryButton(
+                  text: "Rate",
+                  onTap: () {
+                    // provider.rateVenueProvider(venueId: venueId, bookingId: bookingId, rating: rating, feedback: feedback)
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class FullScreenImageViewer extends StatelessWidget {
   final List<String> images;
   final int initialIndex;
-
   const FullScreenImageViewer({
     super.key,
     required this.images,

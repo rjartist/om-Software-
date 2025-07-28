@@ -214,6 +214,10 @@ class LoginProvider extends ChangeNotifier {
           await AuthService.saveTokens(token, "");
         }
 
+        if (userModel.userId != 0) {
+          await SharedPrefHelper.setUserId(userModel.userId);
+        }
+
         clearControllers();
 
         GlobalSnackbar.success(context, "Login successful");
@@ -428,7 +432,7 @@ class LoginProvider extends ChangeNotifier {
       if (response.isSuccess) {
         // Clear user data and tokens
         await AuthService.clearTokens();
-        await SharedPrefHelper.clearAll();
+        await SharedPrefHelper.clearAppDataExceptCoinPopup();
         _user = null;
         clearControllers();
         notifyListeners();
@@ -473,7 +477,7 @@ class LoginProvider extends ChangeNotifier {
       if (response.isSuccess) {
         // Clear session and user info
         await AuthService.clearTokens();
-        await SharedPrefHelper.clearAll();
+        await SharedPrefHelper.clearAppDataExceptCoinPopup();
         _user = null;
         notifyListeners();
 

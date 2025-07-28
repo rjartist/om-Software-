@@ -27,3 +27,4 @@ String getSlotPriceApi = "$prodDomain/api/get-slot-price";
 String getfavoritesApi = "$prodDomain/api/user/favorites";
 String getBookingCountApi = "$prodDomain/api/get-bookings-count";
 String cancelBookingApi = "$prodDomain/api/cancel-booking-request";
+String getbookingsApi = "$prodDomain/api/bookings/user";

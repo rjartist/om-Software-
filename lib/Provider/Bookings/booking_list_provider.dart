@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 
 class MyBookingsProvider extends ChangeNotifier {
   bool isLoading = false;
+  MyBookingsModel? myBookingsModel;
 
   List<PastBookings> pastBookings = [];
   List<FutureBookings> futureBookings = [];
@@ -19,24 +20,23 @@ class MyBookingsProvider extends ChangeNotifier {
       GlobalSnackbar.error(context, "No internet connection");
       return;
     }
-
     isLoading = true;
     notifyListeners();
-
     try {
       final response = await MyBookingsService().getMyBookings(
         context,
       ); // implement this
       if (response.isSuccess) {
         final data = jsonDecode(response.responseData);
-        final bookings = MyBookingsModel.fromJson(data);
+        myBookingsModel = MyBookingsModel.fromJson(data);
 
-        pastBookings = bookings.pastBookings ?? [];
-        futureBookings = bookings.futureBookings ?? [];
-        cancelledBookings = bookings.cancelledBookings ?? [];
-        print("pastBookings: ${pastBookings.toString()}");
-        print("futureBookings: ${futureBookings.toString()}");
-        print("cancelledBookings: ${cancelledBookings.toString()}");
+        pastBookings = myBookingsModel?.pastBookings ?? [];
+        futureBookings = myBookingsModel?.futureBookings ?? [];
+        cancelledBookings = myBookingsModel?.cancelledBookings ?? [];
+        notifyListeners();
+        // print("pastBookings: ${pastBookings.toString()}");
+        // print("futureBookings: ${futureBookings.toString()}");
+        // print("cancelledBookings: ${cancelledBookings.toString()}");
 
         // You can cast futureBookings to List<PastBookings> if structure matches
         // if (bookings.futureBookings != null) {
