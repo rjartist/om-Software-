@@ -276,14 +276,9 @@ class _MyBookingsState extends State<MyBookings>
                             ),
                             child: ElevatedButton(
                               onPressed: () {
-                                final venueName = slot?.facility?.facilityName;
-                                final venueId = slot?.facility?.facilityId;
-                                final bookingId = booking.bookingId;
                                 _showReviewBottomSheet(
                                   context,
                                   slot?.facility?.facilityName,
-                                  venueId,
-                                  bookingId,
                                 );
                               },
                               style: ElevatedButton.styleFrom(
@@ -346,171 +341,133 @@ class _MyBookingsState extends State<MyBookings>
     return '$hours hr';
   }
 
-  void _showReviewBottomSheet(
-    BuildContext context,
-    String venueName,
-    int venueId,
-    int bookingId,
-  ) {
-    double userRating = 0.0;
-    final feedbackController = TextEditingController();
-    final provider = Provider.of<BookTabProvider>(context, listen: false);
-
+  void _showReviewBottomSheet(BuildContext context, String venueName) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       backgroundColor: Colors.white,
-      isScrollControlled: true,
       builder: (context) {
         return Padding(
-          padding:
-              MediaQuery.of(context).viewInsets, // To avoid keyboard overlap
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: StatefulBuilder(
-              builder:
-                  (context, setState) => Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "Rate & Review",
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Rate & Review",
+                style: AppTextStyle.blackText(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                venueName,
+                style: AppTextStyle.primaryText(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 10),
+              RatingBar.builder(
+                initialRating: 0.0,
+                minRating: 1,
+                direction: Axis.horizontal,
+                allowHalfRating: true,
+                itemCount: 5,
+                itemSize: 40,
+                itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+                itemBuilder:
+                    (context, _) =>
+                        Icon(Icons.star_rounded, color: Colors.amber),
+                onRatingUpdate: (rating) {
+                  print(rating);
+                },
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                maxLines: 3,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: AppColors.white,
+                  hintText: 'Write a review',
+                  labelStyle: AppTextStyle.blackText(),
+                  hintStyle: AppTextStyle.greytext(),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    // borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.only(left: 20, right: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        fixedSize: Size(160, 43),
+                        backgroundColor: AppColors.bgContainer,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        "CANCEL",
                         style: AppTextStyle.blackText(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(height: 10),
-                      Text(
-                        venueName,
-                        style: AppTextStyle.primaryText(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      RatingBar.builder(
-                        initialRating: 0.0,
-                        minRating: 1,
-                        direction: Axis.horizontal,
-                        allowHalfRating: true,
-                        itemCount: 5,
-                        itemSize: 40,
-                        itemPadding: const EdgeInsets.symmetric(
-                          horizontal: 4.0,
-                        ),
-                        itemBuilder:
-                            (context, _) => const Icon(
-                              Icons.star_rounded,
-                              color: Colors.amber,
-                            ),
-                        onRatingUpdate: (rating) {
-                          setState(() {
-                            userRating = rating;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      TextField(
-                        controller: feedbackController,
-                        maxLines: 3,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: AppColors.white,
-                          hintText: 'Write a review',
-                          hintStyle: AppTextStyle.greytext(),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 14,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 20, right: 20),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ElevatedButton(
-                              onPressed: () => Navigator.pop(context),
-                              style: ElevatedButton.styleFrom(
-                                elevation: 0,
-                                fixedSize: const Size(160, 43),
-                                backgroundColor: AppColors.bgContainer,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: Text(
-                                "CANCEL",
-                                style: AppTextStyle.blackText(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                            const Spacer(),
-                            Container(
-                              height: 43,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    AppColors.profileSectionButtonColor,
-                                    AppColors.profileSectionButtonColor2,
-                                  ],
-                                ),
-                              ),
-                              child: ElevatedButton(
-                                onPressed: () async {
-                                  final feedback =
-                                      feedbackController.text.trim();
-                                  if (userRating == 0.0) {
-                                    GlobalSnackbar.error(
-                                      context,
-                                      "Please select a rating",
-                                    );
-                                    return;
-                                  }
-
-                                  await provider.rateVenueProvider(
-                                    venueId: venueId,
-                                    bookingId: bookingId,
-                                    rating: userRating.toInt(),
-                                    feedback: feedback,
-                                  );
-
-                                  Navigator.pop(context);
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  fixedSize: const Size(160, 43),
-                                  backgroundColor: Colors.transparent,
-                                  shadowColor: Colors.transparent,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                child: Text(
-                                  "RATE",
-                                  style: AppTextStyle.whiteText(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            ),
+                    ),
+                    Spacer(),
+                    Container(
+                      height: 43,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            AppColors.profileSectionButtonColor,
+                            AppColors.profileSectionButtonColor2,
                           ],
                         ),
                       ),
-                    ],
-                  ),
-            ),
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: Size(160, 43),
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          "RATE",
+                          style: AppTextStyle.whiteText(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            ],
           ),
         );
       },

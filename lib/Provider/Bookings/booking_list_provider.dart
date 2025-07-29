@@ -29,7 +29,6 @@ class MyBookingsProvider extends ChangeNotifier {
       if (response.isSuccess) {
         final data = jsonDecode(response.responseData);
         myBookingsModel = MyBookingsModel.fromJson(data);
-
         pastBookings = myBookingsModel?.pastBookings ?? [];
         futureBookings = myBookingsModel?.futureBookings ?? [];
         cancelledBookings = myBookingsModel?.cancelledBookings ?? [];

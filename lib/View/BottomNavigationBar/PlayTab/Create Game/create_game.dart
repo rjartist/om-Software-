@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gkmarts/Provider/Login/login_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart'
     show AppTextStyle;
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
@@ -9,12 +8,8 @@ import 'package:gkmarts/View/BottomNavigationBar/PlayTab/Create%20Game/select_da
 import 'package:gkmarts/View/BottomNavigationBar/PlayTab/Create%20Game/select_sport.dart';
 import 'package:gkmarts/View/BottomNavigationBar/PlayTab/Create%20Game/select_time.dart';
 import 'package:gkmarts/View/BottomNavigationBar/PlayTab/Create%20Game/select_venue.dart';
-import 'package:gkmarts/View/BottomNavigationBar/PlayTab/game_chat_details_screen.dart';
-import 'package:gkmarts/View/BottomNavigationBar/PlayTab/games_detail.dart';
 import 'package:gkmarts/Widget/global_appbar.dart';
-import 'package:gkmarts/Widget/global_textfiled.dart' show GlobalTextField;
 import 'package:page_transition/page_transition.dart';
-import 'package:provider/provider.dart';
 
 class CreateGame extends StatefulWidget {
   const CreateGame({super.key});
@@ -59,7 +54,6 @@ class _CreateGameState extends State<CreateGame> {
                   setState(() {
                     selectedItemSports = selectedSport;
                   });
-                  print("Selected Sport: $selectedItemSports");
                 }
               },
             ),
@@ -79,7 +73,6 @@ class _CreateGameState extends State<CreateGame> {
                   setState(() {
                     selectedItemVenue = selectedVenue;
                   });
-                  print("Selected Sport: $selectedItemVenue");
                 }
               },
             ),
@@ -99,7 +92,6 @@ class _CreateGameState extends State<CreateGame> {
                   setState(() {
                     selectedItemDate = selectedDate;
                   });
-                  print("Selected Sport: $selectedItemDate");
                 }
               },
             ),
@@ -119,7 +111,6 @@ class _CreateGameState extends State<CreateGame> {
                   setState(() {
                     selectedItemTime = selectedTime;
                   });
-                  print("Selected Sport: $selectedItemTime");
                 }
               },
             ),
@@ -150,10 +141,6 @@ class _CreateGameState extends State<CreateGame> {
                     );
                   });
 
-                  print("Selected Skill: ${result['selectedSkill']}");
-                  print("Cost Per Player: ${result['costPerPlayer']}");
-                  print("Total Players: ${result['totalPlayers']}");
-                  print("Instructions: ${result['instructions']}");
                 }
               },
             ),

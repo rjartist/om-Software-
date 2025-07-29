@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gkmarts/Provider/Login/login_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart'
     show AppTextStyle;
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
-import 'package:gkmarts/View/BottomNavigationBar/PlayTab/game_chat_details_screen.dart';
 import 'package:gkmarts/Widget/global_appbar.dart';
-import 'package:gkmarts/Widget/global_textfiled.dart' show GlobalTextField;
-import 'package:page_transition/page_transition.dart';
-import 'package:provider/provider.dart';
 
 class SelectSport extends StatefulWidget {
   const SelectSport({super.key});
@@ -54,7 +49,6 @@ class _SelectSportState extends State<SelectSport> {
                 onChanged: (value) {},
                 decoration: InputDecoration(
                   hintText: 'Type Sport',
-                  // prefixIcon: const Icon(Icons.search, color: Colors.grey),
                   suffixIcon: Padding(
                     padding: const EdgeInsets.all(12.5),
                     child: Image.asset(

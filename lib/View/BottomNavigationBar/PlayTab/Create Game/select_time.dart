@@ -1,16 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:gkmarts/Provider/Login/login_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart'
     show AppTextStyle;
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
-import 'package:gkmarts/View/BottomNavigationBar/PlayTab/Create%20Game/select_sport.dart';
-import 'package:gkmarts/View/BottomNavigationBar/PlayTab/Create%20Game/select_venue.dart';
-import 'package:gkmarts/View/BottomNavigationBar/PlayTab/game_chat_details_screen.dart';
 import 'package:gkmarts/Widget/global_appbar.dart';
-import 'package:gkmarts/Widget/global_textfiled.dart' show GlobalTextField;
 import 'package:intl/intl.dart' as intl;
-import 'package:page_transition/page_transition.dart';
-import 'package:provider/provider.dart';
 import 'dart:math';
 
 class SelectTime extends StatefulWidget {
@@ -224,29 +217,11 @@ class TimeRangePainter extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..strokeWidth = 20;
 
-    // final arcPaint =
-    //     Paint()
-    //       ..shader = const LinearGradient(
-    //         colors: [Colors.blue, Colors.purple],
-    //       ).createShader(Rect.fromCircle(center: center, radius: radius))
-    //       ..style = PaintingStyle.stroke
-    //       ..strokeWidth = 20
-    //       ..strokeCap = StrokeCap.round;
 
     final handlePaint = Paint()..color = AppColors.primaryColor;
 
     // Draw base circle
     canvas.drawCircle(center, radius, basePaint);
-
-    // // Draw range arc
-    // double sweep = (endAngle - startAngle + 2 * pi) % (2 * pi);
-    // canvas.drawArc(
-    //   Rect.fromCircle(center: center, radius: radius),
-    //   startAngle,
-    //   sweep,
-    //   false,
-    //   arcPaint,
-    // );
 
     // Draw handles
     final startHandle = center + Offset.fromDirection(startAngle, radius);

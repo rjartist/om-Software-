@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gkmarts/Provider/Login/login_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart'
     show AppTextStyle;
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/Widget/global_appbar.dart';
-import 'package:gkmarts/Widget/global_textfiled.dart' show GlobalTextField;
-import 'package:page_transition/page_transition.dart';
-import 'package:provider/provider.dart';
 
 class CreateGameChatDetails extends StatefulWidget {
   const CreateGameChatDetails({super.key});

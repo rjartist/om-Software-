@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:gkmarts/Provider/Login/login_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart'
     show AppTextStyle;
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
-import 'package:gkmarts/View/BottomNavigationBar/PlayTab/Create%20Game/chat_screen.dart';
 import 'package:gkmarts/View/BottomNavigationBar/PlayTab/game_chat_screen.dart';
 import 'package:gkmarts/View/BottomNavigationBar/PlayTab/games_detail.dart';
 import 'package:gkmarts/Widget/global_appbar.dart';
-import 'package:gkmarts/Widget/global_button.dart';
-import 'package:gkmarts/Widget/global_textfiled.dart' show GlobalTextField;
 import 'package:page_transition/page_transition.dart';
-import 'package:provider/provider.dart';
 
 class AllConversation extends StatefulWidget {
-  AllConversation({super.key});
+  const AllConversation({super.key});
 
   @override
   State<AllConversation> createState() => _AllConversationState();
@@ -188,77 +183,6 @@ class _AllConversationState extends State<AllConversation>
                                   ),
                                 ),
                               ),
-
-                              // Spacer(),
-                              // PopupMenuButton<String>(
-                              //   color: AppColors.white,
-                              //   icon: const Icon(Icons.more_vert),
-                              //   onSelected: (value) {
-                              //     if (value == 'viewGame') {
-                              //       Navigator.push(
-                              //         context,
-                              //         PageTransition(
-                              //           type: PageTransitionType.rightToLeft,
-                              //           duration: const Duration(
-                              //             milliseconds: 300,
-                              //           ),
-                              //           child: GamesDetail(playTab: false),
-                              //         ),
-                              //       );
-                              //     } else if (value == 'gameChat') {
-                              //       Navigator.push(
-                              //         context,
-                              //         PageTransition(
-                              //           type: PageTransitionType.rightToLeft,
-                              //           duration: const Duration(
-                              //             milliseconds: 300,
-                              //           ),
-                              //           child: GameChatScreen(),
-                              //         ),
-                              //       );
-                              //     }
-                              //   },
-                              //   itemBuilder:
-                              //       (BuildContext context) => [
-                              //         PopupMenuItem(
-                              //           value: 'viewGame',
-                              //           child: Padding(
-                              //             padding: const EdgeInsets.symmetric(
-                              //               horizontal: 10,
-                              //               vertical: 0,
-                              //             ),
-                              //             child: Center(
-                              //               child: Text(
-                              //                 'View Game',
-                              //                 style: AppTextStyle.blackText(
-                              //                   fontSize: 12,
-                              //                   fontWeight: FontWeight.w400,
-                              //                 ),
-                              //               ),
-                              //             ),
-                              //           ),
-                              //         ),
-                              //         PopupMenuDivider(),
-                              //         PopupMenuItem(
-                              //           value: 'gameChat',
-                              //           child: Padding(
-                              //             padding: const EdgeInsets.symmetric(
-                              //               horizontal: 10,
-                              //               vertical: 0,
-                              //             ),
-                              //             child: Center(
-                              //               child: Text(
-                              //                 'Game Chat',
-                              //                 style: AppTextStyle.blackText(
-                              //                   fontSize: 12,
-                              //                   fontWeight: FontWeight.w400,
-                              //                 ),
-                              //               ),
-                              //             ),
-                              //           ),
-                              //         ),
-                              //       ],
-                              // ),
                             ],
                           ),
                         ),

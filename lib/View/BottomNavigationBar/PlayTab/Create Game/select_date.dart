@@ -1,16 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:gkmarts/Provider/Login/login_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart'
     show AppTextStyle;
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
-import 'package:gkmarts/View/BottomNavigationBar/PlayTab/Create%20Game/select_sport.dart';
-import 'package:gkmarts/View/BottomNavigationBar/PlayTab/Create%20Game/select_venue.dart';
-import 'package:gkmarts/View/BottomNavigationBar/PlayTab/game_chat_details_screen.dart';
 import 'package:gkmarts/Widget/global_appbar.dart';
-import 'package:gkmarts/Widget/global_textfiled.dart' show GlobalTextField;
 import 'package:intl/intl.dart';
-import 'package:page_transition/page_transition.dart';
-import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class SelectDate extends StatefulWidget {
@@ -51,7 +44,7 @@ class _SelectDateState extends State<SelectDate> {
                       _selectedDay != null
                           ? DateFormat("d MMM yyyy").format(
                             _selectedDay!,
-                          ) //"Selected Date: ${_selectedDay!.toLocal().toString().split(' ')[0]}"
+                          ) 
                           : "No date selected",
                       style: AppTextStyle.blackText(
                         fontSize: 20,
@@ -68,7 +61,7 @@ class _SelectDateState extends State<SelectDate> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    DateFormat.yMMMM().format(_focusedDay), // "July 2025"
+                    DateFormat.yMMMM().format(_focusedDay),
                     style: AppTextStyle.blackText(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -116,7 +109,6 @@ class _SelectDateState extends State<SelectDate> {
                 });
               },
               enabledDayPredicate: (day) {
-                // Allow only today and future dates
                 return !day.isBefore(DateTime.now());
               },
               calendarStyle: CalendarStyle(
@@ -134,7 +126,6 @@ class _SelectDateState extends State<SelectDate> {
                   fontWeight: FontWeight.w400,
                 ),
                 todayDecoration: BoxDecoration(
-                  // color: Colors.orange,
                   shape: BoxShape.circle,
                   border: Border.all(color: AppColors.black, width: 0.5),
                 ),
@@ -155,7 +146,6 @@ class _SelectDateState extends State<SelectDate> {
                 weekendStyle: AppTextStyle.blackText(
                   fontSize: 13,
                   fontWeight: FontWeight.w400,
-                  // color: Colors.red,
                 ),
                 decoration: BoxDecoration(color: Colors.grey.shade100),
               ),
@@ -192,7 +182,6 @@ class _SelectDateState extends State<SelectDate> {
                   DateFormat("d MMM, yyyy").format(_selectedDay!).toString(),
                 );
               } else {
-                // Optionally show a warning if no date is selected
                 ScaffoldMessenger.of(
                   context,
                 ).showSnackBar(SnackBar(content: Text("Please select a date")));

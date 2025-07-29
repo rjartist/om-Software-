@@ -4,7 +4,6 @@ import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart'
     show AppTextStyle;
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/Widget/global_appbar.dart';
-import 'package:gkmarts/Widget/global_textfiled.dart' show GlobalTextField;
 import 'package:provider/provider.dart';
 
 class AllPlayers extends StatefulWidget {
@@ -50,7 +49,6 @@ class _AllPlayersState extends State<AllPlayers> {
                     onChanged: (value) {},
                     decoration: InputDecoration(
                       hintText: 'Search Players',
-                      // prefixIcon: const Icon(Icons.search, color: Colors.grey),
                       suffixIcon: Padding(
                         padding: const EdgeInsets.all(12.5),
                         child: Image.asset(
@@ -71,14 +69,6 @@ class _AllPlayersState extends State<AllPlayers> {
                   ),
                 ),
               ),
-
-              // Padding(
-              //   padding: const EdgeInsets.only(left: 15, top: 0),
-              //   child: Text(
-              //     "Player - 03",
-              //     style: AppTextStyle.blackText(fontSize: 20),
-              //   ),
-              // ),
               Padding(
                 padding: const EdgeInsets.only(left: 15, top: 5, bottom: 5),
                 child: Text(
@@ -139,9 +129,7 @@ class _AllPlayersState extends State<AllPlayers> {
                 shrinkWrap: true,
                 physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: 5, //provider.filteredVenueList.length,
                 itemBuilder: (context, index) {
-                  // final venue = provider.filteredVenueList[index];
                   final bool isHost = true;
                   return Padding(
                     padding: const EdgeInsets.all(6.0),
@@ -189,71 +177,6 @@ class _AllPlayersState extends State<AllPlayers> {
           );
         },
       ),
-
-      // bottomNavigationBar: Padding(
-      //   padding: const EdgeInsets.only(bottom: 40, left: 15, right: 15),
-      //   child: Container(
-      //     height: 45,
-      //     // width: 190,
-      //     decoration: BoxDecoration(
-      //       gradient: LinearGradient(
-      //         begin: Alignment.topCenter,
-      //         end: Alignment.bottomCenter,
-      //         colors: [
-      //           AppColors.profileSectionButtonColor,
-      //           AppColors.profileSectionButtonColor2,
-      //         ],
-      //       ),
-      //       borderRadius: BorderRadius.circular(8),
-      //     ),
-      //     child: ElevatedButton(
-      //       onPressed: () {},
-      //       style: ElevatedButton.styleFrom(
-      //         backgroundColor: Colors.transparent,
-      //         shadowColor: Colors.transparent,
-      //         shape: RoundedRectangleBorder(
-      //           borderRadius: BorderRadius.circular(8),
-      //         ),
-      //       ),
-
-      //       child: Row(
-      //         mainAxisAlignment: MainAxisAlignment.center,
-      //         children: [
-      //           Text(
-      //             "INVITE PLAYERS",
-      //             style: AppTextStyle.whiteText(
-      //               fontWeight: FontWeight.w500,
-      //               fontSize: 14,
-      //             ),
-      //           ),
-      //           SizedBox(width: 2),
-      //           Icon(Icons.add, color: AppColors.white, size: 14),
-      //         ],
-      //       ),
-      //     ),
-      //   ),
-      // ),
-    );
-  }
-
-  Widget _buildIconWithTextRow(String image, String text) {
-    return Row(
-      children: [
-        Image.asset(
-          image.toString(),
-          height: 18,
-          width: 18,
-          color: AppColors.black,
-        ),
-        SizedBox(width: 5),
-        Text(
-          text,
-          style: AppTextStyle.blackText(
-            fontSize: 12,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-      ],
     );
   }
 }

@@ -57,7 +57,6 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         navigatorKey: navigatorKey,
         home: SplashScreen(),
-        // home: SplashScreen(),
         title: 'CX PlayGround',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
