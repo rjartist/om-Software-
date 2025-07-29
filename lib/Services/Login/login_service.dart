@@ -15,7 +15,6 @@ class LoginService {
           body: jsonEncode(reqBody),
           method: HTTP_METHOD.POST,
           headers: HttpHeader.getLoginHeader());
-
       RestResponse response = await apiService.exec();
       return response;
     } catch (e) {

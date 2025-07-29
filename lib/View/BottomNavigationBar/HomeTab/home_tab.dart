@@ -60,7 +60,8 @@ class _HomeTabState extends State<HomeTab> {
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: HomeBanner(),
             ),
-            // PaymentButtonWidget(),
+            // phonePePaymentSection(context),
+
             vSizeBox(8),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -155,6 +156,61 @@ class _HomeTabState extends State<HomeTab> {
       //     ),
       //   ),
       // ),
+    );
+  }
+
+  Widget phonePePaymentSection(BuildContext context) {
+    final provider = Provider.of<PhonePePaymentProvider>(context);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 100,
+            child: Column(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      await provider.initPhonePeSDK();
+                    },
+                    icon: const Icon(Icons.power),
+                    label: const Text("Initialize PhonePe SDK"),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed:
+                        provider.isInitialized
+                            ? () async {
+                              await provider.startPayment(
+                                amount: 10000,
+                                userId: "user123",
+                              );
+                            }
+                            : null,
+                    icon: const Icon(Icons.payment),
+                    label: const Text("Start Payment ₹100"),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            provider.resultMessage,
+            style: const TextStyle(fontSize: 16, color: Colors.green),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            provider.transactionStatus,
+            style: const TextStyle(fontSize: 16, color: Colors.blue),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -1028,58 +1084,6 @@ class BookVenueShimmer extends StatelessWidget {
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-class PaymentButtonWidget extends StatelessWidget {
-  const PaymentButtonWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final paymentProvider = context.watch<PhonePePaymentProvider>();
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // ElevatedButton(
-          //   onPressed: () async {
-          //     final provider = PhonePePaymentProvider();
-          //     await provider.initializeSDK("user123");
-          //     await provider.startPhonePeTransaction();
-          //   },
-          //   child: const Text("Pay with PhonePe"),
-          // ),
-          // const SizedBox(height: 20),
-          // Text("Result: ${paymentProvider.result ?? ''}"),
-          //   ElevatedButton(
-          //   onPressed: () async {
-          //     Navigator.push(context, MaterialPageRoute(builder: (context) => PhonePePaymentScreen()));
-          //   },
-          //   child: const Text("Navigat PhonePePaymentScreen"),
-          // ),
-          ElevatedButton(
-            onPressed: () async {
-              await paymentProvider.initPhonePeSDK();
-            },
-            child: const Text("Initialize PhonePe SDK"),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed:
-                paymentProvider.isInitialized
-                    ? () async => await paymentProvider.startTransaction()
-                    : null,
-            child: const Text("Pay with PhonePe"),
-          ),
-          const SizedBox(height: 30),
-          Text(
-            paymentProvider.resultMessage,
-            style: const TextStyle(fontSize: 16),
-          ),
-        ],
       ),
     );
   }
