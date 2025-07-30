@@ -4,12 +4,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
 import 'package:gkmarts/Provider/Location/location_provider.dart';
 import 'package:gkmarts/Provider/Login/login_provider.dart';
+import 'package:gkmarts/Services/AuthServices/auth_services.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/notification_page.dart';
 import 'package:gkmarts/Widget/global.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/home_banner.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/profile_page.dart';
+import 'package:gkmarts/Widget/mobile_otp_login_widget.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 
@@ -156,7 +158,17 @@ class HomeHeader extends StatelessWidget {
   }
 
   Widget _profileAvatar() => GestureDetector(
-    onTap: () {
+    onTap: () async {
+      final isLoggedIn = await AuthService.isLoggedIn();
+
+      if (!isLoggedIn) {
+        // If not logged in, navigate to login page
+        Navigator.push(
+          navigatorKey.currentContext!,
+          MaterialPageRoute(builder: (_) => const MobileInputPage()),
+        );
+        return; // Prevent further execution
+      }
       Navigator.push(
         navigatorKey.currentContext!,
         PageTransition(
