@@ -70,4 +70,9 @@ class AppColors {
   // Grey Gradient
   static const Color gradientGreyStart = Color(0xFFE0E0E0); // Light Grey
   static const Color gradientGreyEnd = Color(0xFF757575); // Dark Grey
+  // Faded Black (e.g., for overlays, hints)
+ // Softer black shades for subtle text
+static const Color black87 = Color.fromRGBO(0, 0, 0, 0.87); // Slightly lighter than pure black
+static const Color black54 = Color.fromRGBO(0, 0, 0, 0.54); // More faded, for secondary text
+// 20% opacity
 }

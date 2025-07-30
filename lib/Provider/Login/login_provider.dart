@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:gkmarts/Widget/global.dart';
 import 'package:gkmarts/Utils/SharedPrefHelper/shared_local_storage.dart';
 import 'package:gkmarts/View/home_page.dart';
 import 'package:gkmarts/Widget/global_snackbar.dart';
+import 'package:gkmarts/Widget/mobile_otp_login_widget.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 
@@ -44,6 +46,187 @@ class LoginProvider extends ChangeNotifier {
   String get emailError => _emailError;
   String _phonNoError = '';
   String get phonNoError => _phonNoError;
+
+  //--------
+  final TextEditingController mobileController = TextEditingController();
+  final TextEditingController otpController = TextEditingController();
+
+  bool isOtpSent = false;
+  bool isLoggedIn = false;
+  VoidCallback? onLoginSuccess;
+
+  bool isOtpSending = false;
+  bool isOtpVerifying = false;
+
+  String mobileErrorText = '';
+
+  int resendSeconds = 60;
+  Timer? _timer;
+
+  void resetOtpFlag() {
+    isOtpSent = false;
+    notifyListeners();
+  }
+
+  void disposeTimer() {
+    _timer?.cancel();
+    _timer = null;
+  }
+
+  void clearMobileOtp() {
+    // Clear controllers
+    // mobileController.clear();
+    otpController.clear();
+
+    // Clear error messages
+    mobileErrorText = '';
+    _phonNoError = '';
+    _emailError = '';
+
+    // Reset OTP and login flags
+    isOtpSent = false;
+    isLoggedIn = false;
+    isOtpSending = false;
+    isOtpVerifying = false;
+
+    // Reset timer
+    resendSeconds = 60;
+    _timer?.cancel();
+    _timer = null;
+
+    // Reset optional callback
+    onLoginSuccess = null;
+
+    notifyListeners();
+  }
+
+  void startOtpTimer() {
+    _timer?.cancel();
+    resendSeconds = 60;
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (resendSeconds == 0) {
+        timer.cancel();
+      } else {
+        resendSeconds--;
+        notifyListeners();
+      }
+    });
+  }
+
+  void onMobileChanged(String val) {
+    if (val.length == 10) {
+      mobileErrorText = '';
+    } else {
+      mobileErrorText = 'Enter valid 10-digit number';
+    }
+    notifyListeners();
+  }
+
+  Future<void> verifyOtp(BuildContext context, String mobileNo) async {
+    final trimmedMobile = mobileNo.trim();
+    final otp = otpController.text.trim();
+
+    if (otp.length != 6) {
+      GlobalSnackbar.error(context, "Enter a valid 6-digit OTP");
+      return;
+    }
+
+    final isOnline = context.read<ConnectivityProvider>().isOnline;
+    if (!isOnline) {
+      GlobalSnackbar.error(context, "No internet connection");
+      return;
+    }
+
+    isOtpVerifying = true;
+    notifyListeners();
+
+    try {
+      final response = await LoginAuthService().verifyOtpService(
+        trimmedMobile,
+        otp,
+      );
+
+      if (response.isSuccess) {
+        final data = jsonDecode(response.responseData);
+
+        final token = data['accessToken'];
+        if (token != null && token is String) {
+          await AuthService.saveTokens(token, "");
+        }
+
+        if (data['user_id'] != null) {
+          await SharedPrefHelper.setUserId(data['user_id']);
+        }
+        clearMobileOtp();
+        GlobalSnackbar.success(
+          navigatorKey.currentContext!,
+          "Please Continue...",
+        );
+        Navigator.pop(navigatorKey.currentContext!);
+        Navigator.pop(navigatorKey.currentContext!);
+      } else {
+        GlobalSnackbar.error(navigatorKey.currentContext!, response.message);
+      }
+    } catch (e) {
+      GlobalSnackbar.error(
+        navigatorKey.currentContext!,
+        "OTP verification failed: ${e.toString()}",
+      );
+    } finally {
+      isOtpVerifying = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> sendOtp(BuildContext context, String mobileNo) async {
+    final trimmedMobile = mobileNo.trim();
+
+    if (trimmedMobile.length != 10 ||
+        !RegExp(r'^\d{10}$').hasMatch(trimmedMobile)) {
+      mobileErrorText = 'Enter valid 10-digit number';
+      notifyListeners();
+      return;
+    }
+
+    final isOnline = context.read<ConnectivityProvider>().isOnline;
+    if (!isOnline) {
+      GlobalSnackbar.error(context, "No internet connection");
+      return;
+    }
+
+    isOtpSending = true;
+    notifyListeners();
+
+    try {
+      final response = await LoginAuthService().sendOtpService(trimmedMobile);
+
+      if (response.isSuccess) {
+        final data = jsonDecode(response.responseData);
+
+        isOtpSent = true;
+        startOtpTimer();
+        notifyListeners();
+        GlobalSnackbar.success(
+          context,
+          data['message'] ?? "OTP sent successfully",
+        );
+      } else {
+        GlobalSnackbar.error(context, response.message ?? "Failed to send OTP");
+      }
+    } catch (e) {
+      GlobalSnackbar.error(context, "Error sending OTP: ${e.toString()}");
+    } finally {
+      isOtpSending = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> checkLoginStatus() async {
+    isLoggedIn = await AuthService.isLoggedIn();
+    notifyListeners();
+  }
+  //---------
+
   void validatePhoneNo(String phone) {
     if (phone.isEmpty) {
       _phonNoError = 'Phone number is required';

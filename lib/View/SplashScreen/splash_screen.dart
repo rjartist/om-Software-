@@ -3,13 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gkmarts/Provider/Location/location_provider.dart';
 import 'package:gkmarts/Services/AuthServices/auth_services.dart';
 import 'package:gkmarts/View/SplashScreen/onbording.dart';
-import 'package:gkmarts/Widget/global.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
-import 'package:gkmarts/View/Auth_view/login.dart';
 import 'package:gkmarts/View/home_page.dart';
-import 'package:gkmarts/View/home_page_helper.dart';
-import 'package:go_router/go_router.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -46,21 +41,26 @@ class _SplashScreenState extends State<SplashScreen>
 
   void navigateto() async {
     await Future.delayed(const Duration(seconds: 3));
-    final locationProvider = context.read<LocationProvider>();
-    locationProvider.fetchAndSaveLocation();
-    bool isLoggedIn = await AuthService.isLoggedIn();
+    // final locationProvider = context.read<LocationProvider>();
+    // locationProvider.fetchAndSaveLocation();
+    // bool isLoggedIn = await AuthService.isLoggedIn();
 
-    if (isLoggedIn) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomePage()),
-      );
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const Onboarding()),
-      );
-    }
+    // if (isLoggedIn) {
+    //   Navigator.pushReplacement(
+    //     context,
+    //     MaterialPageRoute(builder: (context) => HomePage()),
+    //   );
+    // } else {
+    //   Navigator.pushReplacement(
+    //     context,
+    //     MaterialPageRoute(builder: (context) => const Onboarding()),
+    //   );
+    // }
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => HomePage()),
+    );
   }
 
   @override

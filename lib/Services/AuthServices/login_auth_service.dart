@@ -12,6 +12,39 @@ import 'package:mime/mime.dart';
 import 'package:http_parser/http_parser.dart';
 
 class LoginAuthService {
+
+  Future<RestResponse> verifyOtpService(String mobileNo, String otp) async {
+    try {
+      ApiService apiService = ApiService(
+        endpoint: getVerifyOtpApi,
+        body: jsonEncode({"phoneNumber": mobileNo, "otp": otp}),
+        method: HTTP_METHOD.POST,
+        headers: HttpHeader.getLoginHeader(),
+      );
+      RestResponse response = await apiService.exec();
+      return response;
+    } catch (e) {
+      return RestResponse(isSuccess: false);
+    }
+  }
+
+   Future<RestResponse> sendOtpService(String mobileNo) async {
+    try {
+      ApiService apiService = ApiService(
+        endpoint: getSendOtpApi,
+        body: jsonEncode({"phoneNumber": mobileNo}),
+        method: HTTP_METHOD.POST,
+        headers: HttpHeader.getLoginHeader(),
+      );
+      RestResponse response = await apiService.exec();
+      return response;
+    } catch (e) {
+      return RestResponse(isSuccess: false);
+    }
+  }
+
+
+
   Future<RestResponse> editProfile(
     Map<String, dynamic> reqBody, {
     File? imageFile,

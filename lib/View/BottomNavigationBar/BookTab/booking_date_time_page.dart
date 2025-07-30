@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:gkmarts/Models/BookTabModel/slot_price_model.dart';
 import 'package:gkmarts/Models/BookTabModel/venue_detail_model.dart';
 import 'package:gkmarts/Provider/HomePage/book_tab_provider.dart';
+import 'package:gkmarts/Provider/Login/login_provider.dart';
+import 'package:gkmarts/Services/AuthServices/auth_services.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/View/BottomNavigationBar/BookTab/booking_proceed_pay.dart';
@@ -9,6 +11,7 @@ import 'package:gkmarts/Widget/global.dart';
 import 'package:gkmarts/Widget/global_appbar.dart';
 import 'package:gkmarts/Widget/global_button.dart';
 import 'package:gkmarts/Widget/global_snackbar.dart';
+import 'package:gkmarts/Widget/mobile_otp_login_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -52,6 +55,7 @@ class _BookingDateTimePageState extends State<BookingDateTimePage> {
             }
           },
           child: Scaffold(
+            resizeToAvoidBottomInset: true,
             backgroundColor: AppColors.bgColor,
             appBar: GlobalAppBar(
               title: "Booking",
@@ -66,16 +70,18 @@ class _BookingDateTimePageState extends State<BookingDateTimePage> {
             ),
             body: Padding(
               padding: const EdgeInsets.all(16),
-              child: Column(
-                spacing: 25,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildSelectedSport(context, widget.model, provider),
-                  buildDateSelector(context, provider),
-                  SlotDropdown(),
-                  TimeAndDurationWidget(),
-                  buildAvailableTurfSelector(context, provider),
-                ],
+              child: SingleChildScrollView(
+                child: Column(
+                  spacing: 25,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildSelectedSport(context, widget.model, provider),
+                    buildDateSelector(context, provider),
+                    SlotDropdown(),
+                    TimeAndDurationWidget(),
+                    buildAvailableTurfSelector(context, provider),
+                  ],
+                ),
               ),
             ),
             bottomNavigationBar: Container(
@@ -103,26 +109,68 @@ class _BookingDateTimePageState extends State<BookingDateTimePage> {
                     height: 43,
                     text: "Next",
                     onTap: () async {
-                      final provider = Provider.of<BookTabProvider>(
+                      final bookProvider = Provider.of<BookTabProvider>(
                         context,
                         listen: false,
                       );
-                      // final isAvailable = await provider.checkTurfAvailability(
-                      //   venueId: widget.model.modifiedFacility.facilityId,
-                      // );
-                      // if (isAvailable) {
-                      Navigator.push(
+                      final loginProvider = Provider.of<LoginProvider>(
                         context,
-                        MaterialPageRoute(
-                          builder:
-                              (context) => BookingProceedPayPage(
-                                model: widget.model,
-                                totalAmount:
-                                    provider.totalPriceBeforeDiscountall,
-                              ),
-                        ),
+                        listen: false,
                       );
-                      // }
+
+                      // Check if user is logged in
+                      bool isLoggedIn = await AuthService.isLoggedIn();
+
+                      if (isLoggedIn) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => MobileInputPage()),
+                        );
+                        // showLoginDialog(context, () {
+                        //   // On login success
+                        //   Navigator.push(
+                        //     context,
+                        //     MaterialPageRoute(
+                        //       builder:
+                        //           (context) => BookingProceedPayPage(
+                        //             model: widget.model,
+                        //             totalAmount:
+                        //                 bookProvider
+                        //                     .totalPriceBeforeDiscountall,
+                        //           ),
+                        //     ),
+                        //   );
+                        // });
+                      } else {
+                        // Already logged in, proceed directly
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => BookingProceedPayPage(
+                                  model: widget.model,
+                                  totalAmount:
+                                      bookProvider.totalPriceBeforeDiscountall,
+                                ),
+                          ),
+                        );
+                      }
+                      // final provider = Provider.of<BookTabProvider>(
+                      //   context,
+                      //   listen: false,
+                      // );
+
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder:
+                      //         (context) => BookingProceedPayPage(
+                      //           model: widget.model,
+                      //           totalAmount:
+                      //               provider.totalPriceBeforeDiscountall,
+                      //         ),
+                      //   ),
+                      // );
                     },
                     isEnabled: provider.isBookingReady,
                   ),

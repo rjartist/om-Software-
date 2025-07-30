@@ -4,6 +4,8 @@ String getLoginApi = "$prodDomain/api/auth/login";
 String getSignupApi = "$prodDomain/api/auth/signup";
 String getBookVenueApi = "$prodDomain/api/user/favorites";
 String getLogoutApi = "$prodDomain/api/user/logout";
+String getSendOtpApi = "$prodDomain/api/auth/send-otp";
+String getVerifyOtpApi = "$prodDomain/api/auth/verify-mobile-otp";
 // String getDeleteAccountApi = "$prodDomain/api/user/1/delete";
 
 String getAllVenueApi = "$prodDomain/api/venues/nearby";
