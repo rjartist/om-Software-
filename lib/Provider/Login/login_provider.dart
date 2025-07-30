@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:gkmarts/Models/UserModel/user_model.dart';
 import 'package:gkmarts/Provider/Connectivity/connectivity_provider.dart';
+import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
 import 'package:gkmarts/Provider/Location/location_provider.dart';
 import 'package:gkmarts/Services/AuthServices/auth_services.dart';
 import 'package:gkmarts/Services/AuthServices/login_auth_service.dart';
@@ -49,7 +50,7 @@ class LoginProvider extends ChangeNotifier {
 
   //--------
   final TextEditingController mobileController = TextEditingController();
-  final TextEditingController otpController = TextEditingController();
+  // final TextEditingController otpController = TextEditingController();
 
   bool isOtpSent = false;
   bool isLoggedIn = false;
@@ -74,10 +75,6 @@ class LoginProvider extends ChangeNotifier {
   }
 
   void clearMobileOtp() {
-    // Clear controllers
-    // mobileController.clear();
-    otpController.clear();
-
     // Clear error messages
     mobileErrorText = '';
     _phonNoError = '';
@@ -122,9 +119,13 @@ class LoginProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> verifyOtp(BuildContext context, String mobileNo) async {
+  Future<void> verifyOtp(
+    BuildContext context,
+    String mobileNo,
+    String otp,
+  ) async {
     final trimmedMobile = mobileNo.trim();
-    final otp = otpController.text.trim();
+    final trimmedOtp = otp.trim();
 
     if (otp.length != 6) {
       GlobalSnackbar.error(context, "Enter a valid 6-digit OTP");
@@ -143,7 +144,7 @@ class LoginProvider extends ChangeNotifier {
     try {
       final response = await LoginAuthService().verifyOtpService(
         trimmedMobile,
-        otp,
+        trimmedOtp,
       );
 
       if (response.isSuccess) {
@@ -162,12 +163,17 @@ class LoginProvider extends ChangeNotifier {
           navigatorKey.currentContext!,
           "Please Continue...",
         );
+        navigatorKey.currentContext!.read()<HomeTabProvider>().getCoinsData(
+          navigatorKey.currentContext!,
+        );
         Navigator.pop(navigatorKey.currentContext!);
         Navigator.pop(navigatorKey.currentContext!);
       } else {
+        startOtpTimer();
         GlobalSnackbar.error(navigatorKey.currentContext!, response.message);
       }
     } catch (e) {
+      startOtpTimer();
       GlobalSnackbar.error(
         navigatorKey.currentContext!,
         "OTP verification failed: ${e.toString()}",
@@ -628,7 +634,7 @@ class LoginProvider extends ChangeNotifier {
         // Navigate to login screen
         Navigator.pushAndRemoveUntil(
           navigatorKey.currentContext!,
-          MaterialPageRoute(builder: (_) =>  HomePage()),
+          MaterialPageRoute(builder: (_) => HomePage()),
           (route) => false,
         );
       } else {
@@ -691,14 +697,14 @@ class LoginProvider extends ChangeNotifier {
     }
   }
 
-  @override
-  void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
-    fullNameController.dispose();
-    confirmPasswordController.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   emailController.dispose();
+  //   passwordController.dispose();
+  //   fullNameController.dispose();
+  //   confirmPasswordController.dispose();
+  //   super.dispose();
+  // }
 
   void clearControllers() {
     emailController.clear();

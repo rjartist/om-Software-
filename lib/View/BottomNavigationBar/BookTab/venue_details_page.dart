@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gkmarts/Models/BookTabModel/venue_detail_model.dart';
 import 'package:gkmarts/Provider/HomePage/book_tab_provider.dart';
+import 'package:gkmarts/Services/AuthServices/auth_services.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/View/BottomNavigationBar/BookTab/booking_date_time_page.dart';
@@ -10,6 +11,7 @@ import 'package:gkmarts/View/BottomNavigationBar/BookTab/cancle_booking.dart';
 import 'package:gkmarts/Widget/global.dart';
 import 'package:gkmarts/Widget/global_button.dart';
 import 'package:gkmarts/Widget/global_snackbar.dart';
+import 'package:gkmarts/Widget/mobile_otp_login_widget.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:provider/provider.dart';
 
@@ -89,100 +91,6 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
       ),
     );
   }
-
-  // Widget _buildVenueInfo(
-  //   BuildContext context,
-  //   VenueDetailModel model,
-  //   BookTabProvider provider,
-  // ) {
-  //   return Padding(
-  //     padding: const EdgeInsets.symmetric(horizontal: 16),
-  //     child: Column(
-  //       spacing: 8,
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         vSizeBox(5),
-  //         Text(
-  //           model.modifiedFacility.facilityName,
-  //           style: AppTextStyle.titleText(),
-  //         ),
-  //         Row(
-  //           crossAxisAlignment: CrossAxisAlignment.center,
-  //           children: [
-  //             Container(
-  //               padding: const EdgeInsets.all(4),
-
-  //               child: const Icon(
-  //                 Icons.access_time,
-  //                 size: 14,
-  //                 color: Colors.black,
-  //               ),
-  //             ),
-  //             const SizedBox(width: 6),
-  //             Text(
-  //               "${formatTime(model.modifiedFacility.facilityStartHour)} - ${formatTime(model.modifiedFacility.facilityEndHour)}",
-  //               style: AppTextStyle.blackText(fontSize: 12),
-  //               overflow: TextOverflow.ellipsis,
-  //             ),
-  //           ],
-  //         ),
-
-  //         Row(
-  //           crossAxisAlignment: CrossAxisAlignment.start,
-  //           children: [
-  //             const Icon(Icons.location_on, color: Colors.red, size: 18),
-  //             const SizedBox(width: 4),
-  //             Expanded(
-  //               child: Column(
-  //                 crossAxisAlignment: CrossAxisAlignment.start,
-  //                 children: [
-  //                   Text(
-  //                     model.modifiedFacility.address,
-  //                     style: AppTextStyle.blackText(fontSize: 14),
-  //                   ),
-  //                   const SizedBox(height: 4),
-
-  //                   const SizedBox(height: 4),
-  //                   OutlinedButton.icon(
-  //                     onPressed: () {
-  //                       provider.openMapForVenue(
-  //                         context,
-  //                         model.modifiedFacility.googleMapUrl,
-  //                       );
-  //                     },
-  //                     style: OutlinedButton.styleFrom(
-  //                       side: BorderSide(color: AppColors.borderColor),
-
-  //                       shape: RoundedRectangleBorder(
-  //                         borderRadius: BorderRadius.circular(4),
-  //                       ),
-  //                       padding: const EdgeInsets.symmetric(
-  //                         horizontal: 12,
-  //                         vertical: 6,
-  //                       ),
-  //                       foregroundColor: Colors.red,
-  //                     ),
-  //                     icon: Image.asset(
-  //                       'assets/images/google_map_icon.png',
-  //                       height: 16,
-  //                       width: 16,
-  //                     ),
-  //                     label: Text(
-  //                       'Show on Map',
-  //                       style: AppTextStyle.smallBlack(
-  //                         fontWeight: FontWeight.w600,
-  //                       ),
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   Widget _buildVenueInfo(
     BuildContext context,
@@ -439,7 +347,19 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
                     ],
                   ),
                   const SizedBox(height: 6),
-                  _outlinedSmallButton("See Reviews", () {
+                  _outlinedSmallButton("See Reviews", () async {
+                    final isLoggedIn = await AuthService.isLoggedIn();
+
+                    if (!isLoggedIn) {
+                      // Redirect to login
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const MobileInputPage(),
+                        ),
+                      );
+                      return;
+                    }
                     showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
@@ -450,12 +370,12 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
                       ),
                       builder: (_) => ViewVenueReviewsBottomSheet(model: model),
                     );
-                  }),          
+                  }),
                 ],
               ),
             ],
           ),
-            // RateVenueBottomSheet(model: model), 
+          // RateVenueBottomSheet(model: model),
         ],
       ),
     );
@@ -505,11 +425,22 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
           Expanded(
             child: GlobalPrimaryButton(
               text: "BOOK NOW!",
-              onTap: () {
+              onTap: () async {
                 if (!provider.isSportSelected()) {
                   GlobalSnackbar.error(
                     context,
                     "Please select an available sport to book this venue",
+                  );
+                  return;
+                }
+
+                final isLoggedIn = await AuthService.isLoggedIn();
+
+                if (!isLoggedIn) {
+                  // Redirect to login
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const MobileInputPage()),
                   );
                   return;
                 }
@@ -657,7 +588,21 @@ class VenueImageSlider extends StatelessWidget {
                       child: GestureDetector(
                         behavior:
                             HitTestBehavior.translucent, // Expands tap area
-                        onTap: () {
+                        onTap: () async {
+                          final isLoggedIn = await AuthService.isLoggedIn();
+
+                          if (!isLoggedIn) {
+                            // Redirect to login
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const MobileInputPage(),
+                              ),
+                            );
+                            return;
+                          }
+
+                          // Proceed with API call
                           provider.toggleFavorite(context, facilityId);
                         },
                         child: Padding(
@@ -671,7 +616,21 @@ class VenueImageSlider extends StatelessWidget {
                                     : Icons.favorite_border,
                             iconColor:
                                 provider.isFavorite ? Colors.red : Colors.black,
-                            onTap: () {
+                            onTap: () async {
+                              final isLoggedIn = await AuthService.isLoggedIn();
+
+                              if (!isLoggedIn) {
+                                // Redirect to login
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const MobileInputPage(),
+                                  ),
+                                );
+                                return;
+                              }
+
+                              // Proceed with API call
                               provider.toggleFavorite(context, facilityId);
                             },
                           ),
@@ -973,7 +932,6 @@ class RateVenueBottomSheet extends StatelessWidget {
                   child: Center(
                     child: InkWell(
                       onTap: () {
-                      
                         provider.resetRating();
                         Navigator.pop(context);
                       },

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gkmarts/Provider/HomePage/Bottom_navigationBar/bottom_navigationbar.dart';
 import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
+import 'package:gkmarts/Provider/Location/location_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/home_tab.dart';
@@ -39,6 +40,8 @@ class _HomePageState extends State<HomePage> {
       context,
       listen: false,
     );
+    final locationProvider = context.read<LocationProvider>();
+    locationProvider.fetchAndSaveLocation();
     homeTabProvider.getBanner(context);
     homeTabProvider.getBookVenue(context);
     homeTabProvider.getJoinGame(context);

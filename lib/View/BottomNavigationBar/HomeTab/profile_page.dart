@@ -26,16 +26,12 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
 
-    // Call getProfile after widget is built
-    final provider = context.read<ProfileProvider>();
-
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await provider.getProfile(context);
-    });
-    final secondProvider = context.read<BookingsCountProvider>();
+      final profileProvider = context.read<ProfileProvider>();
+      final bookingsProvider = context.read<BookingsCountProvider>();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await secondProvider.fetchBookingsCounts(context);
+      await profileProvider.getProfile(context);
+      await bookingsProvider.fetchBookingsCounts(context);
     });
   }
 
@@ -221,7 +217,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
 
                             _iconTile(
-                              // Icons .account_balance_wallet, 
+                              // Icons .account_balance_wallet,
                               Icons.monetization_on,
                               //  Icons.currency_rupee,
                               "My Coins",

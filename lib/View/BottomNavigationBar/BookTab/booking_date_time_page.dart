@@ -113,65 +113,34 @@ class _BookingDateTimePageState extends State<BookingDateTimePage> {
                         context,
                         listen: false,
                       );
-                      final loginProvider = Provider.of<LoginProvider>(
-                        context,
-                        listen: false,
-                      );
 
-                      // Check if user is logged in
-                      bool isLoggedIn = await AuthService.isLoggedIn();
+                      final isLoggedIn = await AuthService.isLoggedIn();
 
-                      if (isLoggedIn) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => MobileInputPage()),
-                        );
-                        // showLoginDialog(context, () {
-                        //   // On login success
-                        //   Navigator.push(
-                        //     context,
-                        //     MaterialPageRoute(
-                        //       builder:
-                        //           (context) => BookingProceedPayPage(
-                        //             model: widget.model,
-                        //             totalAmount:
-                        //                 bookProvider
-                        //                     .totalPriceBeforeDiscountall,
-                        //           ),
-                        //     ),
-                        //   );
-                        // });
-                      } else {
-                        // Already logged in, proceed directly
+                      if (!isLoggedIn) {
+                        // If not logged in, navigate to login page
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder:
-                                (context) => BookingProceedPayPage(
-                                  model: widget.model,
-                                  totalAmount:
-                                      bookProvider.totalPriceBeforeDiscountall,
-                                ),
+                            builder: (_) => const MobileInputPage(),
                           ),
                         );
+                        return; // Prevent further execution
                       }
-                      // final provider = Provider.of<BookTabProvider>(
-                      //   context,
-                      //   listen: false,
-                      // );
 
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder:
-                      //         (context) => BookingProceedPayPage(
-                      //           model: widget.model,
-                      //           totalAmount:
-                      //               provider.totalPriceBeforeDiscountall,
-                      //         ),
-                      //   ),
-                      // );
+                      // If logged in, proceed to booking page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (_) => BookingProceedPayPage(
+                                model: widget.model,
+                                totalAmount:
+                                    bookProvider.totalPriceBeforeDiscountall,
+                              ),
+                        ),
+                      );
                     },
+
                     isEnabled: provider.isBookingReady,
                   ),
                 ],

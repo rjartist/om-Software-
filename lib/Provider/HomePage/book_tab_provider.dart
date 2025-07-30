@@ -1033,14 +1033,14 @@ class BookTabProvider extends ChangeNotifier {
         venueReviews = VenueReviewsResponseModel.fromJson(responseData);
       } else {
         venueReviews = null;
-        GlobalSnackbar.error(navigatorKey.currentContext!, response.message);
+        // GlobalSnackbar.error(navigatorKey.currentContext!, response.message);
       }
     } catch (e) {
       debugPrint("Error rating venue: $e");
-      GlobalSnackbar.error(
-        navigatorKey.currentContext!,
-        "Something went wrong",
-      );
+      // GlobalSnackbar.error(
+      //   navigatorKey.currentContext!,
+      //   "Something went wrong",
+      // );
     } finally {
       isReviewsLoading = false;
       notifyListeners();
