@@ -615,7 +615,7 @@ class LoginProvider extends ChangeNotifier {
       if (response.isSuccess) {
         // Clear user data and tokens
         await AuthService.clearTokens();
-        await SharedPrefHelper.clearAppDataExceptCoinPopup();
+        await SharedPrefHelper.clearAll();
         _user = null;
         clearControllers();
         notifyListeners();
@@ -628,7 +628,7 @@ class LoginProvider extends ChangeNotifier {
         // Navigate to login screen
         Navigator.pushAndRemoveUntil(
           navigatorKey.currentContext!,
-          MaterialPageRoute(builder: (_) => const Login()),
+          MaterialPageRoute(builder: (_) =>  HomePage()),
           (route) => false,
         );
       } else {

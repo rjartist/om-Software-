@@ -24,10 +24,10 @@ class SharedPrefHelper {
     return await _prefs!.remove(key);
   }
 
-  // static Future<bool> clearAll() async {
-  //   if (_prefs == null) return false;
-  //   return await _prefs!.clear();
-  // }
+  static Future<bool> clearAll() async {
+    if (_prefs == null) return false;
+    return await _prefs!.clear();
+  }
 
   static Future<void> markCoinPopupShown() async {
     await _prefs?.setBool(_coinPopupShownKey, true);
