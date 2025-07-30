@@ -62,33 +62,32 @@ class _SplashScreenState extends State<SplashScreen>
       MaterialPageRoute(builder: (context) => HomePage()),
     );
   }
-
-  @override
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: Container(
-        child: Center(
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // App Logo with Circle
-                Container(
-                  // height: 100.h,
-                  width: 180.h,
-                  decoration: const BoxDecoration(
-                    // shape: BoxShape.circle,
-                    color: Colors.white,
-                  ),
-                  padding: const EdgeInsets.all(20),
-                  child: Image.asset(
-                    'assets/images/splash.png',
-                    fit: BoxFit.contain,
-                  ),
+      body: Center(
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 180.w, // corrected to use `w` for width
+                padding: const EdgeInsets.all(20),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
                 ),
-                const SizedBox(height: 24),
-            ),
+                child: Image.asset(
+                  'assets/images/splash.png',
+                  fit: BoxFit.contain,
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
           ),
+        ),
+      ),
+    );
+  }
 }
