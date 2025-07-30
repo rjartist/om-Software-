@@ -97,7 +97,7 @@ class Games extends StatelessWidget {
                                       return Positioned(
                                         // right: 180,
                                         left:
-                                            index * 40.0, // horizontal overlap
+                                            index * 30.0, // horizontal overlap
                                         child: Container(
                                           decoration: BoxDecoration(
                                             shape: BoxShape.circle,
