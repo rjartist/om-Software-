@@ -76,8 +76,8 @@ class _SplashScreenState extends State<SplashScreen>
               children: [
                 // App Logo with Circle
                 Container(
-                  height: 70.h,
-                  width: 268.h,
+                  // height: 100.h,
+                  width: 180.h,
                   decoration: const BoxDecoration(
                     // shape: BoxShape.circle,
                     color: Colors.white,
