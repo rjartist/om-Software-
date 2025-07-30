@@ -66,9 +66,9 @@ class _ProfilePageState extends State<ProfilePage> {
             padding: const EdgeInsets.only(top: kToolbarHeight + 60),
             child: Consumer<ProfileProvider>(
               builder: (context, provider, _) {
-                if (provider.isLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+                // if (provider.isLoading) {
+                //   return const Center(child: CircularProgressIndicator());
+                // }
 
                 final user = provider.user;
                 final imageUrl = user?.user?.profileImage;
