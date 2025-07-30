@@ -349,7 +349,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: _profileTile(
                   "assets/images/support.png",
                   "Help & Support",
-                  () {},
+                  () {
+                    _showHelpBottomSheet(context);
+                  },
                 ),
               ),
             ),
@@ -368,7 +370,9 @@ class _ProfilePageState extends State<ProfilePage> {
               child: _profileTile(
                 "assets/images/cancel.png",
                 "Cancellation/Reschedule",
-                () {},
+                () {
+                  _showCancelBottomSheet(context);
+                },
               ),
             ),
           ),
@@ -421,6 +425,147 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showHelpBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      backgroundColor: Colors.white,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Need Help!",
+                style: AppTextStyle.primaryText(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                "To get any help or support, contact our support team",
+                style: AppTextStyle.blackText(fontSize: 14),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _supportButton("CHAT", "assets/images/whatsapp.png"),
+                  _supportButton("CALL", null, icon: Icons.call),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showCancelBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      backgroundColor: Colors.white,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Cancellation / Reschedule",
+                style: AppTextStyle.primaryText(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                "To cancel a booking, go to 'My Bookings' and submit a cancellation request.",
+                style: AppTextStyle.blackText(fontSize: 14),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    PageTransition(
+                      type: PageTransitionType.rightToLeft,
+                      duration: const Duration(milliseconds: 300),
+                      child: const MyBookings(),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Text(
+                  "GO TO MY BOOKINGS",
+                  style: AppTextStyle.whiteText(),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _supportButton(String label, String? iconAsset, {IconData? icon}) {
+    return Container(
+      width: 150,
+      height: 40,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.profileSectionButtonColor,
+            AppColors.profileSectionButtonColor2,
+          ],
+        ),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: ElevatedButton(
+        onPressed: () {},
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (iconAsset != null)
+              Image.asset(
+                iconAsset,
+                height: 18,
+                width: 18,
+                color: AppColors.white,
+              ),
+            if (icon != null) Icon(icon, color: AppColors.white, size: 18),
+            const SizedBox(width: 10),
+            Text(
+              label,
+              style: AppTextStyle.whiteText(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
