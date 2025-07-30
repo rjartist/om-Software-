@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gkmarts/Models/MyBookings/bookings_count_model.dart';
+import 'package:gkmarts/Services/AuthServices/auth_services.dart';
+import 'package:gkmarts/Widget/mobile_otp_login_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -66,10 +68,6 @@ class _ProfilePageState extends State<ProfilePage> {
             padding: const EdgeInsets.only(top: kToolbarHeight + 60),
             child: Consumer<ProfileProvider>(
               builder: (context, provider, _) {
-                // if (provider.isLoading) {
-                //   return const Center(child: CircularProgressIndicator());
-                // }
-
                 final user = provider.user;
                 final imageUrl = user?.user?.profileImage;
 
@@ -120,7 +118,20 @@ class _ProfilePageState extends State<ProfilePage> {
                               Padding(
                                 padding: const EdgeInsets.only(right: 16),
                                 child: InkWell(
-                                  onTap: () {
+                                  onTap: () async {
+                                    final isLoggedIn =
+                                        await AuthService.isLoggedIn();
+
+                                    if (!isLoggedIn) {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (_) => const MobileInputPage(),
+                                        ),
+                                      );
+                                      return;
+                                    }
                                     Navigator.push(
                                       context,
                                       PageTransition(
@@ -158,6 +169,18 @@ class _ProfilePageState extends State<ProfilePage> {
         ],
       ),
     );
+  }
+
+  void _handleLoggedInAction(BuildContext context, VoidCallback action) async {
+    final isLoggedIn = await AuthService.isLoggedIn();
+    if (!isLoggedIn) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const MobileInputPage()),
+      );
+      return;
+    }
+    action();
   }
 
   Widget _bookingStats(BookingCount? count) {
@@ -272,14 +295,25 @@ class _ProfilePageState extends State<ProfilePage> {
                   "assets/images/check_calendar.png",
                   "My Bookings",
                   () {
-                    Navigator.push(
-                      context,
-                      PageTransition(
-                        type: PageTransitionType.rightToLeft,
-                        duration: const Duration(milliseconds: 300),
-                        child: const MyBookings(),
-                      ),
-                    );
+                    _handleLoggedInAction(context, () {
+                      Navigator.push(
+                        context,
+                        PageTransition(
+                          type: PageTransitionType.rightToLeft,
+                          duration: const Duration(milliseconds: 300),
+                          child: const MyBookings(),
+                        ),
+                      );
+                    });
+
+                    // Navigator.push(
+                    //   context,
+                    //   PageTransition(
+                    //     type: PageTransitionType.rightToLeft,
+                    //     duration: const Duration(milliseconds: 300),
+                    //     child: const MyBookings(),
+                    //   ),
+                    // );
                   },
                 ),
               ),
@@ -297,14 +331,24 @@ class _ProfilePageState extends State<ProfilePage> {
                 "assets/images/heart.png",
                 "My Favorites",
                 () {
-                  Navigator.push(
-                    context,
-                    PageTransition(
-                      type: PageTransitionType.rightToLeft,
-                      duration: const Duration(milliseconds: 300),
-                      child: const MyFavorites(),
-                    ),
-                  );
+                  _handleLoggedInAction(context, () {
+                    Navigator.push(
+                      context,
+                      PageTransition(
+                        type: PageTransitionType.rightToLeft,
+                        duration: const Duration(milliseconds: 300),
+                        child: const MyFavorites(),
+                      ),
+                    );
+                  });
+                  // Navigator.push(
+                  //   context,
+                  //   PageTransition(
+                  //     type: PageTransitionType.rightToLeft,
+                  //     duration: const Duration(milliseconds: 300),
+                  //     child: const MyFavorites(),
+                  //   ),
+                  // );
                 },
               ),
             ),
@@ -321,14 +365,24 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Padding(
               padding: const EdgeInsets.all(10.0),
               child: _iconTile(Icons.monetization_on, "My Coins", () {
-                Navigator.push(
-                  context,
-                  PageTransition(
-                    type: PageTransitionType.rightToLeft,
-                    duration: const Duration(milliseconds: 300),
-                    child: const MyCoins(),
-                  ),
-                );
+                _handleLoggedInAction(context, () {
+                  Navigator.push(
+                    context,
+                    PageTransition(
+                      type: PageTransitionType.rightToLeft,
+                      duration: const Duration(milliseconds: 300),
+                      child: const MyCoins(),
+                    ),
+                  );
+                });
+                // Navigator.push(
+                //   context,
+                //   PageTransition(
+                //     type: PageTransitionType.rightToLeft,
+                //     duration: const Duration(milliseconds: 300),
+                //     child: const MyCoins(),
+                //   ),
+                // );
               }),
             ),
           ),
@@ -389,14 +443,24 @@ class _ProfilePageState extends State<ProfilePage> {
                   "assets/images/setings.png",
                   "Settings",
                   () {
-                    Navigator.push(
-                      context,
-                      PageTransition(
-                        type: PageTransitionType.rightToLeft,
-                        duration: const Duration(milliseconds: 300),
-                        child: const Settings(),
-                      ),
-                    );
+                    _handleLoggedInAction(context, () {
+                      Navigator.push(
+                        context,
+                        PageTransition(
+                          type: PageTransitionType.rightToLeft,
+                          duration: const Duration(milliseconds: 300),
+                          child: const Settings(),
+                        ),
+                      );
+                    });
+                    // Navigator.push(
+                    //   context,
+                    //   PageTransition(
+                    //     type: PageTransitionType.rightToLeft,
+                    //     duration: const Duration(milliseconds: 300),
+                    //     child: const Settings(),
+                    //   ),
+                    // );
                   },
                 ),
               ),

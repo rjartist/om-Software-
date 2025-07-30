@@ -434,16 +434,6 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
                   return;
                 }
 
-                final isLoggedIn = await AuthService.isLoggedIn();
-
-                if (!isLoggedIn) {
-                  // Redirect to login
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const MobileInputPage()),
-                  );
-                  return;
-                }
                 Navigator.push(
                   context,
                   MaterialPageRoute(

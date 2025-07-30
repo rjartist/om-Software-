@@ -7,6 +7,7 @@ import 'package:gkmarts/Models/HomeTab_Models/game_join_model.dart';
 import 'package:gkmarts/Models/BookTabModel/venue_model.dart';
 import 'package:gkmarts/Provider/Connectivity/connectivity_provider.dart';
 import 'package:gkmarts/Provider/Location/location_provider.dart';
+import 'package:gkmarts/Services/AuthServices/auth_services.dart';
 import 'package:gkmarts/Services/HomeTab/home_tab_service.dart';
 import 'package:gkmarts/Utils/SharedPrefHelper/shared_local_storage.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
@@ -38,7 +39,12 @@ class HomeTabProvider with ChangeNotifier {
   Future<void> showCoinPopupOnce(BuildContext context) async {
     // final coins = coinsModel?.remainingBonusCoins ?? 0;
     // showCoinPopup(context, coins);
-    
+
+    final isLoggedIn = await AuthService.isLoggedIn();
+    if (!isLoggedIn) {
+      return;
+    }
+
     if (!SharedPrefHelper.hasShownCoinPopup()) {
       final coins = coinsModel?.remainingBonusCoins ?? 0;
       if (coins > 0) {
@@ -121,6 +127,12 @@ class HomeTabProvider with ChangeNotifier {
     final isOnline =
         Provider.of<ConnectivityProvider>(context, listen: false).isOnline;
     if (!isOnline) return;
+
+    final isLoggedIn = await AuthService.isLoggedIn();
+
+    if (!isLoggedIn) {
+      return;
+    }
 
     isCoinsLoading = true;
     notifyListeners();

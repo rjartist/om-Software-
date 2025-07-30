@@ -7,8 +7,8 @@ import 'package:gkmarts/Provider/Connectivity/connectivity_provider.dart';
 
 import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
 
-
 import 'package:gkmarts/Provider/Location/location_provider.dart';
+import 'package:gkmarts/Provider/Profile/profile_page_provider.dart';
 import 'package:gkmarts/Services/AuthServices/auth_services.dart';
 import 'package:gkmarts/Services/AuthServices/login_auth_service.dart';
 import 'package:gkmarts/View/Auth_view/login.dart';
@@ -18,7 +18,6 @@ import 'package:gkmarts/View/home_page.dart';
 import 'package:gkmarts/Widget/global_snackbar.dart';
 
 import 'package:gkmarts/Widget/mobile_otp_login_widget.dart';
-
 
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
@@ -78,6 +77,12 @@ class LoginProvider extends ChangeNotifier {
   void disposeTimer() {
     _timer?.cancel();
     _timer = null;
+  }
+
+  void clearLoginProviderAllData() {
+    _user = null;
+
+    notifyListeners();
   }
 
   void clearMobileOtp() {
@@ -165,25 +170,21 @@ class LoginProvider extends ChangeNotifier {
           await SharedPrefHelper.setUserId(data['user_id']);
         }
         clearMobileOtp();
-        GlobalSnackbar.success(
-          navigatorKey.currentContext!,
-          "Please Continue...",
-        );
-        navigatorKey.currentContext!.read()<HomeTabProvider>().getCoinsData(
+
+        GlobalSnackbar.bottomSuccess(context, "Please Continue...");
+        context.read<HomeTabProvider>().getCoinsData(
           navigatorKey.currentContext!,
         );
-        Navigator.pop(navigatorKey.currentContext!);
-        Navigator.pop(navigatorKey.currentContext!);
+
+        Navigator.pop(context);
+        Navigator.pop(context);
       } else {
         startOtpTimer();
-        GlobalSnackbar.error(navigatorKey.currentContext!, response.message);
+        GlobalSnackbar.error(context, response.message);
       }
     } catch (e) {
       startOtpTimer();
-      GlobalSnackbar.error(
-        navigatorKey.currentContext!,
-        "OTP verification failed: ${e.toString()}",
-      );
+      GlobalSnackbar.error(context, "OTP verification failed: ${e.toString()}");
     } finally {
       isOtpVerifying = false;
       notifyListeners();
@@ -223,9 +224,10 @@ class LoginProvider extends ChangeNotifier {
           data['message'] ?? "OTP sent successfully",
         );
       } else {
-        GlobalSnackbar.error(context, response.message ?? "Failed to send OTP");
+        GlobalSnackbar.error(context, response.message);
       }
     } catch (e) {
+      debugPrint("Error sending OTP: $e");
       GlobalSnackbar.error(context, "Error sending OTP: ${e.toString()}");
     } finally {
       isOtpSending = false;
@@ -630,6 +632,8 @@ class LoginProvider extends ChangeNotifier {
         await SharedPrefHelper.clearAll();
         _user = null;
         clearControllers();
+
+        context.read<ProfileProvider>().clearProfileProviderAllData();
         notifyListeners();
 
         GlobalSnackbar.success(

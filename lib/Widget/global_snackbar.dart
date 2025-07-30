@@ -83,15 +83,28 @@ class GlobalSnackbar {
     );
   }
 
-  static void bottomSuccess(BuildContext context, String message) {
+  static void bottomSuccess(
+    BuildContext context,
+    String message, {
+    Duration duration = const Duration(milliseconds: 1800),
+  }) {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
-        duration: const Duration(milliseconds: 1500),
+        backgroundColor: Colors.green.shade400,
+        duration: duration,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle, color: Colors.white),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(message, style: const TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -23,6 +23,12 @@ class ProfileProvider extends ChangeNotifier {
     return null;
   }
 
+  void clearProfileProviderAllData() {
+    isLoading = false;
+    _profile = null;
+    notifyListeners();
+  }
+
   Future<void> getProfile(BuildContext context) async {
     final isOnline = context.read<ConnectivityProvider>().isOnline;
 
