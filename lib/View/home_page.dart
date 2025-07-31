@@ -73,7 +73,9 @@ class _HomePageState extends State<HomePage> {
             if (!isLoggedIn) {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const MobileInputPage()),
+                MaterialPageRoute(
+                  builder: (_) => const MobileInputPage(isHome: true),
+                ),
               );
               return; // Stop navigation to ProfilePage
             }

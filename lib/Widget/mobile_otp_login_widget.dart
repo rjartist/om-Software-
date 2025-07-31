@@ -11,7 +11,8 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:provider/provider.dart';
 
 class MobileInputPage extends StatelessWidget {
-  const MobileInputPage({super.key});
+  final bool isHome;
+  const MobileInputPage({super.key, this.isHome = false});
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +126,12 @@ class MobileInputPage extends StatelessWidget {
 
 class OtpVerifyPage extends StatefulWidget {
   final String mobileNumber;
-  const OtpVerifyPage({super.key, required this.mobileNumber});
+  final bool isHome;
+  const OtpVerifyPage({
+    super.key,
+    required this.mobileNumber,
+    this.isHome = false,
+  });
 
   @override
   State<OtpVerifyPage> createState() => _OtpVerifyPageState();
@@ -154,7 +160,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
             vSizeBox(60),
             SizedBox(
               width: 120.w,
- 
+
               child: Image.asset(
                 'assets/images/splash-removebg-preview.png',
                 fit: BoxFit.contain,

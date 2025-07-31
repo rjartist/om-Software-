@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:gkmarts/Models/UserModel/user_model.dart';
 import 'package:gkmarts/Provider/Connectivity/connectivity_provider.dart';
+import 'package:gkmarts/Provider/HomePage/Bottom_navigationBar/bottom_navigationbar.dart';
 
 import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
 
@@ -133,8 +134,9 @@ class LoginProvider extends ChangeNotifier {
   Future<void> verifyOtp(
     BuildContext context,
     String mobileNo,
-    String otp,
-  ) async {
+    String otp, {
+    bool isHome = false,
+  }) async {
     final trimmedMobile = mobileNo.trim();
     final trimmedOtp = otp.trim();
 
@@ -174,15 +176,23 @@ class LoginProvider extends ChangeNotifier {
         Future.delayed(Duration(milliseconds: 300), () {
           GlobalSnackbar.bottomSuccess(
             navigatorKey.currentContext!, // use global context
-            "Please Continue...",
+            "Login successful",
           );
         });
         context.read<HomeTabProvider>().getCoinsData(
           navigatorKey.currentContext!,
         );
 
-        Navigator.pop(context);
-        Navigator.pop(context);
+        if (isHome) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => HomePage()),
+            (route) => false,
+          );
+        } else {
+          Navigator.pop(context); // Go back to previous screen
+          Navigator.pop(context); // Then go back again
+        }
       } else {
         startOtpTimer();
         GlobalSnackbar.error(context, response.message);
@@ -645,13 +655,23 @@ class LoginProvider extends ChangeNotifier {
           navigatorKey.currentContext!,
           "Logged out successfully",
         );
-
-        // Navigate to login screen
         Navigator.pushAndRemoveUntil(
           navigatorKey.currentContext!,
           MaterialPageRoute(builder: (_) => HomePage()),
           (route) => false,
         );
+
+        // Then reset to home tab
+        Future.delayed(Duration.zero, () {
+          navigatorKey.currentContext!.read<BottomNavProvider>().changeIndex(0);
+        });
+
+        // Navigate to login screen
+        // Navigator.pushAndRemoveUntil(
+        //   navigatorKey.currentContext!,
+        //   MaterialPageRoute(builder: (_) => HomePage()),
+        //   (route) => false,
+        // );
       } else {
         GlobalSnackbar.error(
           navigatorKey.currentContext!,
