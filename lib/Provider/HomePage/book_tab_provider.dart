@@ -645,7 +645,10 @@ class BookTabProvider extends ChangeNotifier {
     final isOnline =
         navigatorKey.currentContext!.read<ConnectivityProvider>().isOnline;
     if (!isOnline) {
-      GlobalSnackbar.error(context, "No internet connection");
+      GlobalSnackbar.error(
+        navigatorKey.currentContext!,
+        "No internet connection",
+      );
       isgetVenueDetailsGetting = false;
       notifyListeners();
       return;

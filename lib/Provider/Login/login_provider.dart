@@ -171,7 +171,12 @@ class LoginProvider extends ChangeNotifier {
         }
         clearMobileOtp();
 
-        GlobalSnackbar.bottomSuccess(context, "Please Continue...");
+        Future.delayed(Duration(milliseconds: 300), () {
+          GlobalSnackbar.bottomSuccess(
+            navigatorKey.currentContext!, // use global context
+            "Please Continue...",
+          );
+        });
         context.read<HomeTabProvider>().getCoinsData(
           navigatorKey.currentContext!,
         );
@@ -219,10 +224,10 @@ class LoginProvider extends ChangeNotifier {
         isOtpSent = true;
         startOtpTimer();
         notifyListeners();
-        GlobalSnackbar.success(
-          context,
-          data['message'] ?? "OTP sent successfully",
-        );
+        // GlobalSnackbar.success(
+        //   context,
+        //   data['message'] ?? "OTP sent successfully",
+        // );
       } else {
         GlobalSnackbar.error(context, response.message);
       }

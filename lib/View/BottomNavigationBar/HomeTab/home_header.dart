@@ -159,16 +159,16 @@ class HomeHeader extends StatelessWidget {
 
   Widget _profileAvatar() => GestureDetector(
     onTap: () async {
-      // final isLoggedIn = await AuthService.isLoggedIn();
+      final isLoggedIn = await AuthService.isLoggedIn();
 
-      // if (!isLoggedIn) {
-      //   // If not logged in, navigate to login page
-      //   Navigator.push(
-      //     navigatorKey.currentContext!,
-      //     MaterialPageRoute(builder: (_) => const MobileInputPage()),
-      //   );
-      //   return; // Prevent further execution
-      // }
+      if (!isLoggedIn) {
+        // If not logged in, navigate to login page
+        Navigator.push(
+          navigatorKey.currentContext!,
+          MaterialPageRoute(builder: (_) => const MobileInputPage()),
+        );
+        return; // Prevent further execution
+      }
       Navigator.push(
         navigatorKey.currentContext!,
         PageTransition(

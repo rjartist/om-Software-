@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gkmarts/Provider/Login/login_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
@@ -24,13 +25,24 @@ class MobileInputPage extends StatelessWidget {
         }
       },
       child: Scaffold(
-        appBar: GlobalAppBar(title: "Login to Continue", centerTitle: true),
+        // appBar: GlobalAppBar(title: "Login to Continue", centerTitle: true),
         backgroundColor: AppColors.bgColor,
         body: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 30),
           child: Column(
             children: [
-              const SizedBox(height: 40),
+              vSizeBox(60),
+              Container(
+                width: 120.w,
+                // height: 100,
+                // padding: const EdgeInsets.all(20),
+                // decoration: const BoxDecoration(color: Colors.white),
+                child: Image.asset(
+                  'assets/images/splash-removebg-preview.png',
+                  fit: BoxFit.contain,
+                ),
+              ),
+              vSizeBox(20),
               Text("Hi there!", style: AppTextStyle.blackText(fontSize: 28)),
               const SizedBox(height: 10),
               Padding(
@@ -133,13 +145,22 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
     final provider = Provider.of<LoginProvider>(context);
 
     return Scaffold(
-      appBar: GlobalAppBar(title: "Login to Continue", centerTitle: true),
       backgroundColor: AppColors.bgColor,
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            vSizeBox(60),
+            SizedBox(
+              width: 120.w,
+ 
+              child: Image.asset(
+                'assets/images/splash-removebg-preview.png',
+                fit: BoxFit.contain,
+              ),
+            ),
+            vSizeBox(20),
             Text(
               "OTP Verification",
               style: AppTextStyle.blackText(fontSize: 28),

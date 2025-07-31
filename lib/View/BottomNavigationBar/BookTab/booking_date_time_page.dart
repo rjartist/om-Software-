@@ -388,7 +388,9 @@ class _BookingDateTimePageState extends State<BookingDateTimePage> {
                                 Expanded(
                                   child: TableCalendar(
                                     firstDay: now,
-                                    lastDay: now.add(const Duration(days: 365)),
+                                    // lastDay: now.add(const Duration(days: 365)),
+                                    lastDay: now.add(const Duration(days: 30)),
+
                                     focusedDay: provider.selectedDate,
                                     selectedDayPredicate:
                                         (day) => isSameDay(

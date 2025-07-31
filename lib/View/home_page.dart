@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gkmarts/Provider/HomePage/Bottom_navigationBar/bottom_navigationbar.dart';
 import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
 import 'package:gkmarts/Provider/Location/location_provider.dart';
+import 'package:gkmarts/Services/AuthServices/auth_services.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/home_tab.dart';
@@ -13,6 +14,7 @@ import 'package:gkmarts/View/BottomNavigationBar/BookTab/book_tab.dart';
 import 'package:gkmarts/View/BottomNavigationBar/PlayTab/all_conversation.dart';
 import 'package:gkmarts/View/BottomNavigationBar/PlayTab/Create%20Game/chat_screen.dart';
 import 'package:gkmarts/View/BottomNavigationBar/PlayTab/play_tab.dart';
+import 'package:gkmarts/Widget/mobile_otp_login_widget.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
@@ -65,7 +67,20 @@ class _HomePageState extends State<HomePage> {
       body: _pages[currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
-        onTap: navProvider.changeIndex,
+        onTap: (index) async {
+          if (index == 4) {
+            final isLoggedIn = await AuthService.isLoggedIn();
+            if (!isLoggedIn) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const MobileInputPage()),
+              );
+              return; // Stop navigation to ProfilePage
+            }
+          }
+          navProvider.changeIndex(index); // Proceed normally
+        },
+        // onTap: navProvider.changeIndex,
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
         selectedItemColor: AppColors.primaryColor,
