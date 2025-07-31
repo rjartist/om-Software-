@@ -1,6 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gkmarts/Models/GenaralModels/coins_model.dart';
 import 'package:gkmarts/Models/MyBookings/bookings_count_model.dart';
+import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
 import 'package:gkmarts/Services/AuthServices/auth_services.dart';
 import 'package:gkmarts/Widget/mobile_otp_login_widget.dart';
 import 'package:provider/provider.dart';
@@ -29,10 +32,12 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    final provider = context.read<ProfileProvider>();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await provider.getProfile(context);
-      await context.read<BookingsCountProvider>().fetchBookingsCounts(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final profileProvider = context.read<ProfileProvider>();
+      final bookingsProvider = context.read<BookingsCountProvider>();
+
+      profileProvider.getProfile(context);
+      bookingsProvider.fetchBookingsCounts(context);
     });
   }
 
@@ -70,6 +75,7 @@ class _ProfilePageState extends State<ProfilePage> {
               builder: (context, provider, _) {
                 final user = provider.user;
                 final imageUrl = user?.user?.profileImage;
+                final coinsModel = context.watch<HomeTabProvider>().coinsModel;
 
                 return Consumer<BookingsCountProvider>(
                   builder: (context, secondProvider, _) {
@@ -82,16 +88,31 @@ class _ProfilePageState extends State<ProfilePage> {
                           Row(
                             children: [
                               const SizedBox(width: 16),
-                              CircleAvatar(
-                                radius: 35,
-                                backgroundImage:
-                                    imageUrl != null
-                                        ? NetworkImage(imageUrl)
-                                        : const AssetImage(
+                              ClipOval(
+                                child: CachedNetworkImage(
+                                  imageUrl: imageUrl ?? "",
+                                  width: 70,
+                                  height: 70,
+                                  fit: BoxFit.cover,
+                                  placeholder:
+                                      (context, url) => CircleAvatar(
+                                        radius: 35,
+                                        backgroundColor: Colors.grey[200],
+                                        child: const Icon(
+                                          Icons.person,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                  errorWidget:
+                                      (context, url, error) =>
+                                          const CircleAvatar(
+                                            radius: 35,
+                                            backgroundImage: AssetImage(
                                               'assets/images/user.jpeg',
-                                            )
-                                            as ImageProvider,
-                                backgroundColor: Colors.white,
+                                            ),
+                                            backgroundColor: Colors.white,
+                                          ),
+                                ),
                               ),
                               const SizedBox(width: 16),
                               Column(
@@ -157,7 +178,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           // const SizedBox(height: 16),
                           // _bookingStats(count),
                           const SizedBox(height: 15),
-                          _profileOptions(context),
+                          _profileOptions(context, coinsModel!),
                         ],
                       ),
                     );
@@ -232,7 +253,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _profileOptions(BuildContext context) {
+  Widget _profileOptions(BuildContext context, CoinsModel coinModel) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -264,7 +285,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       SizedBox(height: 10),
                       Text(
-                        "₹0",
+                        "${coinModel.remainingBonusCoins}",
                         style: AppTextStyle.blackText(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -272,8 +293,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ],
                   ),
-                  Spacer(),
-                  Image.asset("assets/images/coin.png", height: 40, width: 40),
                 ],
               ),
             ),
