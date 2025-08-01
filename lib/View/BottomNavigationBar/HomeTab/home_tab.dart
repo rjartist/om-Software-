@@ -60,7 +60,7 @@ class _HomeTabState extends State<HomeTab> {
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: HomeBanner(),
             ),
-            // phonePePaymentSection(context),
+            phonePePaymentSection(context),
 
             vSizeBox(8),
             Padding(

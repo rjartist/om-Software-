@@ -20,6 +20,12 @@ import 'package:gkmarts/View/SplashScreen/splash_screen.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
+  OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+  // Initialize with your OneSignal App ID
+  OneSignal.initialize("YOUR_APP_ID");
+  // Use this method to prompt for push notifications.
+  // We recommend removing this method after testing and instead use In-App Messages to prompt for notification permission.
+  OneSignal.Notifications.requestPermission(false);
   WidgetsFlutterBinding.ensureInitialized();
   await SharedPrefHelper.init();
   runApp(

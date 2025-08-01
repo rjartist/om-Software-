@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "997631913574",
+    "project_id": "cxplay-bb5b4",
+    "storage_bucket": "cxplay-bb5b4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:997631913574:android:fa7e26f70a78e91b3307a7",
+        "android_client_info": {
+          "package_name": "com.omsoftware.cxplayground"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD7a65i2J8EDDr4BYrRVuLVQfK0JD9xD68"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

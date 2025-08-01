@@ -8,10 +8,6 @@
 <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
-<!-- <meta-data android:name="com.phonepe.android.sdk.isUAT" android:value="true"/>
-<meta-data android:name="com.phonepe.android.sdk.isSimulator" android:value="true"/>
-<meta-data android:name="com.phonepe.android.sdk.MerchantId" android:value="PGTESTPAYUAT"/> -->
-
     <application
         android:label="CX PlayGround"
         android:name="${applicationName}"
@@ -44,7 +40,7 @@
     <action android:name="android.intent.action.VIEW" />
     <category android:name="android.intent.category.DEFAULT" />
     <category android:name="android.intent.category.BROWSABLE" />
-    <data android:scheme="com.omsoftware.ckplayground" />
+    <data android:scheme="com.omsoftware.cxplayground" />
 </intent-filter>
 
         </activity>
