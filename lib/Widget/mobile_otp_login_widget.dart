@@ -208,7 +208,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
                   provider.verifyOtp(
                     context,
                     widget.mobileNumber,
-                    value, // ← use value, not otpController.text
+                    value, 
                   );
                 }
               },

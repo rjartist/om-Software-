@@ -4,6 +4,7 @@ class SharedPrefHelper {
   static SharedPreferences? _prefs;
   static const _coinPopupShownKey = " ";
   static const _userIdKey = "user_id";
+   static const _phoneNumberKey = "phone_number";
   // Initialize once at app start
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -54,5 +55,12 @@ class SharedPrefHelper {
 
   static int? getUserId() {
     return _prefs?.getInt(_userIdKey);
+  }
+   static Future<void> setPhoneNumber(String phone) async {
+    await _prefs?.setString(_phoneNumberKey, phone);
+  }
+
+  static String? getPhoneNumber() {
+    return _prefs?.getString(_phoneNumberKey);
   }
 }

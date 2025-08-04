@@ -51,7 +51,7 @@ class Login extends StatelessWidget {
           
                 // Welcome Text
                 Text(
-                  "Join the CX PlayGround Community",
+                  "Join the CX Play Community",
                   style: AppTextStyle.blackText(
                     fontSize: 16,
                     color: Colors.black,

@@ -2,6 +2,7 @@ import java.util.Properties
 import java.io.FileInputStream
 plugins {
     id("com.android.application")
+    id("com.google.gms.google-services")
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
@@ -68,4 +69,6 @@ flutter {
 dependencies {
     implementation("phonepe.intentsdk.android.release:IntentSDK:2.4.1")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7")
+      coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+
 }

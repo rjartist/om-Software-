@@ -171,6 +171,7 @@ class LoginProvider extends ChangeNotifier {
         if (data['user_id'] != null) {
           await SharedPrefHelper.setUserId(data['user_id']);
         }
+        await SharedPrefHelper.setPhoneNumber(trimmedMobile);
         clearMobileOtp();
 
         Future.delayed(Duration(milliseconds: 300), () {

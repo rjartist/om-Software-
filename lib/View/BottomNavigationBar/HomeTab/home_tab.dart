@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gkmarts/Provider/HomePage/Bottom_navigationBar/bottom_navigationbar.dart';
 import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
 import 'package:gkmarts/Provider/Phonpay/phon_pay_payment_provider.dart';
+import 'package:gkmarts/Provider/Razorpay/razorpay_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/View/BottomNavigationBar/BookTab/venue_details_page.dart';
@@ -60,7 +61,25 @@ class _HomeTabState extends State<HomeTab> {
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: HomeBanner(),
             ),
-            phonePePaymentSection(context),
+            // Align(
+            //   alignment:Alignment.center ,
+            //   child: ElevatedButton(
+            //     onPressed: () {
+            //       final razorpayProvider = Provider.of<RazorpayProvider>(
+            //         context,
+            //         listen: false,
+            //       );
+              
+            //       razorpayProvider.startPayment(
+            //         amount: 50000, // ₹500 in paise
+            //         name: "Ritesh Jogi",
+            //         phone: "9876543210",
+            //         email: "ritesh@example.com",
+            //       );
+            //     },
+            //     child: Text("pay"),
+            //   ),
+            // ),
 
             vSizeBox(8),
             Padding(

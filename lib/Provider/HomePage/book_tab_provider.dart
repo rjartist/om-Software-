@@ -9,12 +9,15 @@ import 'package:gkmarts/Models/BookTabModel/slot_price_model.dart';
 import 'package:gkmarts/Models/BookTabModel/venue_detail_model.dart';
 import 'package:gkmarts/Provider/Connectivity/connectivity_provider.dart';
 import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
+import 'package:gkmarts/Provider/Razorpay/razorpay_provider.dart';
 import 'package:gkmarts/Services/BookTab/book_tab_service.dart';
+import 'package:gkmarts/Utils/SharedPrefHelper/shared_local_storage.dart';
 import 'package:gkmarts/View/BottomNavigationBar/BookTab/congratulation_booking.dart';
 import 'package:gkmarts/Widget/global.dart';
 import 'package:gkmarts/Widget/global_snackbar.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -1096,32 +1099,76 @@ class BookTabProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> proceedToPay(VenueDetailModel model) async {
-    isProceedToPlay = true;
-    notifyListeners();
-
+  Future<void> initiatePaymentAndProceed(VenueDetailModel model) async {
     final isOnline =
         navigatorKey.currentContext!.read<ConnectivityProvider>().isOnline;
-
     if (!isOnline) {
       GlobalSnackbar.error(
         navigatorKey.currentContext!,
         "No internet connection",
       );
-      isProceedToPlay = false;
-      notifyListeners();
+
       return;
     }
 
     try {
-      // Build only the required request body
+      // Get user details (dummy or real) from SharedPreferences
+      // final prefs = await SharedPreferences.getInstance();
+      // final phone = "9999999999";
+      String? phone = SharedPrefHelper.getPhoneNumber();
+      // final email = "ritesh@example.com";
+      // final name = "Ritesh";
+
+      final razorpayProvider =
+          navigatorKey.currentContext!.read<RazorpayProvider>();
+      isProceedToPlay = true;
+      notifyListeners();
+      razorpayProvider.startPayment(
+        amount: (finalPayableAmount * 100).toInt(),
+        phone: phone,
+        //  name: name,
+        // email: email,
+        onSuccess: (response) {
+          // GlobalSnackbar.success(
+          //   navigatorKey.currentContext!,
+          //   "Payment Success $paymentId",
+          // );
+          _proceedToPayAfterPayment(response, model);
+        },
+        onFailure: (code, message) {
+          GlobalSnackbar.error(
+            navigatorKey.currentContext!,
+            "Payment failed: $message",
+          );
+          isProceedToPlay = false; // reset here
+          notifyListeners();
+        },
+      );
+    } catch (e) {
+      debugPrint("❌ Payment Init Error: $e");
+      GlobalSnackbar.error(
+        navigatorKey.currentContext!,
+        "Something went wrong",
+      );
+      isProceedToPlay = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> _proceedToPayAfterPayment(
+    PaymentSuccessResponse paymentSuccessResponse,
+    VenueDetailModel model,
+  ) async {
+    isProceedToPlay = true;
+    notifyListeners();
+
+    try {
       final reqBody = {
         "sportId": selectedSportId,
-        "date": DateFormat("ddList (0 items)-MM-yyyy").format(selectedDate),
+        "date": DateFormat("dd-MM-yyyy").format(selectedDate),
         "startTime": formatTimeApi(selectedStartTime),
         "endTime": formatTimeApi(_calculateEndTime()),
         "turfIds": selectedTurfIds,
-
         "basePrice": totalPriceBeforeDiscountall,
         "couponDiscountAmount": offerDiscount,
         "coinDiscountUsed": coinDiscount,
@@ -1130,22 +1177,24 @@ class BookTabProvider extends ChangeNotifier {
         "platformFees": platformFee.toStringAsFixed(2),
         "gst": gstOnPlatformFee.toStringAsFixed(2),
         "convenienceFees": convenienceFee.toStringAsFixed(2),
-        "totalPrice": finalPayableAmount.toStringAsFixed(2),
+        "totalPriceccccccc": finalPayableAmount.toStringAsFixed(2),
+        "paymentId": paymentSuccessResponse.paymentId,
+        "orderId": paymentSuccessResponse.orderId,
+        "signature": paymentSuccessResponse.signature,
       };
 
-      debugPrint("Proceed to Pay Req Body: $reqBody");
       final response = await BookTabService().proceedToPayService(
         reqBody: reqBody,
       );
-
       if (response.isSuccess) {
         final responseData = jsonDecode(response.responseData);
         final now = DateTime.now();
+
         bookingId = responseData['response']['booking_id'];
-        paymentId = responseData['response']['paymentId'];
+        this.paymentId = responseData['response']['paymentId'];
         paymentDate = DateFormat("dd MMMM yyyy").format(now);
         paymentTime = DateFormat("hh:mm a").format(now);
-        // 🔁 Refresh coin data after booking success
+
         navigatorKey.currentContext!.read<HomeTabProvider>().getCoinsData(
           navigatorKey.currentContext!,
         );
@@ -1172,6 +1221,83 @@ class BookTabProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // Future<void> proceedToPay(VenueDetailModel model) async {
+  //   isProceedToPlay = true;
+  //   notifyListeners();
+
+  //   final isOnline =
+  //       navigatorKey.currentContext!.read<ConnectivityProvider>().isOnline;
+
+  //   if (!isOnline) {
+  //     GlobalSnackbar.error(
+  //       navigatorKey.currentContext!,
+  //       "No internet connection",
+  //     );
+  //     isProceedToPlay = false;
+  //     notifyListeners();
+  //     return;
+  //   }
+
+  //   try {
+  //     // Build only the required request body
+  //     final reqBody = {
+  //       "sportId": selectedSportId,
+  //       "date": DateFormat("ddList (0 items)-MM-yyyy").format(selectedDate),
+  //       "startTime": formatTimeApi(selectedStartTime),
+  //       "endTime": formatTimeApi(_calculateEndTime()),
+  //       "turfIds": selectedTurfIds,
+
+  //       "basePrice": totalPriceBeforeDiscountall,
+  //       "couponDiscountAmount": offerDiscount,
+  //       "coinDiscountUsed": coinDiscount,
+  //       "coinWalletId": coinWalletId,
+  //       "usedCoins": appliedCoins,
+  //       "platformFees": platformFee.toStringAsFixed(2),
+  //       "gst": gstOnPlatformFee.toStringAsFixed(2),
+  //       "convenienceFees": convenienceFee.toStringAsFixed(2),
+  //       "totalPrice": finalPayableAmount.toStringAsFixed(2),
+  //     };
+
+  //     debugPrint("Proceed to Pay Req Body: $reqBody");
+  //     final response = await BookTabService().proceedToPayService(
+  //       reqBody: reqBody,
+  //     );
+
+  //     if (response.isSuccess) {
+  //       final responseData = jsonDecode(response.responseData);
+  //       final now = DateTime.now();
+  //       bookingId = responseData['response']['booking_id'];
+  //       paymentId = responseData['response']['paymentId'];
+  //       paymentDate = DateFormat("dd MMMM yyyy").format(now);
+  //       paymentTime = DateFormat("hh:mm a").format(now);
+  //       // 🔁 Refresh coin data after booking success
+  //       navigatorKey.currentContext!.read<HomeTabProvider>().getCoinsData(
+  //         navigatorKey.currentContext!,
+  //       );
+
+  //       Future.delayed(const Duration(milliseconds: 300), () {
+  //         Navigator.pushReplacement(
+  //           navigatorKey.currentContext!,
+  //           MaterialPageRoute(
+  //             builder: (_) => CongratulationBooking(model: model),
+  //           ),
+  //         );
+  //       });
+  //     } else {
+  //       GlobalSnackbar.error(navigatorKey.currentContext!, response.message);
+  //     }
+  //   } catch (e) {
+  //     debugPrint("Error in proceedToPay: $e");
+  //     GlobalSnackbar.error(
+  //       navigatorKey.currentContext!,
+  //       "Something went wrong",
+  //     );
+  //   } finally {
+  //     isProceedToPlay = false;
+  //     notifyListeners();
+  //   }
+  // }
 
   Future<bool> checkTurfAvailability({required int venueId}) async {
     isTurfAvailable = true;
