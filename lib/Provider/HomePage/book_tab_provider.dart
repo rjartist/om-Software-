@@ -56,7 +56,7 @@ class BookTabProvider extends ChangeNotifier {
 
   String? paymentDate;
   String? paymentTime;
-  String? paymentMethod = "UPI";
+  String? paymentMethod = "";
   int? bookingId;
   int? paymentId;
   List<int> selectedTurfIndexes = [];
@@ -1124,7 +1124,7 @@ class BookTabProvider extends ChangeNotifier {
       isProceedToPlay = true;
       notifyListeners();
       razorpayProvider.startPayment(
-        amount: (finalPayableAmount * 100).toInt(),
+        amount: finalPayableAmount,
         phone: phone,
         //  name: name,
         // email: email,
@@ -1177,10 +1177,10 @@ class BookTabProvider extends ChangeNotifier {
         "platformFees": platformFee.toStringAsFixed(2),
         "gst": gstOnPlatformFee.toStringAsFixed(2),
         "convenienceFees": convenienceFee.toStringAsFixed(2),
-        "totalPriceccccccc": finalPayableAmount.toStringAsFixed(2),
-        "paymentId": paymentSuccessResponse.paymentId,
-        "orderId": paymentSuccessResponse.orderId,
-        "signature": paymentSuccessResponse.signature,
+        "totalPrice": finalPayableAmount.toStringAsFixed(2),
+        "razorpayPaymentId": paymentSuccessResponse.paymentId,
+        "razorpayOrderId": paymentSuccessResponse.orderId,
+        "razorpaySignature": paymentSuccessResponse.signature,
       };
 
       final response = await BookTabService().proceedToPayService(
@@ -1191,7 +1191,8 @@ class BookTabProvider extends ChangeNotifier {
         final now = DateTime.now();
 
         bookingId = responseData['response']['booking_id'];
-        this.paymentId = responseData['response']['paymentId'];
+        paymentMethod = responseData['response']['payment_method'];
+        paymentId = responseData['response']['paymentId'];
         paymentDate = DateFormat("dd MMMM yyyy").format(now);
         paymentTime = DateFormat("hh:mm a").format(now);
 

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:gkmarts/Services/Razorpay/razorpay_service.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
@@ -21,7 +23,7 @@ class RazorpayProvider with ChangeNotifier {
   }
 
   void startPayment({
-    required int amount,
+    required double amount,
     required String? phone,
     // required String name,
     // required String email,
@@ -30,10 +32,19 @@ class RazorpayProvider with ChangeNotifier {
   }) async {
     _onSuccess = onSuccess;
     _onFailure = onFailure;
-
     String? orderId;
+    int amountFromApi;
     try {
-      orderId = await RazorpayService.createOrder(amount: amount);
+      final response = await RazorpayService().getorderid(amount: amount);
+
+      if (response.isSuccess) {
+        final data = jsonDecode(response.responseData);
+        orderId = data['order_id'];
+        amountFromApi = data['amount'];
+      } else {
+        _onFailure?.call(-1, response.message);
+        return;
+      }
     } catch (e) {
       debugPrint('❌ Error creating Razorpay order: $e');
       _onFailure?.call(-1, "Order creation failed");
@@ -47,7 +58,7 @@ class RazorpayProvider with ChangeNotifier {
 
     var options = {
       'key': _razorKey,
-      'amount': amount,
+      'amount': amountFromApi,
       // 'name': name,
       'order_id': orderId,
       'description': 'Turf Booking',

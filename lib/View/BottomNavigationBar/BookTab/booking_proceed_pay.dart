@@ -291,7 +291,7 @@ class BookingProceedPayPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "₹${provider.finalPayableAmount}",
+                        "₹${provider.finalPayableAmount.toStringAsFixed(2)}",
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
