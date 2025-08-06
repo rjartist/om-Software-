@@ -50,6 +50,13 @@ class PastBookings {
   String? startDate;
   String? endDate;
   int? userOrOwnerId;
+
+  // New fields from API
+  String? totalAmount;
+  String? totalDiscount;
+  String? totalCollectPayment;
+  String? convenienceFees;
+
   List<FacilityBookingSlots>? facilityBookingSlots;
   Payment? payment;
   BookingCancellationRequest? bookingCancellationRequest;
@@ -63,6 +70,10 @@ class PastBookings {
     this.startDate,
     this.endDate,
     this.userOrOwnerId,
+    this.totalAmount,
+    this.totalDiscount,
+    this.totalCollectPayment,
+    this.convenienceFees,
     this.facilityBookingSlots,
     this.payment,
     this.bookingCancellationRequest,
@@ -77,55 +88,74 @@ class PastBookings {
     startDate = json['start_date'];
     endDate = json['end_date'];
     userOrOwnerId = json['user_or_owner_id'];
+    totalAmount = json['total_amount'];
+    totalDiscount = json['total_discount'];
+    totalCollectPayment = json['total_collect_payment'];
+    convenienceFees = json['convenience_fees'];
+
     if (json['facility_booking_slots'] != null) {
       facilityBookingSlots = <FacilityBookingSlots>[];
       json['facility_booking_slots'].forEach((v) {
-        facilityBookingSlots!.add(new FacilityBookingSlots.fromJson(v));
+        facilityBookingSlots!.add(FacilityBookingSlots.fromJson(v));
       });
     }
+
     payment =
-        json['payment'] != null ? new Payment.fromJson(json['payment']) : null;
+        json['payment'] != null ? Payment.fromJson(json['payment']) : null;
+
     bookingCancellationRequest =
         json['booking_cancellation_request'] != null
-            ? new BookingCancellationRequest.fromJson(
+            ? BookingCancellationRequest.fromJson(
               json['booking_cancellation_request'],
             )
             : null;
+
     if (json['user_coin_transactions'] != null) {
       userCoinTransactions = <UserCoinTransactions>[];
       json['user_coin_transactions'].forEach((v) {
-        userCoinTransactions!.add(new UserCoinTransactions.fromJson(v));
+        userCoinTransactions!.add(UserCoinTransactions.fromJson(v));
       });
     }
+
     cancellationStatus = json['cancellation_status'];
     coinsUsed = json['coins_used'];
     coinsUsedCount = json['coins_used_count'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['booking_id'] = this.bookingId;
-    data['start_date'] = this.startDate;
-    data['end_date'] = this.endDate;
-    data['user_or_owner_id'] = this.userOrOwnerId;
-    if (this.facilityBookingSlots != null) {
+    final Map<String, dynamic> data = {};
+    data['booking_id'] = bookingId;
+    data['start_date'] = startDate;
+    data['end_date'] = endDate;
+    data['user_or_owner_id'] = userOrOwnerId;
+    data['total_amount'] = totalAmount;
+    data['total_discount'] = totalDiscount;
+    data['total_collect_payment'] = totalCollectPayment;
+    data['convenience_fees'] = convenienceFees;
+
+    if (facilityBookingSlots != null) {
       data['facility_booking_slots'] =
-          this.facilityBookingSlots!.map((v) => v.toJson()).toList();
+          facilityBookingSlots!.map((v) => v.toJson()).toList();
     }
-    if (this.payment != null) {
-      data['payment'] = this.payment!.toJson();
+
+    if (payment != null) {
+      data['payment'] = payment!.toJson();
     }
-    if (this.bookingCancellationRequest != null) {
+
+    if (bookingCancellationRequest != null) {
       data['booking_cancellation_request'] =
-          this.bookingCancellationRequest!.toJson();
+          bookingCancellationRequest!.toJson();
     }
-    if (this.userCoinTransactions != null) {
+
+    if (userCoinTransactions != null) {
       data['user_coin_transactions'] =
-          this.userCoinTransactions!.map((v) => v.toJson()).toList();
+          userCoinTransactions!.map((v) => v.toJson()).toList();
     }
-    data['cancellation_status'] = this.cancellationStatus;
-    data['coins_used'] = this.coinsUsed;
-    data['coins_used_count'] = this.coinsUsedCount;
+
+    data['cancellation_status'] = cancellationStatus;
+    data['coins_used'] = coinsUsed;
+    data['coins_used_count'] = coinsUsedCount;
+
     return data;
   }
 }
@@ -135,20 +165,36 @@ class FutureBookings {
   String? startDate;
   String? endDate;
   int? userOrOwnerId;
+
+  String? totalAmount;
+  String? totalDiscount;
+  String? totalCollectPayment;
+  String? convenienceFees;
+
   List<FacilityBookingSlots>? facilityBookingSlots;
   Payment? payment;
   BookingCancellationRequest? bookingCancellationRequest;
   String? cancellationStatus;
+  bool? coinsUsed;
+  int? coinsUsedCount;
+  List<UserCoinTransactions>? userCoinTransactions;
 
   FutureBookings({
     this.bookingId,
     this.startDate,
     this.endDate,
     this.userOrOwnerId,
+    this.totalAmount,
+    this.totalDiscount,
+    this.totalCollectPayment,
+    this.convenienceFees,
     this.facilityBookingSlots,
     this.payment,
     this.bookingCancellationRequest,
     this.cancellationStatus,
+    this.coinsUsed,
+    this.coinsUsedCount,
+    this.userCoinTransactions,
   });
 
   FutureBookings.fromJson(Map<String, dynamic> json) {
@@ -156,41 +202,75 @@ class FutureBookings {
     startDate = json['start_date'];
     endDate = json['end_date'];
     userOrOwnerId = json['user_or_owner_id'];
+    totalAmount = json['total_amount'];
+    totalDiscount = json['total_discount'];
+    totalCollectPayment = json['total_collect_payment'];
+    convenienceFees = json['convenience_fees'];
+    coinsUsed = json['coins_used'];
+    coinsUsedCount = json['coins_used_count'];
+
     if (json['facility_booking_slots'] != null) {
       facilityBookingSlots = <FacilityBookingSlots>[];
       json['facility_booking_slots'].forEach((v) {
-        facilityBookingSlots!.add(new FacilityBookingSlots.fromJson(v));
+        facilityBookingSlots!.add(FacilityBookingSlots.fromJson(v));
       });
     }
-    payment =
-        json['payment'] != null ? new Payment.fromJson(json['payment']) : null;
-    bookingCancellationRequest =
-        json['booking_cancellation_request'] != null
-            ? new BookingCancellationRequest.fromJson(
-              json['booking_cancellation_request'],
-            )
-            : null;
+
+    if (json['payment'] != null) {
+      payment = Payment.fromJson(json['payment']);
+    }
+
+    if (json['booking_cancellation_request'] != null) {
+      bookingCancellationRequest = BookingCancellationRequest.fromJson(
+        json['booking_cancellation_request'],
+      );
+    }
+
     cancellationStatus = json['cancellation_status'];
+
+    if (json['user_coin_transactions'] != null) {
+      userCoinTransactions = <UserCoinTransactions>[];
+      json['user_coin_transactions'].forEach((v) {
+        userCoinTransactions!.add(UserCoinTransactions.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['booking_id'] = this.bookingId;
-    data['start_date'] = this.startDate;
-    data['end_date'] = this.endDate;
-    data['user_or_owner_id'] = this.userOrOwnerId;
-    if (this.facilityBookingSlots != null) {
+    final Map<String, dynamic> data = {};
+
+    data['booking_id'] = bookingId;
+    data['start_date'] = startDate;
+    data['end_date'] = endDate;
+    data['user_or_owner_id'] = userOrOwnerId;
+    data['total_amount'] = totalAmount;
+    data['total_discount'] = totalDiscount;
+    data['total_collect_payment'] = totalCollectPayment;
+    data['convenience_fees'] = convenienceFees;
+    data['coins_used'] = coinsUsed;
+    data['coins_used_count'] = coinsUsedCount;
+
+    if (facilityBookingSlots != null) {
       data['facility_booking_slots'] =
-          this.facilityBookingSlots!.map((v) => v.toJson()).toList();
+          facilityBookingSlots!.map((v) => v.toJson()).toList();
     }
-    if (this.payment != null) {
-      data['payment'] = this.payment!.toJson();
+
+    if (payment != null) {
+      data['payment'] = payment!.toJson();
     }
-    if (this.bookingCancellationRequest != null) {
+
+    if (bookingCancellationRequest != null) {
       data['booking_cancellation_request'] =
-          this.bookingCancellationRequest!.toJson();
+          bookingCancellationRequest!.toJson();
     }
-    data['cancellation_status'] = this.cancellationStatus;
+
+    data['cancellation_status'] = cancellationStatus;
+
+    if (userCoinTransactions != null) {
+      data['user_coin_transactions'] =
+          userCoinTransactions!.map((v) => v.toJson()).toList();
+    }
+
     return data;
   }
 }
@@ -489,28 +569,40 @@ class Service {
 
 class Payment {
   int? paymentId;
-  String? collectPayment; // <-- updated here
+  String? collectPayment;
   String? paymentMethod;
   String? createdAt;
+  String? coinDiscount;
+  String? platformFees;
+  String? gst;
   String? paymentDate;
   String? paymentTime;
+  String? couponDiscount;
 
   Payment({
     this.paymentId,
     this.collectPayment,
     this.paymentMethod,
     this.createdAt,
+    this.coinDiscount,
+    this.platformFees,
+    this.gst,
     this.paymentDate,
     this.paymentTime,
+    this.couponDiscount,
   });
 
   Payment.fromJson(Map<String, dynamic> json) {
     paymentId = json['payment_id'];
-    collectPayment = json['collect_payment']?.toString(); // <-- safe cast
+    collectPayment = json['collect_payment'];
     paymentMethod = json['payment_method'];
     createdAt = json['created_at'];
+    coinDiscount = json['coin_discount'];
+    platformFees = json['platform_fees'];
+    gst = json['gst'];
     paymentDate = json['payment_date'];
     paymentTime = json['payment_time'];
+    couponDiscount = json['coupon_discount'];
   }
 
   Map<String, dynamic> toJson() {
@@ -519,8 +611,12 @@ class Payment {
     data['collect_payment'] = collectPayment;
     data['payment_method'] = paymentMethod;
     data['created_at'] = createdAt;
+    data['coin_discount'] = coinDiscount;
+    data['platform_fees'] = platformFees;
+    data['gst'] = gst;
     data['payment_date'] = paymentDate;
     data['payment_time'] = paymentTime;
+    data['coupon_discount'] = couponDiscount;
     return data;
   }
 }

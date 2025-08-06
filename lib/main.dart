@@ -19,7 +19,6 @@ import 'package:gkmarts/Utils/OneSignal/OneSignalService.dart';
 import 'package:gkmarts/Widget/global.dart';
 import 'package:gkmarts/Utils/SharedPrefHelper/shared_local_storage.dart';
 import 'package:gkmarts/View/SplashScreen/splash_screen.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 
 void main() async {

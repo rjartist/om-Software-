@@ -147,12 +147,8 @@ class _CreateGameState extends State<CreateGame> {
           ],
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom + 25,
-          left: 20,
-          right: 20,
-        ),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.only(bottom: 20, left: 15, right: 15, top: 10),
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(

@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:gkmarts/Models/MyBookings/MyBookingsModel.dart';
 import 'package:gkmarts/Models/MyBookings/my_bookings_detail_model.dart';
 import 'package:gkmarts/Provider/Bookings/booking_list_provider.dart';
 import 'package:gkmarts/Provider/Bookings/cancel_booking_provider.dart';
@@ -7,7 +8,7 @@ import 'package:gkmarts/Provider/HomePage/Bottom_navigationBar/bottom_navigation
 import 'package:gkmarts/Provider/HomePage/book_tab_provider.dart';
 import 'package:gkmarts/Provider/Login/login_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart'
-    show AppTextStyle;
+    show AppTextStyle, vSizeBox;
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/my_bookings.dart';
 import 'package:gkmarts/Widget/global.dart';
@@ -16,7 +17,6 @@ import 'package:gkmarts/Widget/global_button.dart';
 import 'package:gkmarts/Widget/global_snackbar.dart';
 import 'package:gkmarts/Widget/global_textfiled.dart' show GlobalTextField;
 import 'package:intl/intl.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -243,41 +243,56 @@ class _MyBookingsDetailState extends State<MyBookingsDetail> {
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
-
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(5),
+              if (widget.type != "Cancelled" && booking.payment != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: PaymentSummaryFromBooking(
+                    payment: booking.payment!,
+                    courtFee: booking.totalAmount ?? '0.00',
+                    convenienceFee: booking.convenienceFees ?? '0.00',
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(15),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Total Paid: ",
-                          style: AppTextStyle.blackText(
-                            fontSize: 14,
-                            color: Colors.black87,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                ),
+              if (widget.type == "Cancelled")
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 10,
+                    right: 10,
+                    bottom: 20,
+                  ),
 
-                        Text(
-                          "₹ ${booking.payment.collectPayment.toString()}",
-                          style: AppTextStyle.blackText(
-                            fontSize: 14,
-                            color: AppColors.successColor,
-                            fontWeight: FontWeight.bold,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(15),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Total Paid: ",
+                            style: AppTextStyle.blackText(
+                              fontSize: 14,
+                              color: Colors.black87,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                      ],
+
+                          Text(
+                            "₹ ${booking.payment.collectPayment.toString()}",
+                            style: AppTextStyle.blackText(
+                              fontSize: 14,
+                              color: AppColors.successColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
+              if (widget.type == "Upcoming") vSizeBox(20),
               widget.type == "Upcoming"
                   ? Container(
                     height: 45,
@@ -308,7 +323,7 @@ class _MyBookingsDetailState extends State<MyBookingsDetail> {
                       child: Text(
                         "Cancellation",
                         style: AppTextStyle.whiteText(
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w500,        
                           fontSize: 14,
                         ),
                       ),
@@ -722,6 +737,123 @@ class CancellationSuccessDialog extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class PaymentSummaryFromBooking extends StatefulWidget {
+  final Payment payment;
+  final String courtFee; // From booking.totalAmount
+  final String convenienceFee; // From booking.convenienceFees
+
+  const PaymentSummaryFromBooking({
+    super.key,
+    required this.payment,
+    required this.courtFee,
+    required this.convenienceFee,
+  });
+
+  @override
+  State<PaymentSummaryFromBooking> createState() =>
+      _PaymentSummaryFromBookingState();
+}
+
+class _PaymentSummaryFromBookingState extends State<PaymentSummaryFromBooking> {
+  bool isExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = widget.payment;
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(6),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Title + Toggle
+          GestureDetector(
+            onTap: () => setState(() => isExpanded = !isExpanded),
+            behavior: HitTestBehavior.opaque,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Payment Summary", style: AppTextStyle.primaryText()),
+                Icon(
+                  isExpanded
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          if (isExpanded) ...[
+            _buildRow("Court Fee", "₹${widget.courtFee}"),
+            _buildRow("Coupon Discount", "- ₹${p.couponDiscount ?? '0.00'}"),
+            _buildRow("Coin Redemption", "- ₹${p.coinDiscount ?? '0.00'}"),
+            const Divider(height: 16),
+            _buildRow("Sub Total", "₹${_calculateSubTotal()}"),
+            _buildRow("Convenience Fee", "₹${widget.convenienceFee}"),
+            _buildRow("Platform Fee (2%)", "₹${p.platformFees ?? '0.00'}"),
+            _buildRow("GST (18%)", "₹${p.gst ?? '0.00'}"),
+            const Divider(height: 16),
+          ],
+
+          _buildRow(
+            "Total Paid",
+            "₹${p.collectPayment ?? '0.00'}",
+            isTotal: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _calculateSubTotal() {
+    final fee = double.tryParse(widget.courtFee) ?? 0.0;
+    final coupon = double.tryParse(widget.payment.couponDiscount ?? "0") ?? 0.0;
+    final coin = double.tryParse(widget.payment.coinDiscount ?? "0") ?? 0.0;
+    final subTotal = fee - coupon - coin;
+    return subTotal.toStringAsFixed(2);
+  }
+
+  Widget _buildRow(String title, String value, {bool isTotal = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: AppTextStyle.primaryText(
+              fontSize: isTotal ? 14 : 13,
+              fontWeight: isTotal ? FontWeight.w600 : FontWeight.normal,
+              color: isTotal ? Colors.green[800] ?? Colors.green : Colors.black,
+            ),
+          ),
+          Text(
+            value,
+            style: AppTextStyle.primaryText(
+              fontSize: isTotal ? 14 : 13,
+              fontWeight: isTotal ? FontWeight.w600 : FontWeight.normal,
+              color: isTotal ? Colors.green[800] ?? Colors.green : Colors.black,
+            ),
           ),
         ],
       ),

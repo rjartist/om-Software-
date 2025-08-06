@@ -209,65 +209,10 @@ class BookingProceedPayPage extends StatelessWidget {
         },
       ),
 
-      // bottomNavigationBar: Padding(
-      //   padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-      //   child: GestureDetector(
-      //     onTap: () {
-      //       // provider.proceedToPay(model);
-      //       provider.initiatePaymentAndProceed(model);
-      //     },
-      //     child: Container(
-      //       height: 50,
-      //       decoration: BoxDecoration(
-      //         gradient: LinearGradient(
-      //           begin: Alignment.topCenter,
-      //           end: Alignment.bottomCenter,
-      //           colors: [
-      //             AppColors.profileSectionButtonColor,
-      //             AppColors.profileSectionButtonColor2,
-      //           ],
-      //         ),
-      //         borderRadius: BorderRadius.circular(10),
-      //       ),
-      //       padding: const EdgeInsets.symmetric(horizontal: 16),
-      //       child: Row(
-      //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //         children: [
-      //           Text(
-      //             "₹${provider.finalPayableAmount}",
-      //             style: const TextStyle(
-      //               color: Colors.white,
-      //               fontSize: 16,
-      //               fontWeight: FontWeight.bold,
-      //             ),
-      //           ),
-      //           Row(
-      //             children: const [
-      //               Text(
-      //                 "PROCEED TO PAY",
-      //                 style: TextStyle(
-      //                   color: Colors.white,
-      //                   fontWeight: FontWeight.w600,
-      //                   fontSize: 14,
-      //                 ),
-      //               ),
-      //               SizedBox(width: 6),
-      //               Icon(
-      //                 Icons.arrow_forward_ios,
-      //                 size: 16,
-      //                 color: Colors.white,
-      //               ),
-      //             ],
-      //           ),
-      //         ],
-      //       ),
-      //     ),
-      //   ),
-      // ),
       bottomNavigationBar: Consumer<BookTabProvider>(
         builder:
-            (_, provider, __) => Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            (_, provider, __) => SafeArea(
+               minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: GestureDetector(
                 onTap:
                     provider.isProceedToPlay

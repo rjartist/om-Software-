@@ -61,6 +61,7 @@ class _HomeTabState extends State<HomeTab> {
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: HomeBanner(),
             ),
+
             // Align(
             //   alignment:Alignment.center ,
             //   child: ElevatedButton(
@@ -69,7 +70,7 @@ class _HomeTabState extends State<HomeTab> {
             //         context,
             //         listen: false,
             //       );
-              
+
             //       razorpayProvider.startPayment(
             //         amount: 50000, // ₹500 in paise
             //         name: "Ritesh Jogi",
@@ -80,7 +81,6 @@ class _HomeTabState extends State<HomeTab> {
             //     child: Text("pay"),
             //   ),
             // ),
-
             vSizeBox(8),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -128,26 +128,27 @@ class _HomeTabState extends State<HomeTab> {
                 children: [
                   Text('Join A Game', style: AppTextStyle.titleText()),
 
-                  InkWell(
-                    onTap: () {
-                      CoomingSoonDialogHelper.showComingSoon(context);
-                    },
-                    child: Row(
-                      children: [
-                        Text(
-                          'SEE ALL',
-                          style: AppTextStyle.primaryText(
-                            fontWeight: FontWeight.w500,
-                          ),
+                  // InkWell(
+                  //   onTap: () {
+                  //     CoomingSoonDialogHelper.showComingSoon(context);
+                  //   },
+                  // child:
+                  Row(
+                    children: [
+                      Text(
+                        'SEE ALL',
+                        style: AppTextStyle.primaryText(
+                          fontWeight: FontWeight.w500,
                         ),
-                        const SizedBox(width: 4),
-                        const Icon(
-                          Icons.arrow_forward_ios,
-                          size: 14,
-                          color: AppColors.primaryColor,
-                        ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(
+                        Icons.arrow_forward_ios,
+                        size: 14,
+                        color: AppColors.primaryColor,
+                      ),
+                    ],
+                    // ),
                   ),
                 ],
               ),
@@ -424,7 +425,7 @@ class JoinGameSection extends StatelessWidget {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(12),
                       onTap: () {
-                        CoomingSoonDialogHelper.showComingSoon(context);
+                        // CoomingSoonDialogHelper.showComingSoon(context);
                       },
 
                       child: Padding(
