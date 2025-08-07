@@ -368,7 +368,7 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
                           top: Radius.circular(20),
                         ),
                       ),
-                      builder: (_) => ViewVenueReviewsBottomSheet(model: model),
+                      builder: (_) => ViewVenueReviewsBottomSheet(),
                     );
                   }),
                 ],
@@ -655,9 +655,10 @@ class VenueImageSlider extends StatelessWidget {
 }
 
 class ViewVenueReviewsBottomSheet extends StatefulWidget {
-  final VenueDetailModel model;
+  // final VenueDetailModel model;
+  const ViewVenueReviewsBottomSheet({super.key});
 
-  const ViewVenueReviewsBottomSheet({super.key, required this.model});
+  // const ViewVenueReviewsBottomSheet({super.key, required this.model});
 
   @override
   State<ViewVenueReviewsBottomSheet> createState() =>

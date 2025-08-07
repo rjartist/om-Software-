@@ -7,6 +7,7 @@ import 'package:gkmarts/Models/BookTabModel/coupon_model.dart';
 import 'package:gkmarts/Models/BookTabModel/reviews_model.dart';
 import 'package:gkmarts/Models/BookTabModel/slot_price_model.dart';
 import 'package:gkmarts/Models/BookTabModel/venue_detail_model.dart';
+import 'package:gkmarts/Provider/Bookings/booking_list_provider.dart';
 import 'package:gkmarts/Provider/Connectivity/connectivity_provider.dart';
 import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
 import 'package:gkmarts/Provider/Razorpay/razorpay_provider.dart';
@@ -1083,6 +1084,10 @@ class BookTabProvider extends ChangeNotifier {
       );
 
       if (response.isSuccess) {
+        Provider.of<MyBookingsProvider>(
+          navigatorKey.currentContext!,
+          listen: false,
+        ).fetchBookings(navigatorKey.currentContext!);
         GlobalSnackbar.success(navigatorKey.currentContext!, "Rating added");
       } else {
         GlobalSnackbar.error(navigatorKey.currentContext!, response.message);

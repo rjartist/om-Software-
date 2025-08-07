@@ -271,29 +271,41 @@ class _ProfilePageState extends State<ProfilePage> {
                 left: 15,
                 right: 15,
               ),
-              child: Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "My Coins",
-                        style: AppTextStyle.blackText(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    PageTransition(
+                      type: PageTransitionType.rightToLeft,
+                      duration: const Duration(milliseconds: 300),
+                      child: const MyCoins(),
+                    ),
+                  );
+                },
+                child: Row(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "My Coins",
+                          style: AppTextStyle.blackText(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
 
-                      Text(
-                        "${coinModel.remainingBonusCoins} Points",
-                        style: AppTextStyle.primaryText(
-                          // fontSize: 16,
-                          // fontWeight: FontWeight.bold,
+                        Text(
+                          "${coinModel.remainingBonusCoins} Points",
+                          style: AppTextStyle.primaryText(
+                            // fontSize: 16,
+                            // fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -435,7 +447,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   "assets/images/setings.png",
                   "Settings",
                   () {
-                 
                     Navigator.push(
                       context,
                       PageTransition(

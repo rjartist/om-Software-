@@ -64,6 +64,7 @@ class PastBookings {
   String? cancellationStatus;
   bool? coinsUsed;
   int? coinsUsedCount;
+  bool? userSubmittedFeedback;
 
   PastBookings({
     this.bookingId,
@@ -81,6 +82,7 @@ class PastBookings {
     this.cancellationStatus,
     this.coinsUsed,
     this.coinsUsedCount,
+    this.userSubmittedFeedback,
   });
 
   PastBookings.fromJson(Map<String, dynamic> json) {
@@ -120,6 +122,7 @@ class PastBookings {
     cancellationStatus = json['cancellation_status'];
     coinsUsed = json['coins_used'];
     coinsUsedCount = json['coins_used_count'];
+    userSubmittedFeedback = json['user_submitted_feedback'];
   }
 
   Map<String, dynamic> toJson() {
@@ -155,7 +158,7 @@ class PastBookings {
     data['cancellation_status'] = cancellationStatus;
     data['coins_used'] = coinsUsed;
     data['coins_used_count'] = coinsUsedCount;
-
+    data['user_submitted_feedback'] = userSubmittedFeedback;
     return data;
   }
 }

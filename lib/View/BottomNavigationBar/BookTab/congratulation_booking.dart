@@ -116,8 +116,9 @@ class CongratulationBooking extends StatelessWidget {
                       ),
                       _buildInfoRow(
                         "Payment Method",
-                        provider.paymentMethod ?? "UPI",
+                        (provider.paymentMethod ?? "").toUpperCase(),
                       ),
+
                       _buildInfoRow(
                         "Booking ID",
                         provider.bookingId.toString(),
@@ -126,69 +127,10 @@ class CongratulationBooking extends StatelessWidget {
                   ),
                 ),
 
-                // Container(
-                //   width: double.infinity,
-                //   decoration: BoxDecoration(
-                //     color: Colors.white,
-                //     borderRadius: BorderRadius.circular(8),
-                //     boxShadow: [
-                //       BoxShadow(
-                //         color: Colors.black.withOpacity(0.05),
-                //         blurRadius: 10,
-                //         offset: const Offset(0, 4),
-                //       ),
-                //     ],
-                //   ),
-                //   padding: const EdgeInsets.symmetric(
-                //     horizontal: 16,
-                //     vertical: 16,
-                //   ),
-                //   child: Row(
-                //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //     children: [
-                //       const Text(
-                //         "Total Paid:",
-                //         style: TextStyle(
-                //           fontSize: 16,
-                //           fontWeight: FontWeight.w600,
-                //         ),
-                //       ),
-                //       Text(
-                //         "₹${provider.finalPayableAmount}",
-                //         style: const TextStyle(
-                //           fontSize: 16,
-                //           fontWeight: FontWeight.bold,
-                //           color: Colors.green,
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // ),
                 PaymentSummaryWidget(provider: provider),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    // GlobalPrimaryButton(
-                    //   text: "Cancel Booking",
-                    //   onTap: () {
-                    //     showModalBottomSheet(
-                    //       context: context,
-                    //       isScrollControlled: true,
-                    //       shape: const RoundedRectangleBorder(
-                    //         borderRadius: BorderRadius.vertical(
-                    //           top: Radius.circular(20),
-                    //         ),
-                    //       ),
-                    //       builder:
-                    //           (_) => CancelBookingSheet(
-                    //             model: model,
-                    //             bookingDateTime:
-                    //                 "${provider.paymentDate} at ${provider.paymentTime}",
-                    //           ),
-                    //     );
-                    //   },
-                    //   width: 150,
-                    // ),
                     GlobalPrimaryButton(
                       text: "Back To Home",
                       onTap: () {
