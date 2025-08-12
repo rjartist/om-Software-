@@ -29,11 +29,11 @@ class _OnboardingState extends State<Onboarding> {
       'title': 'Book Your Favourite Turf Grounds',
       'subtitle': 'Enjoy your favourite sports like never before',
     },
-    // {
-    //   'image': 'assets/images/onboarding3.png',
-    //   'title': 'Book Instantly',
-    //   'subtitle': 'Fast and hassle-free booking for your favorite sports venues.',
-    // },
+    {
+      'image': 'assets/images/onboarding3.png',
+      'title': 'Book Instantly',
+      'subtitle': 'Fast and hassle-free booking for your favorite sports venues.',
+    },
   ];
   @override
   Widget build(BuildContext context) {
@@ -57,7 +57,7 @@ class _OnboardingState extends State<Onboarding> {
               itemCount: _pages.length,
               itemBuilder: (context, index) {
                 final page = _pages[index];
-      
+
                 return SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
                   child: Column(
@@ -68,9 +68,9 @@ class _OnboardingState extends State<Onboarding> {
                         height: screenSize.height * 0.55,
                         fit: BoxFit.cover,
                       ),
-      
+
                       SizedBox(height: screenSize.height * 0.02),
-      
+
                       // Dots
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -91,9 +91,9 @@ class _OnboardingState extends State<Onboarding> {
                           ),
                         ),
                       ),
-      
+
                       SizedBox(height: screenSize.height * 0.04),
-      
+
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 28.0),
                         child: Column(
@@ -110,9 +110,9 @@ class _OnboardingState extends State<Onboarding> {
                               style: AppTextStyle.greytext(fontSize: 12),
                               textAlign: TextAlign.center,
                             ),
-      
+
                             SizedBox(height: screenSize.height * 0.1),
-      
+
                             // Row(
                             //   mainAxisAlignment: MainAxisAlignment.end,
                             //   children: [
@@ -151,21 +151,21 @@ class _OnboardingState extends State<Onboarding> {
               },
             ),
           ),
-      
+
           Divider(
             height: 1,
             color: Colors.grey.shade300,
             indent: 24,
             endIndent: 24,
           ),
-      
+
           SizedBox(height: screenSize.height * 0.015),
-      
+
           Text(
             "Let’s get playing!",
             style: AppTextStyle.base(color: Colors.black.withOpacity(0.5)),
           ),
-      
+
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             child: GlobalButton(
@@ -181,7 +181,7 @@ class _OnboardingState extends State<Onboarding> {
               },
             ),
           ),
-      
+
           SizedBox(height: screenSize.height * 0.01),
         ],
       ),
