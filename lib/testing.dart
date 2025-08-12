@@ -14,7 +14,7 @@
 //   String saltKey = "4495e7ce-0728-44bd-83da-d28553ee1d8d";
 //   String saltIndex = "1";
 //   String environment = "SANDBOX";
-//   String appPackageName = "com.omsoftware.ckplayground";
+//   String appPackageName = "com.omsoftware.cxplayground";
 
 //   Object? result;
 //   String requestPayload = "";

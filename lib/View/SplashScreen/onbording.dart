@@ -20,9 +20,9 @@ class _OnboardingState extends State<Onboarding> {
   final List<Map<String, String>> _pages = [
     {
       'image': 'assets/images/onboard1.png',
-      'title': 'Welcome to CX PlayGround',
+      'title': 'Welcome to CX Play',
       'subtitle':
-          'Simplify your sports experience with CX PlayGround’s easy booking and real-time availability.',
+          'Simplify your sports experience with CX Play’s easy booking and real-time availability.',
     },
     {
       'image': 'assets/images/onboard2.png',

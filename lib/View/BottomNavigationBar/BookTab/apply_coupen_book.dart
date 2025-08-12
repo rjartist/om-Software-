@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gkmarts/Provider/HomePage/book_tab_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
+import 'package:gkmarts/Widget/global.dart';
 import 'package:gkmarts/Widget/global_appbar.dart';
 import 'package:gkmarts/Widget/global_button.dart';
 import 'package:provider/provider.dart';
@@ -106,7 +107,7 @@ class _ApplyCouponPageState extends State<ApplyCouponPage> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        "Expires: ${coupon.expiryDate}",
+                        "Expires: ${formatFullDateString(coupon.expiryDate)}",
                         style: AppTextStyle.greytext(fontSize: 12),
                       ),
                     ],

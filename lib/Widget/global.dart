@@ -12,6 +12,46 @@ void printLog(dynamic data) {
   if (!kReleaseMode) printLog(data.toString());
 }
 
+
+class NoDataWidget extends StatelessWidget {
+  final String assetName;
+  final double width;
+  final double height;
+  final String? message;
+
+  const NoDataWidget({
+    Key? key,
+    required this.assetName,
+    this.width = 200,
+    this.height = 200,
+    this.message,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SvgPicture.asset(
+            assetName,
+            width: width,
+            height: height,
+          ),
+          if (message != null) ...[
+            const SizedBox(height: 16),
+            Text(
+              message!,
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
 Widget buildNetworkOrSvgImage(
   String imageUrl, {
   double width = 32,

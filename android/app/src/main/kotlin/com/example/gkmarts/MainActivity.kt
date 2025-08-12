@@ -1,4 +1,4 @@
-package com.omsoftware.ckplayground
+package com.omsoftware.cxplayground
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 

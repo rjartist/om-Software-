@@ -9,18 +9,14 @@ class PhonePePaymentProvider extends ChangeNotifier {
   String transactionStatus = "";
 
   final String environment = "SANDBOX";
-  // final String merchantId = "TEST-M2283QQKJ8ABA_25072"; // Your merchant ID
-  final String merchantId = "UATM2283QQKJ8ABA"; // Your merchant ID
+  final String merchantId = "UATM2283QQKJ8ABA"; // ✅ Your merchant ID
   final String appId = ""; // Usually empty
-  // final String backendUrl = "http://10.0.2.2:5000"; // use localhost or IP
   final String backendUrl =
-      "http://192.168.169.64:5000"; // ✅ Use your local IP here
-
-  final String merchantTransactionId =
-      "TXN_${DateTime.now().millisecondsSinceEpoch}";
-
+      "http://192.168.6.64:5000"; // 👈 your local server IP
+  // ✅ Your local Node.js server
   final String flowId = "testuserflow001";
 
+  /// ✅ Step 1: Initialize PhonePe SDK
   Future<void> initPhonePeSDK() async {
     try {
       isInitialized = await PhonePePaymentSdk.init(
@@ -36,12 +32,15 @@ class PhonePePaymentProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// ✅ Step 2: Start the payment transaction
   Future<void> startPayment({
     required int amount,
     required String userId,
   }) async {
     try {
-      // STEP 1: Call backend to get token & orderId
+      final String merchantTransactionId =
+          "TXN_${DateTime.now().millisecondsSinceEpoch}";
+
       final response = await http.post(
         Uri.parse('$backendUrl/generate-token'),
         headers: {"Content-Type": "application/json"},
@@ -56,29 +55,23 @@ class PhonePePaymentProvider extends ChangeNotifier {
         final data = jsonDecode(response.body);
         final token = data["token"];
 
-        // STEP 2.2: Prepare request body
-        // final paymentBody = {
-        //   "orderId": merchantTransactionId,
-        //   "merchantId": merchantId,
-        //   "token": token,
-        //   "paymentInstrument": {"type": "PAY_PAGE"},
-        // };
+        // ✅ Step 2: Prepare request
         final paymentBody = {
           "orderId": merchantTransactionId,
           "merchantId": merchantId,
-          "token": token, // comes from backend Create Order API
+          "token": token,
           "paymentMode": {"type": "PAY_PAGE"},
         };
 
         final bodyJson = jsonEncode(paymentBody);
 
-        // STEP 2.3: Start transaction — only pass request body and appSchema
+        // ✅ Step 3: Start transaction
         final result = await PhonePePaymentSdk.startTransaction(
           bodyJson,
-          "", // replace this with your app schema for iOS; for Android can be empty
+          "", // iOS only; leave empty for Android
         );
 
-        // STEP 2.4: Handle response
+        // ✅ Step 4: Handle result
         if (result != null) {
           final status = result['status']?.toString() ?? "UNKNOWN";
           final error = result['error']?.toString() ?? "No error";

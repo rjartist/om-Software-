@@ -84,66 +84,63 @@ class _BookingDateTimePageState extends State<BookingDateTimePage> {
                 ),
               ),
             ),
-            bottomNavigationBar: Container(
-              decoration: const BoxDecoration(
-                border: Border(top: BorderSide(color: Colors.grey, width: 0.5)),
-                color: Colors.white,
-              ),
-              padding: const EdgeInsets.only(
-                left: 16,
-                right: 16,
-                bottom: 25,
-                top: 17,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Total: ₹${provider.totalPriceBeforeDiscountall}",
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+            bottomNavigationBar: SafeArea(
+              child: Container(
+                decoration: const BoxDecoration(
+                  border: Border(top: BorderSide(color: Colors.grey, width: 0.5)),
+                  color: Colors.white,
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Total: ₹${provider.totalPriceBeforeDiscountall}",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  GlobalPrimaryButton(
-                    height: 43,
-                    text: "Next",
-                    onTap: () async {
-                      final bookProvider = Provider.of<BookTabProvider>(
-                        context,
-                        listen: false,
-                      );
-
-                      final isLoggedIn = await AuthService.isLoggedIn();
-
-                      if (!isLoggedIn) {
-                        // If not logged in, navigate to login page
+                    GlobalPrimaryButton(
+                      height: 43,
+                      text: "Next",
+                      onTap: () async {
+                        final bookProvider = Provider.of<BookTabProvider>(
+                          context,
+                          listen: false,
+                        );
+              
+                        final isLoggedIn = await AuthService.isLoggedIn();
+              
+                        if (!isLoggedIn) {
+                          // If not logged in, navigate to login page
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const MobileInputPage(),
+                            ),
+                          );
+                          return; // Prevent further execution
+                        }
+              
+                        // If logged in, proceed to booking page
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const MobileInputPage(),
+                            builder:
+                                (_) => BookingProceedPayPage(
+                                  model: widget.model,
+                                  totalAmount:
+                                      bookProvider.totalPriceBeforeDiscountall,
+                                ),
                           ),
                         );
-                        return; // Prevent further execution
-                      }
-
-                      // If logged in, proceed to booking page
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (_) => BookingProceedPayPage(
-                                model: widget.model,
-                                totalAmount:
-                                    bookProvider.totalPriceBeforeDiscountall,
-                              ),
-                        ),
-                      );
-                    },
-
-                    isEnabled: provider.isBookingReady,
-                  ),
-                ],
+                      },
+              
+                      isEnabled: provider.isBookingReady,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

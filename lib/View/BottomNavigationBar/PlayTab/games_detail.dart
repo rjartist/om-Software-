@@ -313,8 +313,8 @@ class _GamesDetailState extends State<GamesDetail> {
           );
         },
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(bottom: 25, left: 15, right: 15),
+      bottomNavigationBar: SafeArea(
+         minimum: const EdgeInsets.only(bottom: 20, left: 15, right: 15, top: 10),
         child: Row(
           spacing: 15,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -338,7 +338,7 @@ class _GamesDetailState extends State<GamesDetail> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-
+        
                   child: Text(
                     "SEND QUERY",
                     style: AppTextStyle.blackText(
@@ -375,7 +375,7 @@ class _GamesDetailState extends State<GamesDetail> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-
+        
                   child: Text(
                     "JOIN GAME",
                     style: AppTextStyle.whiteText(

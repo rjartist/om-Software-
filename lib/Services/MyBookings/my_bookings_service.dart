@@ -9,11 +9,12 @@ import 'package:gkmarts/Utils/headers.dart';
 class MyBookingsService {
   Future<RestResponse> getMyBookings(BuildContext context) async {
     final userId =  SharedPrefHelper.getUserId();
-    final endpoint = "$getbookingsApi/$userId";
-    debugPrint("GET MyBookings Endpoint: $endpoint");
+    final finalEndpoint = "$getbookingsApi/$userId";
+    // debugPrint("GET MyBookings Endpoint: $endpoint");
     try {
       ApiService apiService = ApiService(
-        endpoint: "$getbookingsApi/$userId",
+        // endpoint: "$getbookingsApi/$userId",
+        endpoint: finalEndpoint,
         body: "",
         method: HTTP_METHOD.GET,
         headers: await HttpHeader.getHeader(),
