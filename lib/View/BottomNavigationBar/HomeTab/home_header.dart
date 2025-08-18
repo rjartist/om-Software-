@@ -165,7 +165,7 @@ class HomeHeader extends StatelessWidget {
         // If not logged in, navigate to login page
         Navigator.push(
           navigatorKey.currentContext!,
-          MaterialPageRoute(builder: (_) => const MobileInputPage()),
+          MaterialPageRoute(builder: (_) => const MobileInputPage(referralCode: "")),
         );
         return; // Prevent further execution
       }

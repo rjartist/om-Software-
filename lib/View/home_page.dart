@@ -8,6 +8,7 @@ import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/home_tab.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/profile_page.dart'
     show ProfilePage;
+import 'package:gkmarts/View/BottomNavigationBar/HomeTab/refer_and_earn.dart';
 import 'package:gkmarts/View/BottomNavigationBar/LearnTab/learn_tab.dart';
 import 'package:gkmarts/View/BottomNavigationBar/MoreTab/more_tab.dart';
 import 'package:gkmarts/View/BottomNavigationBar/BookTab/book_tab.dart';
@@ -56,6 +57,7 @@ class _HomePageState extends State<HomePage> {
     LearnTab(),
     BookTab(),
     ProfilePage(homePage: true),
+    // ReferAndEarn(),
   ];
   @override
   Widget build(BuildContext context) {
@@ -74,7 +76,7 @@ class _HomePageState extends State<HomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const MobileInputPage(isHome: true),
+                  builder: (_) => const MobileInputPage(isHome: true, referralCode: "",),
                 ),
               );
               return; // Stop navigation to ProfilePage

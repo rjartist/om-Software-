@@ -5,6 +5,7 @@ import 'package:gkmarts/Models/GenaralModels/coins_model.dart';
 import 'package:gkmarts/Models/MyBookings/bookings_count_model.dart';
 import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
 import 'package:gkmarts/Services/AuthServices/auth_services.dart';
+import 'package:gkmarts/View/BottomNavigationBar/HomeTab/refer_and_earn.dart';
 import 'package:gkmarts/Widget/mobile_otp_login_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:page_transition/page_transition.dart';
@@ -76,83 +77,127 @@ class _ProfilePageState extends State<ProfilePage> {
                 final user = provider.user;
                 final imageUrl = user?.user?.profileImage;
                 final coinsModel = context.watch<HomeTabProvider>().coinsModel;
-
-                return Consumer<BookingsCountProvider>(
-                  builder: (context, secondProvider, _) {
-                    final count = secondProvider.bookingCount;
-
-                    return SingleChildScrollView(
-                      padding: const EdgeInsets.only(bottom: 30),
-                      child: Column(
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.only(bottom: 30),
+                  child: Column(
+                    children: [
+                      Row(
                         children: [
-                          Row(
-                            children: [
-                              const SizedBox(width: 16),
-                              ClipOval(
-                                child: CachedNetworkImage(
-                                  imageUrl: imageUrl ?? "",
-                                  width: 70,
-                                  height: 70,
-                                  fit: BoxFit.cover,
-                                  placeholder:
-                                      (context, url) => CircleAvatar(
-                                        radius: 35,
-                                        backgroundColor: Colors.grey[200],
-                                        child: const Icon(
-                                          Icons.person,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                  errorWidget:
-                                      (context, url, error) =>
-                                          const CircleAvatar(
+                          const SizedBox(width: 16),
+                          ClipOval(
+                            child:
+                                imageUrl != null
+                                    ? CachedNetworkImage(
+                                      imageUrl: imageUrl,
+                                      width: 70,
+                                      height: 70,
+                                      fit: BoxFit.cover,
+                                      placeholder:
+                                          (context, url) => CircleAvatar(
                                             radius: 35,
-                                            backgroundImage: AssetImage(
-                                              'assets/images/user.jpeg',
+                                            backgroundColor: Colors.grey[200],
+                                            child: const Icon(
+                                              Icons.person,
+                                              color: Colors.grey,
                                             ),
-                                            backgroundColor: Colors.white,
                                           ),
+                                      errorWidget:
+                                          (context, url, error) =>
+                                              const CircleAvatar(
+                                                radius: 35,
+                                                backgroundImage: AssetImage(
+                                                  'assets/images/user.jpeg',
+                                                ),
+                                                backgroundColor: Colors.white,
+                                              ),
+                                    )
+                                    : Image.asset(
+                                      "assets/images/user.jpeg",
+                                      height: 70,
+                                      width: 70,
+                                    ),
+                          ),
+                          const SizedBox(width: 16),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                user?.user?.name ?? "--",
+                                style: AppTextStyle.blackText(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
-                              const SizedBox(width: 16),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    user?.user?.name ?? "--",
-                                    style: AppTextStyle.blackText(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    "+91 ${user?.user?.phoneNumber ?? "--"}",
-                                    style: AppTextStyle.smallGrey(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
+                              const SizedBox(height: 5),
+                              Text(
+                                "+91 ${user?.user?.phoneNumber ?? "--"}",
+                                style: AppTextStyle.smallGrey(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14,
+                                ),
                               ),
-                              const Spacer(),
-                              Padding(
-                                padding: const EdgeInsets.only(right: 16),
-                                child: InkWell(
-                                  onTap: () async {
-                                    final isLoggedIn =
-                                        await AuthService.isLoggedIn();
+                            ],
+                          ),
+                          const Spacer(),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 16),
+                            child: InkWell(
+                              onTap: () async {
+                                final isLoggedIn =
+                                    await AuthService.isLoggedIn();
 
-                                    if (!isLoggedIn) {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (_) => const MobileInputPage(),
-                                        ),
-                                      );
-                                      return;
-                                    }
+                                if (!isLoggedIn) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const MobileInputPage(referralCode: ""),
+                                    ),
+                                  );
+                                  return;
+                                }
+                                Navigator.push(
+                                  context,
+                                  PageTransition(
+                                    type: PageTransitionType.rightToLeft,
+                                    duration: const Duration(milliseconds: 300),
+                                    child: const EditProfilePage(),
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                "EDIT",
+                                style: AppTextStyle.blackText(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 15),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  width: 0.2,
+                                  color: AppColors.buttonDisabled,
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                                color: AppColors.white,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.only(
+                                  top: 20,
+                                  bottom: 20,
+                                  left: 15,
+                                  right: 15,
+                                ),
+                                child: GestureDetector(
+                                  onTap: () {
                                     Navigator.push(
                                       context,
                                       PageTransition(
@@ -160,29 +205,278 @@ class _ProfilePageState extends State<ProfilePage> {
                                         duration: const Duration(
                                           milliseconds: 300,
                                         ),
-                                        child: const EditProfilePage(),
+                                        child: const MyCoins(),
                                       ),
                                     );
                                   },
-                                  child: Text(
-                                    "EDIT",
-                                    style: AppTextStyle.blackText(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                                  child: Row(
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "My Coins",
+                                            style: AppTextStyle.blackText(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+
+                                          Text(
+                                            coinsModel?.remainingBonusCoins ==
+                                                    null
+                                                ? "0 Points"
+                                                : "${coinsModel?.remainingBonusCoins} Points",
+                                            style: AppTextStyle.primaryText(
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
-                          // const SizedBox(height: 16),
-                          // _bookingStats(count),
-                          const SizedBox(height: 15),
-                          _profileOptions(context, coinsModel!),
-                        ],
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    width: 0.2,
+                                    color: AppColors.buttonDisabled,
+                                  ),
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(20),
+                                    topRight: Radius.circular(20),
+                                  ),
+                                  color: AppColors.white,
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: _profileTile(
+                                    "assets/images/check_calendar.png",
+                                    "My Bookings",
+                                    () {
+                                      Navigator.push(
+                                        context,
+                                        PageTransition(
+                                          type: PageTransitionType.rightToLeft,
+                                          duration: const Duration(
+                                            milliseconds: 300,
+                                          ),
+                                          child: const MyBookings(),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  width: 0.2,
+                                  color: AppColors.buttonDisabled,
+                                ),
+
+                                color: AppColors.white,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: _profileTile(
+                                  "assets/images/heart.png",
+                                  "My Favorites",
+                                  () {
+                                    Navigator.push(
+                                      context,
+                                      PageTransition(
+                                        type: PageTransitionType.rightToLeft,
+                                        duration: const Duration(
+                                          milliseconds: 300,
+                                        ),
+                                        child: const MyFavorites(),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  width: 0.2,
+                                  color: AppColors.buttonDisabled,
+                                ),
+                                borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(20),
+                                  bottomRight: Radius.circular(20),
+                                ),
+                                color: AppColors.white,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: _iconTile(
+                                  Icons.monetization_on,
+                                  "My Coins",
+                                  () {
+                                    Navigator.push(
+                                      context,
+                                      PageTransition(
+                                        type: PageTransitionType.rightToLeft,
+                                        duration: const Duration(
+                                          milliseconds: 300,
+                                        ),
+                                        child: const MyCoins(),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    width: 0.2,
+                                    color: AppColors.buttonDisabled,
+                                  ),
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(20),
+                                    topRight: Radius.circular(20),
+                                  ),
+                                  color: AppColors.white,
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: _profileTile(
+                                    "assets/images/support.png",
+                                    "Help & Support",
+                                    () {
+                                      _showHelpBottomSheet(context);
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  width: 0.2,
+                                  color: AppColors.buttonDisabled,
+                                ),
+                                borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(20),
+                                  bottomRight: Radius.circular(20),
+                                ),
+                                color: AppColors.white,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: _profileTile(
+                                  "assets/images/cancel.png",
+                                  "Cancellation/Reschedule",
+                                  () {
+                                    _showCancelBottomSheet(context);
+                                  },
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    width: 0.2,
+                                    color: AppColors.buttonDisabled,
+                                  ),
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(20),
+                                    topRight: Radius.circular(20),
+                                  ),
+                                  color: AppColors.white,
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: _profileTile(
+                                    "assets/images/setings.png",
+                                    "Settings",
+                                    () {
+                                      Navigator.push(
+                                        context,
+                                        PageTransition(
+                                          type: PageTransitionType.rightToLeft,
+                                          duration: const Duration(
+                                            milliseconds: 300,
+                                          ),
+                                          child: const Settings(),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  width: 0.2,
+                                  color: AppColors.buttonDisabled,
+                                ),
+                                borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(20),
+                                  bottomRight: Radius.circular(20),
+                                ),
+                                color: AppColors.white,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: _profileTile(
+                                  "assets/images/share.png",
+                                  "Invite a Friend",
+                                  () {},
+                                ),
+                              ),
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  width: 0.2,
+                                  color: AppColors.buttonDisabled,
+                                ),
+                                borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(20),
+                                  bottomRight: Radius.circular(20),
+                                ),
+                                color: AppColors.white,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: _profileTile(
+                                  "assets/images/paid.png",
+                                  "Refer & Earn",
+                                  () {
+                                    Navigator.push(
+                                      context,
+                                      PageTransition(
+                                        type: PageTransitionType.rightToLeft,
+                                        duration: const Duration(
+                                          milliseconds: 300,
+                                        ),
+                                        child: const ReferAndEarn(),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    );
-                  },
+                    ],
+                  ),
                 );
               },
             ),
@@ -247,236 +541,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
             ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _profileOptions(BuildContext context, CoinsModel coinModel) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(width: 0.2, color: AppColors.buttonDisabled),
-              borderRadius: BorderRadius.circular(20),
-              color: AppColors.white,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.only(
-                top: 20,
-                bottom: 20,
-                left: 15,
-                right: 15,
-              ),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    PageTransition(
-                      type: PageTransitionType.rightToLeft,
-                      duration: const Duration(milliseconds: 300),
-                      child: const MyCoins(),
-                    ),
-                  );
-                },
-                child: Row(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "My Coins",
-                          style: AppTextStyle.blackText(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-
-                        Text(
-                          "${coinModel.remainingBonusCoins} Points",
-                          style: AppTextStyle.primaryText(
-                            // fontSize: 16,
-                            // fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(width: 0.2, color: AppColors.buttonDisabled),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-                color: AppColors.white,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: _profileTile(
-                  "assets/images/check_calendar.png",
-                  "My Bookings",
-                  () {
-                    Navigator.push(
-                      context,
-                      PageTransition(
-                        type: PageTransitionType.rightToLeft,
-                        duration: const Duration(milliseconds: 300),
-                        child: const MyBookings(),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(width: 0.2, color: AppColors.buttonDisabled),
-
-              color: AppColors.white,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: _profileTile(
-                "assets/images/heart.png",
-                "My Favorites",
-                () {
-                  Navigator.push(
-                    context,
-                    PageTransition(
-                      type: PageTransitionType.rightToLeft,
-                      duration: const Duration(milliseconds: 300),
-                      child: const MyFavorites(),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(width: 0.2, color: AppColors.buttonDisabled),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
-              ),
-              color: AppColors.white,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: _iconTile(Icons.monetization_on, "My Coins", () {
-                Navigator.push(
-                  context,
-                  PageTransition(
-                    type: PageTransitionType.rightToLeft,
-                    duration: const Duration(milliseconds: 300),
-                    child: const MyCoins(),
-                  ),
-                );
-              }),
-            ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(width: 0.2, color: AppColors.buttonDisabled),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-                color: AppColors.white,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: _profileTile(
-                  "assets/images/support.png",
-                  "Help & Support",
-                  () {
-                    _showHelpBottomSheet(context);
-                  },
-                ),
-              ),
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(width: 0.2, color: AppColors.buttonDisabled),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
-              ),
-              color: AppColors.white,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: _profileTile(
-                "assets/images/cancel.png",
-                "Cancellation/Reschedule",
-                () {
-                  _showCancelBottomSheet(context);
-                },
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(width: 0.2, color: AppColors.buttonDisabled),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-                color: AppColors.white,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: _profileTile(
-                  "assets/images/setings.png",
-                  "Settings",
-                  () {
-                    Navigator.push(
-                      context,
-                      PageTransition(
-                        type: PageTransitionType.rightToLeft,
-                        duration: const Duration(milliseconds: 300),
-                        child: const Settings(),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(width: 0.2, color: AppColors.buttonDisabled),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
-              ),
-              color: AppColors.white,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: _profileTile(
-                "assets/images/share.png",
-                "Invite a Friend",
-                () {},
-              ),
-            ),
           ),
         ],
       ),

@@ -56,7 +56,7 @@ class LoginProvider extends ChangeNotifier {
 
   //--------
   final TextEditingController mobileController = TextEditingController();
-  // final TextEditingController otpController = TextEditingController();
+  final TextEditingController referralCodeController = TextEditingController();
 
   bool isOtpSent = false;
   bool isLoggedIn = false;

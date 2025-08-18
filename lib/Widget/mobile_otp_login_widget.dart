@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gkmarts/Provider/Login/login_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
-import 'package:gkmarts/Widget/global_appbar.dart';
 import 'package:gkmarts/Widget/global_button.dart';
 import 'package:gkmarts/Widget/global_textfiled.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
@@ -12,7 +11,8 @@ import 'package:provider/provider.dart';
 
 class MobileInputPage extends StatelessWidget {
   final bool isHome;
-  const MobileInputPage({super.key, this.isHome = false});
+  final String referralCode;
+  const MobileInputPage({super.key, this.isHome = false, required this.referralCode});
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +70,15 @@ class MobileInputPage extends StatelessWidget {
                         ? null
                         : provider.mobileErrorText,
                 onChanged: provider.onMobileChanged,
+              ),
+              const SizedBox(height: 10),
+              GlobalTextField(
+                controller: provider.referralCodeController,
+                label: "Referral Code",
+                hintText: "Enter referral code",
+                isNumberInput: false,
+                obscureText: false,
+                isEditable: true,
               ),
               const SizedBox(height: 30),
               RichText(
@@ -205,11 +214,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
               ),
               onChanged: (value) {
                 if (value.length == 6 && !provider.isOtpVerifying) {
-                  provider.verifyOtp(
-                    context,
-                    widget.mobileNumber,
-                    value, 
-                  );
+                  provider.verifyOtp(context, widget.mobileNumber, value);
                 }
               },
             ),

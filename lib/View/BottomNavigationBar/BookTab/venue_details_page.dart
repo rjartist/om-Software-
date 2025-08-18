@@ -355,7 +355,7 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const MobileInputPage(),
+                          builder: (_) => const MobileInputPage(referralCode: "",),
                         ),
                       );
                       return;
@@ -586,7 +586,7 @@ class VenueImageSlider extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => const MobileInputPage(),
+                                builder: (_) => const MobileInputPage(referralCode: ""),
                               ),
                             );
                             return;
@@ -614,7 +614,7 @@ class VenueImageSlider extends StatelessWidget {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => const MobileInputPage(),
+                                    builder: (_) => const MobileInputPage(referralCode: ""),
                                   ),
                                 );
                                 return;

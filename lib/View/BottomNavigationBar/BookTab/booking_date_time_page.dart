@@ -117,7 +117,7 @@ class _BookingDateTimePageState extends State<BookingDateTimePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const MobileInputPage(),
+                              builder: (_) => const MobileInputPage(referralCode: "",),
                             ),
                           );
                           return; // Prevent further execution

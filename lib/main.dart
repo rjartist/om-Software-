@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gkmarts/Provider/Bookings/booking_list_provider.dart';
@@ -14,6 +15,7 @@ import 'package:gkmarts/Provider/Login/login_provider.dart';
 import 'package:gkmarts/Provider/Phonpay/phon_pay_payment_provider.dart';
 import 'package:gkmarts/Provider/Profile/edit_profile_provider.dart';
 import 'package:gkmarts/Provider/Profile/profile_page_provider.dart';
+import 'package:gkmarts/Provider/Profile/referral_link_provider.dart';
 import 'package:gkmarts/Provider/Razorpay/razorpay_provider.dart';
 import 'package:gkmarts/Utils/OneSignal/OneSignalService.dart';
 import 'package:gkmarts/Widget/global.dart';
@@ -21,13 +23,14 @@ import 'package:gkmarts/Utils/SharedPrefHelper/shared_local_storage.dart';
 import 'package:gkmarts/View/SplashScreen/splash_screen.dart';
 import 'package:provider/provider.dart';
 
+
 void main() async {
   // OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
   // // Initialize with your OneSignal App ID
   // OneSignal.initialize("7da1b882-fbed-4feb-a589-cf3cab38f6df");
   // OneSignal.Notifications.requestPermission(false);
   WidgetsFlutterBinding.ensureInitialized();
-    await OneSignalService.init();
+  await OneSignalService.init();
   await SharedPrefHelper.init();
   runApp(
     MultiProvider(
@@ -43,12 +46,13 @@ void main() async {
         ChangeNotifierProvider(create: (_) => EditProfileProvider()),
         ChangeNotifierProvider(create: (_) => MyBookingsProvider()),
         ChangeNotifierProvider(create: (_) => MyFavoritesProvider()),
-        ChangeNotifierProvider(create: (_) => PhonePePaymentProvider ()),
+        ChangeNotifierProvider(create: (_) => PhonePePaymentProvider()),
         ChangeNotifierProvider(create: (_) => BookingsCountProvider()),
         ChangeNotifierProvider(create: (_) => CancelBookingProvider()),
         ChangeNotifierProvider(create: (_) => RazorpayProvider()),
+        ChangeNotifierProvider(create: (_) => ReferralLinkProvider()),
       ],
-      child: const MyApp(),
+      child: MyApp(),
     ),
   );
 }

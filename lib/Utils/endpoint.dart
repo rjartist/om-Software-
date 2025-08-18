@@ -30,3 +30,5 @@ String getBookingCountApi = "$prodDomain/api/get-bookings-count";
 String cancelBookingApi = "$prodDomain/api/cancel-booking-request";
 String getbookingsApi = "$prodDomain/api/bookings/user";
 String getOrderIdApi = "$prodDomain/api/payment/razorpay/order";
+
+String getReferralLink = "$prodDomain/api/auth/referral-link";
