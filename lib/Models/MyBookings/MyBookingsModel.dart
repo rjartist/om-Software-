@@ -65,6 +65,7 @@ class PastBookings {
   bool? coinsUsed;
   int? coinsUsedCount;
   bool? userSubmittedFeedback;
+  UserFeedback? userFeedback; // ✅ new
 
   PastBookings({
     this.bookingId,
@@ -83,6 +84,7 @@ class PastBookings {
     this.coinsUsed,
     this.coinsUsedCount,
     this.userSubmittedFeedback,
+    this.userFeedback, // ✅
   });
 
   PastBookings.fromJson(Map<String, dynamic> json) {
@@ -123,6 +125,11 @@ class PastBookings {
     coinsUsed = json['coins_used'];
     coinsUsedCount = json['coins_used_count'];
     userSubmittedFeedback = json['user_submitted_feedback'];
+
+    userFeedback =
+        json['user_feedback'] != null
+            ? UserFeedback.fromJson(json['user_feedback'])
+            : null; // ✅
   }
 
   Map<String, dynamic> toJson() {
@@ -159,6 +166,37 @@ class PastBookings {
     data['coins_used'] = coinsUsed;
     data['coins_used_count'] = coinsUsedCount;
     data['user_submitted_feedback'] = userSubmittedFeedback;
+
+    if (userFeedback != null) {
+      data['user_feedback'] = userFeedback!.toJson();
+    }
+
+    return data;
+  }
+}
+
+class UserFeedback {
+  int? rating;
+  String? feedback;
+  List<String>? images;
+
+  UserFeedback({this.rating, this.feedback, this.images});
+
+  UserFeedback.fromJson(Map<String, dynamic> json) {
+    rating = json['rating'];
+    feedback = json['feedback'];
+    if (json['images'] != null) {
+      images = List<String>.from(json['images']);
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {};
+    data['rating'] = rating;
+    data['feedback'] = feedback;
+    if (images != null) {
+      data['images'] = images;
+    }
     return data;
   }
 }

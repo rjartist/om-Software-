@@ -1,3 +1,4 @@
+import 'package:gkmarts/Utils/SharedPrefHelper/shared_local_storage.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 class OneSignalService {
@@ -46,6 +47,7 @@ class OneSignalService {
 
     if (playerId != null) {
       print("✅ OneSignal Player ID: $playerId");
+      await SharedPrefHelper.setOneSignalPlayerId(playerId);
     } else {
       print("⚠️ OneSignal Player ID not available after $maxRetries attempts.");
     }

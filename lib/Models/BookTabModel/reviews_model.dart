@@ -1,4 +1,3 @@
-
 class VenueReviewsResponseModel {
   final double averageRating;
   final int totalReviews;
@@ -12,16 +11,17 @@ class VenueReviewsResponseModel {
 
   factory VenueReviewsResponseModel.fromJson(Map<String, dynamic> json) {
     return VenueReviewsResponseModel(
-      averageRating: double.tryParse(json['averageRating']?.toString() ?? "0.0") ?? 0.0,
+      averageRating:
+          double.tryParse(json['averageRating']?.toString() ?? "0.0") ?? 0.0,
       totalReviews: json['totalReviews'] ?? 0,
-      reviews: (json['formattedFeedbacks'] as List<dynamic>?)
+      reviews:
+          (json['formattedFeedbacks'] as List<dynamic>?)
               ?.map((e) => ReviewModel.fromJson(e))
               .toList() ??
           [],
     );
   }
 }
-
 
 class ReviewModel {
   final int feedbackId;
@@ -30,6 +30,7 @@ class ReviewModel {
   final String? feedback;
   final String createdAt;
   final UserModel user;
+  final List<String> images;
 
   ReviewModel({
     required this.feedbackId,
@@ -38,6 +39,7 @@ class ReviewModel {
     required this.feedback,
     required this.createdAt,
     required this.user,
+    required this.images,
   });
 
   factory ReviewModel.fromJson(Map<String, dynamic> json) {
@@ -48,6 +50,10 @@ class ReviewModel {
       feedback: json['feedback'],
       createdAt: json['created_at'] ?? '',
       user: UserModel.fromJson(json['user'] ?? {}),
+      images:
+          (json['images'] as List<dynamic>? ?? [])
+              .map((e) => e.toString())
+              .toList(), // ✅ parse image list
     );
   }
 }

@@ -30,8 +30,9 @@ void main() async {
   // OneSignal.initialize("7da1b882-fbed-4feb-a589-cf3cab38f6df");
   // OneSignal.Notifications.requestPermission(false);
   WidgetsFlutterBinding.ensureInitialized();
-  await OneSignalService.init();
   await SharedPrefHelper.init();
+  await OneSignalService.init();
+  
   runApp(
     MultiProvider(
       providers: [

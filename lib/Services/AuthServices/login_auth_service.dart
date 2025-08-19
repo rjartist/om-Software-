@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:gkmarts/Provider/Profile/profile_page_provider.dart';
 import 'package:gkmarts/Services/Api_service/api_service.dart';
+import 'package:gkmarts/Utils/SharedPrefHelper/shared_local_storage.dart';
 import 'package:gkmarts/Utils/endpoint.dart';
 import 'package:gkmarts/Utils/headers.dart';
 import 'package:provider/provider.dart';
@@ -12,12 +13,19 @@ import 'package:mime/mime.dart';
 import 'package:http_parser/http_parser.dart';
 
 class LoginAuthService {
-
-  Future<RestResponse> verifyOtpService(String mobileNo, String otp) async {
+  Future<RestResponse> verifyOtpService(
+    String mobileNo,
+    String otp,
+    String playerId,
+  ) async {
     try {
       ApiService apiService = ApiService(
         endpoint: getVerifyOtpApi,
-        body: jsonEncode({"phoneNumber": mobileNo, "otp": otp}),
+        body: jsonEncode({
+          "phoneNumber": mobileNo,
+          "otp": otp,
+          "oneSignalPlayerId": playerId,
+        }),
         method: HTTP_METHOD.POST,
         headers: HttpHeader.getLoginHeader(),
       );
@@ -28,7 +36,7 @@ class LoginAuthService {
     }
   }
 
-   Future<RestResponse> sendOtpService(String mobileNo) async {
+  Future<RestResponse> sendOtpService(String mobileNo) async {
     try {
       ApiService apiService = ApiService(
         endpoint: getSendOtpApi,
@@ -42,8 +50,6 @@ class LoginAuthService {
       return RestResponse(isSuccess: false);
     }
   }
-
-
 
   Future<RestResponse> editProfile(
     Map<String, dynamic> reqBody, {

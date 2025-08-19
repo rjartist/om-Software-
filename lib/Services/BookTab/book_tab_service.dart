@@ -1,13 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:gkmarts/Services/Api_service/api_service.dart';
 import 'package:gkmarts/Utils/endpoint.dart';
 import 'package:gkmarts/Utils/headers.dart';
 
 class BookTabService {
-Future<RestResponse>getReviewsService(
-    int venueId,
-
-  ) async {
+  Future<RestResponse> getReviewsService(int venueId) async {
     try {
       ApiService apiService = ApiService(
         endpoint: getReviewsApi,
@@ -23,8 +21,7 @@ Future<RestResponse>getReviewsService(
     }
   }
 
-
-   Future<RestResponse> checkTurfAvailableService({
+  Future<RestResponse> checkTurfAvailableService({
     required Map<String, dynamic> reqBody,
   }) async {
     try {
@@ -41,6 +38,7 @@ Future<RestResponse>getReviewsService(
       return RestResponse(isSuccess: false);
     }
   }
+
   Future<RestResponse> proceedToPayService({
     required Map<String, dynamic> reqBody,
   }) async {
@@ -64,6 +62,7 @@ Future<RestResponse>getReviewsService(
     required int bookingId,
     required int rating,
     required String feedback,
+    required List<File> images,
   }) async {
     try {
       final bodyData = {
@@ -71,6 +70,7 @@ Future<RestResponse>getReviewsService(
         "bookingId": bookingId,
         "rating": rating,
         "feedback": feedback,
+        // "feedbackImage": 3files,
       };
 
       ApiService apiService = ApiService(

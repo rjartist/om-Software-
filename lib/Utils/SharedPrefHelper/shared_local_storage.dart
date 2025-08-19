@@ -4,7 +4,8 @@ class SharedPrefHelper {
   static SharedPreferences? _prefs;
   static const _coinPopupShownKey = " ";
   static const _userIdKey = "user_id";
-   static const _phoneNumberKey = "phone_number";
+  static const _phoneNumberKey = "phone_number";
+  static const _playerIdKey = "one_signal_player_id";
   // Initialize once at app start
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -56,11 +57,36 @@ class SharedPrefHelper {
   static int? getUserId() {
     return _prefs?.getInt(_userIdKey);
   }
-   static Future<void> setPhoneNumber(String phone) async {
+
+  static Future<void> setPhoneNumber(String phone) async {
     await _prefs?.setString(_phoneNumberKey, phone);
   }
 
   static String? getPhoneNumber() {
     return _prefs?.getString(_phoneNumberKey);
+  }
+
+  static Future<void> setOneSignalPlayerId(String playerId) async {
+    await _prefs?.setString(_playerIdKey, playerId);
+  }
+
+  static Future<String?> getOneSignalPlayerId() async {
+    return _prefs?.getString(_playerIdKey);
+  }
+
+  static Future<bool> clearAllPreservePlayerId() async {
+    if (_prefs == null) return false;
+
+    // Save playerId before clearing
+    final playerId = _prefs?.getString(_playerIdKey);
+
+    final success = await _prefs!.clear();
+
+    // Restore playerId
+    if (playerId != null) {
+      await _prefs?.setString(_playerIdKey, playerId);
+    }
+
+    return success;
   }
 }

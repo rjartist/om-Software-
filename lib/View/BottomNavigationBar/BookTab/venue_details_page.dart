@@ -355,7 +355,8 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const MobileInputPage(referralCode: "",),
+                          builder:
+                              (_) => const MobileInputPage(referralCode: ""),
                         ),
                       );
                       return;
@@ -586,7 +587,9 @@ class VenueImageSlider extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => const MobileInputPage(referralCode: ""),
+                                builder:
+                                    (_) =>
+                                        const MobileInputPage(referralCode: ""),
                               ),
                             );
                             return;
@@ -614,7 +617,10 @@ class VenueImageSlider extends StatelessWidget {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => const MobileInputPage(referralCode: ""),
+                                    builder:
+                                        (_) => const MobileInputPage(
+                                          referralCode: "",
+                                        ),
                                   ),
                                 );
                                 return;
@@ -654,11 +660,183 @@ class VenueImageSlider extends StatelessWidget {
   }
 }
 
-class ViewVenueReviewsBottomSheet extends StatefulWidget {
-  // final VenueDetailModel model;
-  const ViewVenueReviewsBottomSheet({super.key});
+// class ViewVenueReviewsBottomSheet extends StatefulWidget {
+//   // final VenueDetailModel model;
+//   const ViewVenueReviewsBottomSheet({super.key});
 
-  // const ViewVenueReviewsBottomSheet({super.key, required this.model});
+//   // const ViewVenueReviewsBottomSheet({super.key, required this.model});
+
+//   @override
+//   State<ViewVenueReviewsBottomSheet> createState() =>
+//       _ViewVenueReviewsBottomSheetState();
+// }
+
+// class _ViewVenueReviewsBottomSheetState
+//     extends State<ViewVenueReviewsBottomSheet> {
+//   @override
+//   Widget build(BuildContext context) {
+//     final provider = context.watch<BookTabProvider>();
+//     final venueReviews = provider.venueReviews;
+
+//     return DraggableScrollableSheet(
+//       expand: false,
+//       initialChildSize: 0.7,
+//       maxChildSize: 0.95,
+//       builder: (context, scrollController) {
+//         return Container(
+//           decoration: const BoxDecoration(
+//             color: Colors.white,
+//             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+//           ),
+//           child: Padding(
+//             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 // Drag Handle
+//                 Center(
+//                   child: Container(
+//                     width: 40,
+//                     height: 4,
+//                     margin: const EdgeInsets.only(bottom: 16),
+//                     decoration: BoxDecoration(
+//                       color: Colors.grey[300],
+//                       borderRadius: BorderRadius.circular(10),
+//                     ),
+//                   ),
+//                 ),
+
+//                 // Title
+//                 Center(
+//                   child: Text(
+//                     "Ratings & Reviews",
+//                     style: AppTextStyle.titleText(),
+//                   ),
+//                 ),
+//                 const SizedBox(height: 8),
+
+//                 if (provider.isReviewsLoading)
+//                   const Center(child: CircularProgressIndicator())
+//                 else if (venueReviews == null || venueReviews.reviews.isEmpty)
+//                   Center(
+//                     child: Text(
+//                       "No reviews available.",
+//                       style: AppTextStyle.greytext(),
+//                     ),
+//                   )
+//                 else ...[
+//                   // ⭐ Average Rating Section
+//                   Center(
+//                     child: Row(
+//                       mainAxisSize: MainAxisSize.min,
+//                       children: [
+//                         const Icon(Icons.star, color: Colors.orange, size: 20),
+//                         const SizedBox(width: 4),
+//                         Text(
+//                           venueReviews.averageRating.toStringAsFixed(1),
+//                           style: AppTextStyle.blackText(fontSize: 16),
+//                         ),
+//                         const SizedBox(width: 6),
+//                         Text(
+//                           "(${venueReviews.totalReviews} reviews)",
+//                           style: AppTextStyle.greytext(fontSize: 14),
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+//                   const SizedBox(height: 20),
+
+//                   // 📝 Reviews List
+//                   Expanded(
+//                     child: ListView.separated(
+//                       controller: scrollController,
+//                       itemCount: venueReviews.reviews.length,
+//                       separatorBuilder:
+//                           (_, __) => const Divider(height: 24, thickness: 0.8),
+//                       itemBuilder: (_, index) {
+//                         final review = venueReviews.reviews[index];
+
+//                         return Row(
+//                           crossAxisAlignment: CrossAxisAlignment.start,
+//                           children: [
+//                             // Profile image
+//                             ClipOval(
+//                               child: Image.network(
+//                                 review.user.profileImage,
+//                                 width: 40,
+//                                 height: 40,
+//                                 fit: BoxFit.cover,
+//                                 errorBuilder: (context, error, stackTrace) {
+//                                   return Image.asset(
+//                                     'assets/images/userIcon.png',
+//                                     width: 35,
+//                                     height: 35,
+//                                     fit: BoxFit.cover,
+//                                   );
+//                                 },
+//                               ),
+//                             ),
+
+//                             const SizedBox(width: 12),
+
+//                             // Review content
+//                             Expanded(
+//                               child: Column(
+//                                 crossAxisAlignment: CrossAxisAlignment.start,
+//                                 children: [
+//                                   Text(
+//                                     review.user.name,
+//                                     style: AppTextStyle.blackText(fontSize: 14),
+//                                   ),
+//                                   const SizedBox(height: 2),
+
+//                                   // Star rating
+//                                   Row(
+//                                     children: List.generate(5, (i) {
+//                                       return Icon(
+//                                         i < review.rating
+//                                             ? Icons.star
+//                                             : Icons.star_border,
+//                                         size: 16,
+//                                         color: Colors.orange,
+//                                       );
+//                                     }),
+//                                   ),
+
+//                                   if ((review.feedback ?? "").isNotEmpty) ...[
+//                                     const SizedBox(height: 6),
+//                                     Text(
+//                                       review.feedback!,
+//                                       style: AppTextStyle.greytext(
+//                                         fontSize: 13,
+//                                       ),
+//                                     ),
+//                                   ],
+//                                   const SizedBox(height: 4),
+//                                   Text(
+//                                     formatFullDateString(review.createdAt),
+//                                     style: AppTextStyle.greytext(fontSize: 11),
+//                                   ),
+//                                 ],
+//                               ),
+//                             ),
+//                           ],
+//                         );
+//                       },
+//                     ),
+//                   ),
+//                 ],
+//               ],
+//             ),
+//           ),
+//         );
+//       },
+//     );
+//   }
+// }
+
+class ViewVenueReviewsBottomSheet extends StatefulWidget {
+  const ViewVenueReviewsBottomSheet({super.key});
 
   @override
   State<ViewVenueReviewsBottomSheet> createState() =>
@@ -679,7 +857,7 @@ class _ViewVenueReviewsBottomSheetState
       builder: (context, scrollController) {
         return Container(
           decoration: const BoxDecoration(
-            color: Colors.white,
+            color: AppColors.bgColor,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Padding(
@@ -687,7 +865,7 @@ class _ViewVenueReviewsBottomSheetState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Drag Handle
+                // Drag handle
                 Center(
                   child: Container(
                     width: 40,
@@ -719,7 +897,7 @@ class _ViewVenueReviewsBottomSheetState
                     ),
                   )
                 else ...[
-                  // ⭐ Average Rating Section
+                  // ⭐ Average rating
                   Center(
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -740,81 +918,226 @@ class _ViewVenueReviewsBottomSheetState
                   ),
                   const SizedBox(height: 20),
 
-                  // 📝 Reviews List
+                  // 📝 Reviews list
                   Expanded(
                     child: ListView.separated(
                       controller: scrollController,
                       itemCount: venueReviews.reviews.length,
-                      separatorBuilder:
-                          (_, __) => const Divider(height: 24, thickness: 0.8),
+                      separatorBuilder: (_, __) => const SizedBox(height: 16),
                       itemBuilder: (_, index) {
                         final review = venueReviews.reviews[index];
 
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Profile image
-                            ClipOval(
-                              child: Image.network(
-                                review.user.profileImage,
-                                width: 40,
-                                height: 40,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Image.asset(
-                                    'assets/images/userIcon.png',
-                                    width: 35,
-                                    height: 35,
-                                    fit: BoxFit.cover,
-                                  );
-                                },
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.08),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
                               ),
-                            ),
-
-                            const SizedBox(width: 12),
-
-                            // Review content
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    review.user.name,
-                                    style: AppTextStyle.blackText(fontSize: 14),
-                                  ),
-                                  const SizedBox(height: 2),
-
-                                  // Star rating
-                                  Row(
-                                    children: List.generate(5, (i) {
-                                      return Icon(
-                                        i < review.rating
-                                            ? Icons.star
-                                            : Icons.star_border,
-                                        size: 16,
-                                        color: Colors.orange,
-                                      );
-                                    }),
-                                  ),
-
-                                  if ((review.feedback ?? "").isNotEmpty) ...[
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      review.feedback!,
-                                      style: AppTextStyle.greytext(
-                                        fontSize: 13,
+                            ],
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Row 1: Profile + name/date + rating
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Profile image
+                                    ClipOval(
+                                      child: Image.network(
+                                        review.user.profileImage,
+                                        width: 40,
+                                        height: 40,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (
+                                          context,
+                                          error,
+                                          stackTrace,
+                                        ) {
+                                          return Image.asset(
+                                            'assets/images/userIcon.png',
+                                            width: 40,
+                                            height: 40,
+                                          );
+                                        },
                                       ),
                                     ),
+                                    const SizedBox(width: 12),
+
+                                    // Name + Date
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            review.user.name,
+                                            style: AppTextStyle.blackText(
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.calendar_today,
+                                                size: 12,
+                                                color: Colors.grey,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                formatFullDateString(
+                                                  review.createdAt,
+                                                ),
+                                                style: AppTextStyle.greytext(
+                                                  fontSize: 11,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    // Rating stars
+                                    Row(
+                                      children: List.generate(5, (i) {
+                                        return Icon(
+                                          i < review.rating
+                                              ? Icons.star
+                                              : Icons.star_border,
+                                          size: 16,
+                                          color: Colors.orange,
+                                        );
+                                      }),
+                                    ),
                                   ],
-                                  const SizedBox(height: 4),
+                                ),
+
+                                // Row 2: Review text
+                                if ((review.feedback ?? "").isNotEmpty) ...[
+                                  const SizedBox(height: 8),
                                   Text(
-                                    formatFullDateString(review.createdAt),
-                                    style: AppTextStyle.greytext(fontSize: 11),
+                                    review.feedback!,
+                                    style: AppTextStyle.greytext(fontSize: 13),
                                   ),
                                 ],
-                              ),
+
+                                // Row 3: Images horizontal list
+                                if (review.images.isNotEmpty) ...[
+                                  const SizedBox(height: 10),
+                                  SizedBox(
+                                    height: 80,
+                                    child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: review.images.length,
+                                      itemBuilder: (context, imgIndex) {
+                                        final imgUrl = review.images[imgIndex];
+                                        return Padding(
+                                          padding: const EdgeInsets.only(
+                                            right: 8,
+                                          ),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              // Open image in fullscreen dialog
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (_) => Dialog(
+                                                      backgroundColor:
+                                                          Colors.black,
+                                                      insetPadding:
+                                                          EdgeInsets.zero,
+                                                      child: InteractiveViewer(
+                                                        child: Center(
+                                                          child: Image.network(
+                                                            imgUrl,
+                                                            fit: BoxFit.contain,
+                                                            errorBuilder:
+                                                                (
+                                                                  _,
+                                                                  __,
+                                                                  ___,
+                                                                ) => const Icon(
+                                                                  Icons
+                                                                      .broken_image,
+                                                                  color:
+                                                                      Colors
+                                                                          .white,
+                                                                  size: 50,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                              );
+                                            },
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              child: Image.network(
+                                                imgUrl,
+                                                width: 80,
+                                                height: 80,
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (
+                                                  context,
+                                                  error,
+                                                  stackTrace,
+                                                ) {
+                                                  return Container(
+                                                    width: 80,
+                                                    height: 80,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.grey[200],
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            8,
+                                                          ),
+                                                    ),
+                                                    child: const Icon(
+                                                      Icons.broken_image,
+                                                      color: Colors.grey,
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(
+                                          Icons.camera_alt,
+                                          size: 12,
+                                          color: Colors.grey,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          "${review.images.length} photos",
+                                          style: AppTextStyle.greytext(
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
-                          ],
+                          ),
                         );
                       },
                     ),
@@ -828,19 +1151,6 @@ class _ViewVenueReviewsBottomSheetState
     );
   }
 }
-// ElevatedButton(
-//   onPressed: () {
-//     showModalBottomSheet(
-//       context: context,
-//       isScrollControlled: true,
-//       shape: const RoundedRectangleBorder(
-//         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-//       ),
-//       builder: (_) => RateVenueBottomSheet(model: yourVenueDetailModel),
-//     );
-//   },
-//   child: Text("Rate Venue"),
-// )
 
 class RateVenueBottomSheet extends StatelessWidget {
   final VenueDetailModel model;
@@ -989,128 +1299,135 @@ class CorporateBookingSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height * 0.6;
+    final height = MediaQuery.of(context).size.height * 0.65;
 
-    return SizedBox(
-      height: height,
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(24),
-            topRight: Radius.circular(24),
+    return SafeArea(
+      child: SizedBox(
+        height: height,
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(24),
+              topRight: Radius.circular(24),
+            ),
           ),
-        ),
 
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-        child: Column(
-          spacing: 24,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 10),
-              width: double.infinity,
-              decoration: const BoxDecoration(color: Color(0xFFD9D9D9)),
-              child: Text(
-                "Corporate Bookings",
-                textAlign: TextAlign.center,
-                style: AppTextStyle.boldBlackText(),
-              ),
-            ),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+          child: SingleChildScrollView(
+            child: Column(
+              spacing: 24,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                vSizeBox(10),
+                Container(
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  width: double.infinity,
+                  decoration: const BoxDecoration(color: Color(0xFFD9D9D9)),
+                  child: Text(
+                    "Corporate Bookings",
+                    textAlign: TextAlign.center,
+                    style: AppTextStyle.boldBlackText(),
+                  ),
+                ),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: const [
-                _BookingFeature(
-                  label: "Venue\nReservation",
-                  assetPath: "assets/images/c1.png",
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: const [
+                    _BookingFeature(
+                      label: "Venue\nReservation",
+                      assetPath: "assets/images/c1.png",
+                    ),
+                    _BookingFeature(
+                      label: "Scheduling\nFixtures",
+                      assetPath: "assets/images/c2.png",
+                    ),
+                    _BookingFeature(
+                      label: "Hospitality\nServices",
+                      assetPath: "assets/images/c3.png",
+                    ),
+                  ],
                 ),
-                _BookingFeature(
-                  label: "Scheduling\nFixtures",
-                  assetPath: "assets/images/c2.png",
+
+                GlobalPrimaryButton(
+                  text: "I’m Interested",
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(20),
+                        ),
+                      ),
+                      builder:
+                          (_) => CallNow(
+                            title: "Corporate Booking Enquiry",
+                            description:
+                                "Looking to reserve a venue for your corporate event?\nOur team is here to assist you with scheduling\nand more. Reach out now!",
+                            phoneNumber: "+91 9999999999",
+                            onConfirm: () {}, // Optional action after call
+                          ),
+                    );
+                  },
                 ),
-                _BookingFeature(
-                  label: "Hospitality\nServices",
-                  assetPath: "assets/images/c3.png",
+
+                Container(
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  width: double.infinity,
+                  decoration: const BoxDecoration(color: Color(0xFFD9D9D9)),
+                  child: Text(
+                    "Long Term / Bulk Booking",
+                    textAlign: TextAlign.center,
+                    style: AppTextStyle.boldBlackText(),
+                  ),
                 ),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: const [
+                    _BookingFeature(
+                      label: "Repeat\nBookings",
+                      assetPath: "assets/images/c4.png",
+                    ),
+                    _BookingFeature(
+                      label: "Volume\nDiscounts",
+                      assetPath: "assets/images/c5.png",
+                    ),
+                    _BookingFeature(
+                      label: "Easy\nReschedule",
+                      assetPath: "assets/images/c6.png",
+                    ),
+                  ],
+                ),
+
+                GlobalPrimaryButton(
+                  text: "Enquire Now",
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(20),
+                        ),
+                      ),
+                      builder:
+                          (_) => CallNow(
+                            title: "Need Help?",
+                            description:
+                                "Want to enquire about the venue or your booking?\nFeel free to call our support team.",
+                            phoneNumber: "+91 9999999999",
+                            onConfirm: () {}, // Optional action after call
+                          ),
+                    );
+                  },
+                ),
+
+                vSizeBox(20),
               ],
             ),
-
-            GlobalPrimaryButton(
-              text: "I’m Interested",
-              onTap: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(20),
-                    ),
-                  ),
-                  builder:
-                      (_) => CallNow(
-                        title: "Corporate Booking Enquiry",
-                        description:
-                            "Looking to reserve a venue for your corporate event?\nOur team is here to assist you with scheduling\nand more. Reach out now!",
-                        phoneNumber: "+91 9999999999",
-                        onConfirm: () {}, // Optional action after call
-                      ),
-                );
-              },
-            ),
-
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 10),
-              width: double.infinity,
-              decoration: const BoxDecoration(color: Color(0xFFD9D9D9)),
-              child: Text(
-                "Long Term / Bulk Booking",
-                textAlign: TextAlign.center,
-                style: AppTextStyle.boldBlackText(),
-              ),
-            ),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: const [
-                _BookingFeature(
-                  label: "Repeat\nBookings",
-                  assetPath: "assets/images/c4.png",
-                ),
-                _BookingFeature(
-                  label: "Volume\nDiscounts",
-                  assetPath: "assets/images/c5.png",
-                ),
-                _BookingFeature(
-                  label: "Easy\nReschedule",
-                  assetPath: "assets/images/c6.png",
-                ),
-              ],
-            ),
-
-            GlobalPrimaryButton(
-              text: "Enquire Now",
-              onTap: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(20),
-                    ),
-                  ),
-                  builder:
-                      (_) => CallNow(
-                        title: "Need Help?",
-                        description:
-                            "Want to enquire about the venue or your booking?\nFeel free to call our support team.",
-                        phoneNumber: "+91 9999999999",
-                        onConfirm: () {}, // Optional action after call
-                      ),
-                );
-              },
-            ),
-          ],
+          ),
         ),
       ),
     );
