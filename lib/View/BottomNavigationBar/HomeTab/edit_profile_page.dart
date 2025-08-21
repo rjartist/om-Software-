@@ -274,9 +274,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                       FocusScope.of(context).unfocus();
                                       provider.setSelectedGender(index);
                                     },
-                                    // onSelected:
-                                    //     (_) =>
-                                    //         provider.setSelectedGender(index),
                                     selectedColor:
                                         AppColors.profileSectionButtonColor,
                                     backgroundColor: AppColors.white,
