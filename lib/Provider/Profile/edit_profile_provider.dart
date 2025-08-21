@@ -150,6 +150,13 @@ class EditProfileProvider extends ChangeNotifier {
     final name = nameController.text;
     final phone = phoneController.text;
 
+    if (name.isEmpty) {
+      GlobalSnackbar.error(context, "Name cannot be empty");
+    }
+    if (email.isEmpty) {
+      GlobalSnackbar.error(context, "Email cannot be empty");
+    }
+
     validateEmail(email);
     if (_emailError.isNotEmpty) {
       GlobalSnackbar.error(context, _emailError);

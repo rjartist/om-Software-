@@ -111,10 +111,25 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 backgroundColor: Colors.white,
                                               ),
                                     )
+                                    : user?.user?.gender == "Male"
+                                    ? Image.asset(
+                                      "assets/images/male.png",
+                                      height: 70,
+                                      width: 70,
+                                      // fit: BoxFit.cover,
+                                    )
+                                    : user?.user?.gender == "Female"
+                                    ? Image.asset(
+                                      "assets/images/female.png",
+                                      height: 70,
+                                      width: 70,
+                                      // fit: BoxFit.cover,
+                                    )
                                     : Image.asset(
                                       "assets/images/user.jpeg",
                                       height: 70,
                                       width: 70,
+                                      // fit: BoxFit.cover,
                                     ),
                           ),
                           const SizedBox(width: 16),
@@ -219,19 +234,29 @@ class _ProfilePageState extends State<ProfilePage> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            "My Coins",
+                                            "My Points",
                                             style: AppTextStyle.blackText(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w500,
                                             ),
                                           ),
-
-                                          Text(
-                                            coinsModel?.remainingBonusCoins ==
-                                                    null
-                                                ? "0 Points"
-                                                : "${coinsModel?.remainingBonusCoins} Points",
-                                            style: AppTextStyle.primaryText(),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                coinsModel?.remainingBonusCoins ==
+                                                        null
+                                                    ? "0"
+                                                    : "${coinsModel?.remainingBonusCoins}",
+                                                style:
+                                                    AppTextStyle.primaryText(),
+                                              ),
+                                              SizedBox(width: 2),
+                                              Icon(
+                                                Icons.monetization_on,
+                                                size: 20,
+                                                color: AppColors.primaryColor,
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
@@ -256,8 +281,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                                 child: Padding(
                                   padding: const EdgeInsets.all(10.0),
-                                  child: _profileTile(
-                                    "assets/images/check_calendar.png",
+                                  child: _iconTile(
+                                    Icons.calendar_month,
                                     "My Bookings",
                                     () {
                                       Navigator.push(

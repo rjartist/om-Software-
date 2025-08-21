@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gkmarts/Provider/Login/login_provider.dart';
 import 'package:gkmarts/Utils/OneSignal/OneSignalService.dart';
+import 'package:gkmarts/Utils/SharedPrefHelper/shared_local_storage.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/Widget/global_button.dart';
@@ -153,6 +154,8 @@ class _MobileInputPageState extends State<MobileInputPage> {
                 borderRadius: 12,
                 isLoading: provider.isOtpSending,
                 onPressed: () async {
+                  final playerId =
+                      await SharedPrefHelper.getOneSignalPlayerId();
                   print("device id login page: $deviceId");
                   await provider.sendOtp(
                     context,
@@ -168,7 +171,7 @@ class _MobileInputPageState extends State<MobileInputPage> {
                             (_) => OtpVerifyPage(
                               mobileNumber: provider.mobileController.text,
                               deviceId: deviceId,
-                              oneSignalPlayerId: OneSignalService.playerId!,
+                              oneSignalPlayerId: playerId ?? "",
                             ),
                       ),
                     );
@@ -294,7 +297,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
                 inactiveColor: Colors.grey.shade300,
               ),
               onChanged: (value) {
-
+                
                 if (value.length == 6 && !provider.isOtpVerifying) {
                   provider.verifyOtp(
                     context,
