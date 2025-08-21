@@ -150,7 +150,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (_) => const MobileInputPage(referralCode: ""),
+                                      builder:
+                                          (_) => const MobileInputPage(
+                                            referralCode: "",
+                                          ),
                                     ),
                                   );
                                   return;
@@ -228,8 +231,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                     null
                                                 ? "0 Points"
                                                 : "${coinsModel?.remainingBonusCoins} Points",
-                                            style: AppTextStyle.primaryText(
-                                            ),
+                                            style: AppTextStyle.primaryText(),
                                           ),
                                         ],
                                       ),
@@ -419,27 +421,27 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                               ),
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  width: 0.2,
-                                  color: AppColors.buttonDisabled,
-                                ),
-                                borderRadius: BorderRadius.only(
-                                  bottomLeft: Radius.circular(20),
-                                  bottomRight: Radius.circular(20),
-                                ),
-                                color: AppColors.white,
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: _profileTile(
-                                  "assets/images/share.png",
-                                  "Invite a Friend",
-                                  () {},
-                                ),
-                              ),
-                            ),
+                            // Container(
+                            //   decoration: BoxDecoration(
+                            //     border: Border.all(
+                            //       width: 0.2,
+                            //       color: AppColors.buttonDisabled,
+                            //     ),
+                            //     borderRadius: BorderRadius.only(
+                            //       bottomLeft: Radius.circular(20),
+                            //       bottomRight: Radius.circular(20),
+                            //     ),
+                            //     color: AppColors.white,
+                            //   ),
+                            //   child: Padding(
+                            //     padding: const EdgeInsets.all(10.0),
+                            //     child: _profileTile(
+                            //       "assets/images/share.png",
+                            //       "Invite a Friend",
+                            //       () {},
+                            //     ),
+                            //   ),
+                            // ),
                             Container(
                               decoration: BoxDecoration(
                                 border: Border.all(

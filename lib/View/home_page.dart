@@ -1,3 +1,4 @@
+import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:gkmarts/Provider/HomePage/Bottom_navigationBar/bottom_navigationbar.dart';
 import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
@@ -28,6 +29,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late final AppLinks _appLinks;
+  String refCode = "";
+  bool _navigated = false;
+
   @override
   void initState() {
     super.initState();
@@ -35,7 +40,75 @@ class _HomePageState extends State<HomePage> {
     // Delay until after the first frame to get context safely
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initData();
+      _initDeepLinks();
     });
+  }
+
+  Future<void> _initDeepLinks() async {
+    _appLinks = AppLinks();
+    try {
+      // ✅ Terminated state: Get initial link
+      final Uri? initialLink = await _appLinks.getInitialLink();
+      if (!mounted) return;
+      if (initialLink != null) {
+        print("initialLink: $initialLink");
+        setReferralCodeFromUri(initialLink);
+        return;
+      }
+      // ✅ Background/Foreground state: Stream listener
+      _appLinks.uriLinkStream.listen((Uri? uri) {
+        if (!mounted) return;
+        if (uri != null) {
+          print("uri: $uri");
+          setReferralCodeFromUri(uri);
+        }
+      });
+      if (!_navigated && refCode.isEmpty) {
+        _navigated = true;
+        // ⚠️ DO NOT push HomePage again
+        print("No deeplink found → staying on HomePage");
+      }
+    } catch (e) {
+      debugPrint("Error handling deep link: $e");
+      // if (mounted && !_navigated) navigateTo();
+    }
+  }
+
+  void setReferralCodeFromUri(Uri uri) async {
+    refCode = uri.queryParameters["code"] ?? "";
+    print("refCode: $refCode");
+
+    if (!mounted) return;
+    _navigated = true;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MobileInputPage(referralCode: refCode),
+      ),
+    );
+  }
+
+  void navigateTo() async {
+    if (refCode.isEmpty) {
+      print("refcode empty: $refCode");
+      if (_navigated) return;
+      _navigated = true;
+      // await Future.delayed(const Duration(seconds: 3));
+
+      // Navigator.pushReplacement(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => HomePage()),
+      // );
+    } else {
+      print("refcode111: $refCode");
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MobileInputPage(referralCode: refCode),
+        ),
+      );
+    }
   }
 
   void _initData() {
@@ -76,7 +149,9 @@ class _HomePageState extends State<HomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const MobileInputPage(isHome: true, referralCode: "",),
+                  builder:
+                      (_) =>
+                          const MobileInputPage(isHome: true, referralCode: ""),
                 ),
               );
               return; // Stop navigation to ProfilePage

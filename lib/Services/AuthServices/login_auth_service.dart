@@ -12,12 +12,21 @@ import 'package:mime/mime.dart';
 import 'package:http_parser/http_parser.dart';
 
 class LoginAuthService {
-
-  Future<RestResponse> verifyOtpService(String mobileNo, String otp) async {
+  Future<RestResponse> verifyOtpService(
+    String mobileNo,
+    String otp,
+    String deviceId,
+    String oneSignalId,
+  ) async {
     try {
       ApiService apiService = ApiService(
         endpoint: getVerifyOtpApi,
-        body: jsonEncode({"phoneNumber": mobileNo, "otp": otp}),
+        body: jsonEncode({
+          "phoneNumber": mobileNo,
+          "otp": otp,
+          "deviceId": deviceId,
+          "oneSignalPlayerId": oneSignalId,
+        }),
         method: HTTP_METHOD.POST,
         headers: HttpHeader.getLoginHeader(),
       );
@@ -28,11 +37,19 @@ class LoginAuthService {
     }
   }
 
-   Future<RestResponse> sendOtpService(String mobileNo) async {
+  Future<RestResponse> sendOtpService(
+    String mobileNo,
+    String referralCode,
+    String deviceId,
+  ) async {
     try {
       ApiService apiService = ApiService(
         endpoint: getSendOtpApi,
-        body: jsonEncode({"phoneNumber": mobileNo}),
+        body: jsonEncode({
+          "phoneNumber": mobileNo,
+          "referralCode": referralCode,
+          "deviceId": deviceId,
+        }),
         method: HTTP_METHOD.POST,
         headers: HttpHeader.getLoginHeader(),
       );
@@ -42,8 +59,6 @@ class LoginAuthService {
       return RestResponse(isSuccess: false);
     }
   }
-
-
 
   Future<RestResponse> editProfile(
     Map<String, dynamic> reqBody, {
