@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,8 @@ import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
 import 'package:gkmarts/Provider/Razorpay/razorpay_provider.dart';
 import 'package:gkmarts/Services/BookTab/book_tab_service.dart';
 import 'package:gkmarts/Utils/SharedPrefHelper/shared_local_storage.dart';
+import 'package:gkmarts/Utils/endpoint.dart';
+import 'package:gkmarts/Utils/headers.dart';
 import 'package:gkmarts/View/BottomNavigationBar/BookTab/congratulation_booking.dart';
 import 'package:gkmarts/Widget/global.dart';
 import 'package:gkmarts/Widget/global_snackbar.dart';
@@ -21,6 +24,8 @@ import 'package:provider/provider.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 class BookTabProvider extends ChangeNotifier {
   bool isgetVenueDetailsGetting = false;
@@ -1059,9 +1064,11 @@ class BookTabProvider extends ChangeNotifier {
     required int bookingId,
     required int rating,
     required String feedback,
+    required List<File> images,
   }) async {
     isRatevenue = true;
     notifyListeners();
+    (print("images $images"));
 
     final isOnline =
         navigatorKey.currentContext!.read<ConnectivityProvider>().isOnline;
@@ -1076,21 +1083,33 @@ class BookTabProvider extends ChangeNotifier {
     }
 
     try {
-      final response = await BookTabService().rateVenueService(
+      // final response = await BookTabService().rateVenueService(
+      //   venueId: venueId,
+      //   bookingId: bookingId,
+      //   rating: rating,
+      //   feedback: feedback,
+      //   images: images,
+      // );
+
+      final response = await _uploadVenueRating(
         venueId: venueId,
         bookingId: bookingId,
         rating: rating,
         feedback: feedback,
+        images: images,
       );
 
-      if (response.isSuccess) {
+      if (response.statusCode == 200) {
         Provider.of<MyBookingsProvider>(
           navigatorKey.currentContext!,
           listen: false,
         ).fetchBookings(navigatorKey.currentContext!);
-        GlobalSnackbar.success(navigatorKey.currentContext!, "Rating added");
+        GlobalSnackbar.success(
+          navigatorKey.currentContext!,
+          "Thank you for your feedback!",
+        );
       } else {
-        GlobalSnackbar.error(navigatorKey.currentContext!, response.message);
+        // GlobalSnackbar.error(navigatorKey.currentContext!, response.message);
       }
     } catch (e) {
       debugPrint("Error rating venue: $e");
@@ -1102,6 +1121,53 @@ class BookTabProvider extends ChangeNotifier {
       isRatevenue = false;
       notifyListeners();
     }
+  }
+
+  Future<http.Response> _uploadVenueRating({
+    required int venueId,
+    required int bookingId,
+    required int rating,
+    required String feedback,
+    required List<File> images,
+  }) async {
+    final uri = Uri.parse(getRateVenueApi);
+    var request = http.MultipartRequest("POST", uri);
+
+    // headers (⚠️ remove application/json if set by default)
+    final headers = await HttpHeader.getHeader();
+    headers.remove("Content-Type");
+    request.headers.addAll(headers);
+
+    // text fields
+    request.fields['venueId'] = venueId.toString();
+    request.fields['bookingId'] = bookingId.toString();
+    request.fields['rating'] = rating.toString();
+    request.fields['feedback'] = feedback;
+
+    // multiple files → same field name: "feedbackImage"
+    for (var file in images) {
+      final bytes = await file.readAsBytes();
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          "feedbackImage",
+          bytes,
+          filename: file.path.split("/").last,
+          contentType: MediaType(
+            "image",
+            "jpeg",
+          ), // import from package:http_parser/http_parser.dart
+        ),
+      );
+    }
+
+    // debug log
+    print("➡️ Sending fields: ${request.fields}");
+    for (var f in request.files) {
+      print("➡️ File field: ${f.field}, filename: ${f.filename}");
+    }
+
+    final streamedResponse = await request.send();
+    return http.Response.fromStream(streamedResponse);
   }
 
   Future<void> initiatePaymentAndProceed(VenueDetailModel model) async {

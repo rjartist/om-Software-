@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:gkmarts/Models/MyBookings/MyBookingsModel.dart';
@@ -10,6 +12,7 @@ import 'package:gkmarts/View/BottomNavigationBar/HomeTab/my_bookings_detail.dart
 import 'package:gkmarts/Widget/global.dart';
 import 'package:gkmarts/Widget/global_appbar.dart';
 import 'package:gkmarts/Widget/global_snackbar.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:page_transition/page_transition.dart';
@@ -839,25 +842,119 @@ class PastBookingList extends StatelessWidget {
                   ),
 
                   // Rate & Review Button
+                  // if (booking.userSubmittedFeedback == false)
+                  //   Padding(
+                  //     padding: const EdgeInsets.only(top: 10),
+                  //     child: Row(
+                  //       mainAxisAlignment: MainAxisAlignment.end,
+                  //       children: [
+                  //         Container(
+                  //           height: 35,
+                  //           decoration: BoxDecoration(
+                  //             gradient: LinearGradient(
+                  //               begin: Alignment.topCenter,
+                  //               end: Alignment.bottomCenter,
+                  //               colors: [
+                  //                 AppColors
+                  //                     .profileSectionButtonColor, // your existing colors
+                  //                 AppColors.profileSectionButtonColor2,
+                  //               ],
+                  //             ),
+                  //             borderRadius: BorderRadius.circular(8),
+                  //           ),
+                  //           child: ElevatedButton(
+                  //             onPressed: () {
+                  //               _showReviewBottomSheet(
+                  //                 context,
+                  //                 venueName: slot?.facility?.facilityName,
+                  //                 bookingId: booking.bookingId ?? 0,
+                  //                 venueId: slot?.facility?.facilityId ?? 0,
+                  //               );
+                  //             },
+                  //             style: ElevatedButton.styleFrom(
+                  //               backgroundColor: Colors.transparent,
+                  //               shadowColor: Colors.transparent,
+                  //               shape: RoundedRectangleBorder(
+                  //                 borderRadius: BorderRadius.circular(8),
+                  //               ),
+                  //             ),
+                  //             child: Text(
+                  //               "Rate & Review",
+                  //               style: AppTextStyle.whiteText(),
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   )
+                  // else
+                  //   Padding(
+                  //     padding: const EdgeInsets.only(top: 10),
+                  //     child: Row(
+                  //       mainAxisAlignment: MainAxisAlignment.end,
+                  //       children: [
+                  //         Container(
+                  //           height: 35,
+                  //           decoration: BoxDecoration(
+                  //             gradient: const LinearGradient(
+                  //               begin: Alignment.topCenter,
+                  //               end: Alignment.bottomCenter,
+                  //               colors: [
+                  //                 Color(0xFF4CAF50), // ✅ Green shade
+                  //                 Color(0xFF2E7D32), // ✅ Darker green shade
+                  //               ],
+                  //             ),
+                  //             borderRadius: BorderRadius.circular(8),
+                  //           ),
+                  //           child: ElevatedButton(
+                  //             onPressed: () async {
+                  //               await context
+                  //                   .read<BookTabProvider>()
+                  //                   .getReviews(
+                  //                     venueId:
+                  //                         booking
+                  //                             .facilityBookingSlots
+                  //                             ?.first
+                  //                             .facility
+                  //                             ?.facilityId ??
+                  //                         0,
+                  //                   );
+                  //               showModalBottomSheet(
+                  //                 context: context,
+                  //                 isScrollControlled: true,
+                  //                 shape: const RoundedRectangleBorder(
+                  //                   borderRadius: BorderRadius.vertical(
+                  //                     top: Radius.circular(20),
+                  //                   ),
+                  //                 ),
+                  //                 builder: (_) => ViewVenueReviewsBottomSheet(),
+                  //               );
+                  //             },
+                  //             style: ElevatedButton.styleFrom(
+                  //               backgroundColor: Colors.transparent,
+                  //               shadowColor: Colors.transparent,
+                  //               shape: RoundedRectangleBorder(
+                  //                 borderRadius: BorderRadius.circular(8),
+                  //               ),
+                  //             ),
+                  //             child: Text(
+                  //               "View All Review",
+                  //               style: AppTextStyle.whiteText(),
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                  // Rate & Review Button
                   if (booking.userSubmittedFeedback == false)
                     Padding(
                       padding: const EdgeInsets.only(top: 10),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Container(
+                          SizedBox(
                             height: 35,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  AppColors.profileSectionButtonColor,
-                                  AppColors.profileSectionButtonColor2,
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
                             child: ElevatedButton(
                               onPressed: () {
                                 _showReviewBottomSheet(
@@ -867,17 +964,23 @@ class PastBookingList extends StatelessWidget {
                                   venueId: slot?.facility?.facilityId ?? 0,
                                 );
                               },
-
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.transparent,
+                                backgroundColor: Colors.white,
+                                foregroundColor: Colors.red, // text color red
                                 shadowColor: Colors.transparent,
+                                side: const BorderSide(
+                                  color: Colors.red, // 🔴 red border
+                                  width: 1.5,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
                               child: Text(
                                 "Rate & Review",
-                                style: AppTextStyle.whiteText(),
+                                style: AppTextStyle.blackText(
+                                  fontSize: 13,
+                                ), // black text like green button
                               ),
                             ),
                           ),
@@ -890,19 +993,8 @@ class PastBookingList extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Container(
+                          SizedBox(
                             height: 35,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  AppColors.profileSectionButtonColor,
-                                  AppColors.profileSectionButtonColor2,
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
                             child: ElevatedButton(
                               onPressed: () async {
                                 await context
@@ -927,17 +1019,25 @@ class PastBookingList extends StatelessWidget {
                                   builder: (_) => ViewVenueReviewsBottomSheet(),
                                 );
                               },
-
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.transparent,
+                                backgroundColor: Colors.white,
+                                foregroundColor: const Color(
+                                  0xFF2E7D32,
+                                ), // text color green
                                 shadowColor: Colors.transparent,
+                                side: const BorderSide(
+                                  color: Color(0xFF4CAF50),
+                                  width: 1.5,
+                                ), // green border
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
                               child: Text(
                                 "View All Review",
-                                style: AppTextStyle.whiteText(),
+                                style: AppTextStyle.blackText(
+                                  fontSize: 13,
+                                ), // use your custom style if available
                               ),
                             ),
                           ),
@@ -959,6 +1059,7 @@ class PastBookingList extends StatelessWidget {
     required int bookingId,
     required int venueId, //facilityId
   }) {
+    List<XFile> selectedImages = [];
     double selectedRating = 0.0;
     TextEditingController reviewController = TextEditingController();
     showModalBottomSheet(
@@ -969,171 +1070,254 @@ class PastBookingList extends StatelessWidget {
       ),
       backgroundColor: Colors.white,
       builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 16,
-            // 👇 This ensures padding at the bottom equal to keyboard height
-            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-          ),
-          child: SingleChildScrollView(
-            // 👇 Ensures scrollable content when keyboard is open
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Text(
-                    "Rate & Review",
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: 16,
+              // 👇 This ensures padding at the bottom equal to keyboard height
+              bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+            ),
+            child: SingleChildScrollView(
+              // 👇 Ensures scrollable content when keyboard is open
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Text(
+                      "Rate & Review",
+                      style: AppTextStyle.blackText(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Center(
+                    child: Text(
+                      venueName ?? "",
+                      style: AppTextStyle.primaryText(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Center(
+                    child: RatingBar.builder(
+                      initialRating: 0.0,
+                      minRating: 1,
+                      direction: Axis.horizontal,
+                      allowHalfRating: false,
+                      itemCount: 5,
+                      itemSize: 40,
+                      itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                      unratedColor: AppColors.grey.withValues(alpha: 0.3),
+                      itemBuilder:
+                          (context, _) => const Icon(
+                            Icons.star_rounded,
+                            color: Colors.amber,
+                          ),
+                      onRatingUpdate: (rating) {
+                        selectedRating = rating;
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    maxLines: 3,
+                    controller: reviewController,
+                    decoration: InputDecoration(
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: AppColors.borderColor.withOpacity(0.3),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: AppColors.primaryColor),
+                      ),
+                      filled: true,
+                      fillColor: AppColors.white,
+                      hintText: 'share your experience',
+                      labelStyle: AppTextStyle.blackText(),
+                      hintStyle: AppTextStyle.greytext(),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    "Upload Images (max 5)",
                     style: AppTextStyle.blackText(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                Center(
-                  child: Text(
-                    venueName ?? "",
-                    style: AppTextStyle.primaryText(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Center(
-                  child: RatingBar.builder(
-                    initialRating: 0.0,
-                    minRating: 1,
-                    direction: Axis.horizontal,
-                    allowHalfRating: false,
-                    itemCount: 5,
-                    itemSize: 40,
-                    itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-                    itemBuilder:
-                        (context, _) =>
-                            const Icon(Icons.star_rounded, color: Colors.amber),
-                    onRatingUpdate: (rating) {
-                      selectedRating = rating;
-                    },
-                  ),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  maxLines: 3,
-                  controller: reviewController,
-                  decoration: InputDecoration(
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
-                        color: AppColors.borderColor.withOpacity(0.3),
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: AppColors.primaryColor),
-                    ),
-                    filled: true,
-                    fillColor: AppColors.white,
-                    hintText: 'Write a review',
-                    labelStyle: AppTextStyle.blackText(),
-                    hintStyle: AppTextStyle.greytext(),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        elevation: 0,
-                        fixedSize: const Size(160, 43),
-                        backgroundColor: AppColors.bgContainer,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: Text(
-                        "CANCEL",
-                        style: AppTextStyle.blackText(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    const Spacer(),
-                    Container(
-                      height: 43,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            AppColors.profileSectionButtonColor,
-                            AppColors.profileSectionButtonColor2,
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      // Existing selected images
+                      for (int i = 0; i < selectedImages.length; i++)
+                        Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.file(
+                                File(selectedImages[i].path),
+                                width: 80,
+                                height: 80,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: GestureDetector(
+                                onTap: () {
+                                  selectedImages.removeAt(i);
+                                  (context as Element).markNeedsBuild();
+                                },
+                                child: CircleAvatar(
+                                  radius: 12,
+                                  backgroundColor: Colors.red,
+                                  child: const Icon(
+                                    Icons.close,
+                                    size: 14,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
-                      ),
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          if (selectedRating == 0.0 ||
-                              reviewController.text.isEmpty) {
-                            GlobalSnackbar.error(
-                              context,
-                              "Please provide rating and review",
+
+                      // Add new image button
+                      if (selectedImages.length < 5)
+                        GestureDetector(
+                          onTap: () async {
+                            final ImagePicker picker = ImagePicker();
+                            final XFile? picked = await picker.pickImage(
+                              source: ImageSource.gallery,
                             );
-
-                            return;
-                          }
-
-                          final bookTabProvider = Provider.of<BookTabProvider>(
-                            context,
-                            listen: false,
-                          );
-
-                          await bookTabProvider.rateVenueProvider(
-                            venueId: venueId,
-                            bookingId: bookingId,
-                            rating: selectedRating.toInt(),
-                            feedback: reviewController.text.trim(),
-                          );
-               
+                            if (picked != null) {
+                              selectedImages.add(picked);
+                              (context as Element).markNeedsBuild();
+                            }
+                          },
+                          child: Container(
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.grey),
+                            ),
+                            child: const Icon(Icons.add_a_photo),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
                           Navigator.pop(context);
                         },
-
                         style: ElevatedButton.styleFrom(
+                          elevation: 0,
                           fixedSize: const Size(160, 43),
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
+                          backgroundColor: AppColors.bgContainer,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
                         child: Text(
-                          "RATE",
-                          style: AppTextStyle.whiteText(
+                          "CANCEL",
+                          style: AppTextStyle.blackText(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      const Spacer(),
+                      Container(
+                        height: 43,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              AppColors.profileSectionButtonColor,
+                              AppColors.profileSectionButtonColor2,
+                            ],
+                          ),
+                        ),
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            if (selectedRating == 0.0 ||
+                                reviewController.text.isEmpty) {
+                              GlobalSnackbar.error(
+                                context,
+                                "Please provide rating and review",
+                              );
+
+                              return;
+                            }
+
+                            final bookTabProvider =
+                                Provider.of<BookTabProvider>(
+                                  context,
+                                  listen: false,
+                                );
+
+                            await bookTabProvider.rateVenueProvider(
+                              venueId: venueId,
+                              bookingId: bookingId,
+                              rating: selectedRating.toInt(),
+                              feedback: reviewController.text.trim(),
+                              images:
+                                  selectedImages
+                                      .map((e) => File(e.path))
+                                      .toList(),
+                            );
+
+                            Navigator.pop(context);
+                          },
+
+                          style: ElevatedButton.styleFrom(
+                            fixedSize: const Size(160, 43),
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text(
+                            "RATE",
+                            style: AppTextStyle.whiteText(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         );

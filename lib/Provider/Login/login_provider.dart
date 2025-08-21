@@ -158,11 +158,12 @@ class LoginProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      final playerId = await SharedPrefHelper.getOneSignalPlayerId();
       final response = await LoginAuthService().verifyOtpService(
         trimmedMobile,
         trimmedOtp,
+        playerId ?? "",
         deviceId,
-        oneSignalId,
       );
 
       if (response.isSuccess) {
@@ -673,7 +674,7 @@ class LoginProvider extends ChangeNotifier {
       if (response.isSuccess) {
         // Clear user data and tokens
         await AuthService.clearTokens();
-        await SharedPrefHelper.clearAll();
+        await SharedPrefHelper.clearAllPreservePlayerId();
         _user = null;
         clearControllers();
 

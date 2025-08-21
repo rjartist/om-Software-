@@ -1,8 +1,8 @@
+import 'package:gkmarts/Utils/SharedPrefHelper/shared_local_storage.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 class OneSignalService {
   static const String oneSignalAppId = "7da1b882-fbed-4feb-a589-cf3cab38f6df";
-  static String? _playerId; // store here
 
   static Future<void> init() async {
     // Initialize OneSignal
@@ -36,22 +36,20 @@ class OneSignalService {
     const int maxRetries = 10;
     const Duration retryInterval = Duration(seconds: 1);
 
-    // String? playerId;
+    String? playerId;
     int attempts = 0;
 
-    while (_playerId == null && attempts < maxRetries) {
+    while (playerId == null && attempts < maxRetries) {
       await Future.delayed(retryInterval);
-      _playerId = OneSignal.User.pushSubscription.id;
+      playerId = OneSignal.User.pushSubscription.id;
       attempts++;
     }
 
-    if (_playerId != null) {
-      print("✅ OneSignal Player ID: $_playerId");
+    if (playerId != null) {
+      print("✅ OneSignal Player ID: $playerId");
+      await SharedPrefHelper.setOneSignalPlayerId(playerId);
     } else {
       print("⚠️ OneSignal Player ID not available after $maxRetries attempts.");
     }
   }
-
-  /// 👉 Call this to get Player ID anywhere in app
-  static String? get playerId => _playerId;
 }
