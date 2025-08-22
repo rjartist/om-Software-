@@ -51,12 +51,14 @@ class _ProfilePageState extends State<ProfilePage> {
           widget.homePage
               ? GlobalAppBar(
                 title: "Profile",
+                titleStyle: AppTextStyle.blackText(fontSize: 20),
                 showBackButton: false,
                 isHomeScreen: true,
                 backgroundColor: Colors.transparent,
               )
               : GlobalAppBar(
                 title: "Profile",
+                titleStyle: AppTextStyle.blackText(fontSize: 20),
                 showBackButton: true,
                 backgroundColor: Colors.transparent,
               ),
@@ -185,7 +187,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               child: Text(
                                 "EDIT",
                                 style: AppTextStyle.blackText(
-                                  fontSize: 18,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -198,35 +200,33 @@ class _ProfilePageState extends State<ProfilePage> {
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
                           children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  width: 0.2,
-                                  color: AppColors.buttonDisabled,
+                            InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  PageTransition(
+                                    type: PageTransitionType.rightToLeft,
+                                    duration: const Duration(milliseconds: 300),
+                                    child: const MyCoins(),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    width: 0.2,
+                                    color: AppColors.buttonDisabled,
+                                  ),
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: AppColors.white,
                                 ),
-                                borderRadius: BorderRadius.circular(20),
-                                color: AppColors.white,
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                  top: 20,
-                                  bottom: 20,
-                                  left: 15,
-                                  right: 15,
-                                ),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      PageTransition(
-                                        type: PageTransitionType.rightToLeft,
-                                        duration: const Duration(
-                                          milliseconds: 300,
-                                        ),
-                                        child: const MyCoins(),
-                                      ),
-                                    );
-                                  },
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                    top: 20,
+                                    bottom: 20,
+                                    left: 15,
+                                    right: 15,
+                                  ),
                                   child: Row(
                                     children: [
                                       Column(
@@ -234,7 +234,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            "My Points",
+                                            "My Coins",
                                             style: AppTextStyle.blackText(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w500,

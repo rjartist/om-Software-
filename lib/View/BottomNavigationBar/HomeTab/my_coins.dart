@@ -58,9 +58,24 @@ class _MyCoinsCardState extends State<MyCoinsCard> {
   String countdown = "";
 
   final List<Map<String, dynamic>> referrals = [
-    {"coins": "500", "expiry": "1 August, 2025", "status": "Pending"},
-    {"coins": "500", "expiry": "1 August, 2025", "status": "Credited"},
-    {"coins": "500", "expiry": "1 August, 2025", "status": "Pending"},
+    {
+      "coins": "500",
+      "name": "Sahil Khambe",
+      "status": "Available",
+      "expiry": "1 August, 2025",
+    },
+    {
+      "coins": "500",
+      "name": "Sahil Khambe",
+      "status": "Used",
+      "expiry": "1 August, 2025",
+    },
+    {
+      "coins": "500",
+      "name": "Sahil Khambe",
+      "status": "Expired",
+      "expiry": "1 August, 2025",
+    },
   ];
 
   @override
@@ -271,58 +286,98 @@ class _MyCoinsCardState extends State<MyCoinsCard> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Column(
-                        spacing: 5,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  "Coins Earned:",
-                                  style: AppTextStyle.blackText(fontSize: 14),
+                    child: Column(
+                      spacing: 5,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.red[50],
+                            borderRadius: BorderRadius.only(
+                              topRight: Radius.circular(10),
+                              topLeft: Radius.circular(10),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.monetization_on,
+                                  size: 16,
+                                  color: AppColors.primaryColor,
                                 ),
-                              ),
-                              Spacer(),
-                              Row(
-                                children: [
-                                  Text(
-                                    user['coins'],
+                                SizedBox(width: 2),
+                                Expanded(
+                                  child: Text(
+                                    "Coins Earned:",
                                     style: AppTextStyle.blackText(
                                       fontSize: 14,
                                       color: AppColors.primaryColor,
                                     ),
                                   ),
-                                  Icon(
-                                    Icons.monetization_on,
-                                    size: 18,
+                                ),
+                                Spacer(),
+                                Text(
+                                  user['coins'],
+                                  style: AppTextStyle.blackText(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
                                     color: AppColors.primaryColor,
                                   ),
-                                ],
-                              ),
-                            ],
+                                ),
+                              ],
+                            ),
                           ),
-                          Row(
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 8,
+                            right: 8,
+                            top: 2,
+                            bottom: 2,
+                          ),
+                          child: Row(
                             children: [
+                              Icon(
+                                Icons.person,
+                                size: 16,
+                                color: AppColors.black,
+                              ),
+                              SizedBox(width: 2),
                               Expanded(
                                 child: Text(
-                                  "Expiry Date:",
+                                  "Refered User:",
                                   style: AppTextStyle.blackText(fontSize: 14),
                                 ),
                               ),
                               Spacer(),
                               Text(
-                                user['expiry'],
+                                user['name'],
                                 style: AppTextStyle.blackText(
                                   fontSize: 14,
-                                  color: AppColors.greytext,
+                                  fontWeight: FontWeight.w500,
+                                  // color: AppColors.greytext,
                                 ),
                               ),
                             ],
                           ),
-                          Row(
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 8,
+                            right: 8,
+                            top: 2,
+                            bottom: 2,
+                          ),
+                          child: Row(
                             children: [
+                              // user['status'] == ""
+                              Icon(
+                                Icons.redeem,
+                                size: 16,
+                                color: AppColors.black,
+                              ),
+                              SizedBox(width: 2),
                               Expanded(
                                 child: Text(
                                   "Redeem Status:",
@@ -335,15 +390,54 @@ class _MyCoinsCardState extends State<MyCoinsCard> {
                                 style: AppTextStyle.blackText(
                                   fontSize: 14,
                                   color:
-                                      user['status'] == "Credited"
+                                      user['status'] == "Used"
                                           ? AppColors.successColor
+                                          : user['status'] == "Expired"
+                                          ? AppColors.primaryColor
                                           : AppColors.greytext,
                                 ),
                               ),
                             ],
                           ),
-                        ],
-                      ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 8,
+                            right: 8,
+                            top: 2,
+                            bottom: 8,
+                          ),
+                          child:
+                              user['status'] == "Used"
+                                  ? SizedBox()
+                                  : Row(
+                                    children: [
+                                      Icon(
+                                        Icons.calendar_month,
+                                        size: 16,
+                                        color: AppColors.black,
+                                      ),
+                                      SizedBox(width: 2),
+                                      Expanded(
+                                        child: Text(
+                                          "Expiry Date:",
+                                          style: AppTextStyle.blackText(
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                      Spacer(),
+                                      Text(
+                                        user['expiry'],
+                                        style: AppTextStyle.blackText(
+                                          fontSize: 14,
+                                          color: AppColors.greytext,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                        ),
+                      ],
                     ),
                   ),
                 );

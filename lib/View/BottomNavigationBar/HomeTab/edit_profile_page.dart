@@ -106,8 +106,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     style: AppTextStyle.primaryText(),
                   ),
                   onTap: () {
-                    Navigator.pop(context);
-                    provider.clearImage();
+                    setState(() {
+                      provider.clearImage();
+                      Navigator.pop(context);
+                    });
                   },
                 ),
             ],
@@ -137,35 +139,77 @@ class _EditProfilePageState extends State<EditProfilePage> {
           child: Consumer<EditProfileProvider>(
             builder: (context, provider, _) {
               final imageUrl = provider.user?.user?.profileImage;
+
+              final ImageProvider imageProvider =
+                  provider.selectedImage != null
+                      ? FileImage(provider.selectedImage!)
+                      : (imageUrl != null && imageUrl.isNotEmpty)
+                      ? NetworkImage(imageUrl)
+                      : AssetImage(
+                            provider.user?.user?.gender == "Male"
+                                ? 'assets/images/male.png'
+                                : provider.user?.user?.gender == "Female"
+                                ? 'assets/images/female.png'
+                                : 'assets/images/user.jpeg',
+                          )
+                          as ImageProvider;
+
               return SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    CircleAvatar(
-                      radius: 50,
-                      child: ClipOval(
-                        child:
-                            provider.selectedImage != null
-                                ? Image.file(
-                                  provider.selectedImage!,
-                                  width: 100,
-                                  height: 100,
-                                )
-                                : imageUrl != null
-                                ? Image.network(
-                                  imageUrl,
-                                  width: 100,
-                                  height: 100,
-                                )
-                                : Image.asset(
-                                  provider.user?.user?.gender == "Male"
-                                      ? 'assets/images/male.png'
-                                      : provider.user?.user?.gender == "Female"
-                                      ? 'assets/images/female.png'
-                                      : 'assets/images/user.jpeg',
-                                  width: 100,
-                                  height: 100,
+                    GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder:
+                              (_) => Dialog(
+                                backgroundColor: Colors.black,
+                                insetPadding: EdgeInsets.all(10),
+                                child: GestureDetector(
+                                  onTap: () => Navigator.pop(context),
+                                  child: InteractiveViewer(
+                                    panEnabled: true,
+                                    minScale: 0.8,
+                                    maxScale: 2.5,
+                                    child: Image(
+                                      image: imageProvider,
+                                      fit: BoxFit.contain,
+                                      height: 350,
+                                      width: 300,
+                                    ),
+                                  ),
                                 ),
+                              ),
+                        );
+                      },
+                      child: CircleAvatar(
+                        radius: 50,
+                        child: ClipOval(
+                          child:
+                              provider.selectedImage != null
+                                  ? Image.file(
+                                    provider.selectedImage!,
+                                    width: 100,
+                                    height: 100,
+                                  )
+                                  : imageUrl != imageUrl
+                                  ? Image.network(
+                                    imageUrl!,
+                                    width: 100,
+                                    height: 100,
+                                  )
+                                  : Image.asset(
+                                    provider.user?.user?.gender == "Male"
+                                        ? 'assets/images/male.png'
+                                        : provider.user?.user?.gender ==
+                                            "Female"
+                                        ? 'assets/images/female.png'
+                                        : 'assets/images/user.jpeg',
+                                    width: 100,
+                                    height: 100,
+                                  ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -174,7 +218,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         _showImagePickerBottomSheet(context);
                       },
                       child: Text(
-                        "Change Profile Image",
+                        "Update Profile Image",
                         style: AppTextStyle.primaryText(
                           fontSize: 14,
                           color: AppColors.primaryColor,
@@ -271,8 +315,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                     ),
                                     selected: selected,
                                     onSelected: (value) {
-                                      FocusScope.of(context).unfocus();
-                                      provider.setSelectedGender(index);
+                                      setState(() {
+                                        provider.setSelectedGender(index);
+                                        if (provider.selectedGenderIndex == 0) {
+                                          provider.user?.user?.gender = "Male";
+                                        } else if (provider
+                                                .selectedGenderIndex ==
+                                            1) {
+                                          provider.user?.user?.gender =
+                                              "Female";
+                                        } else {
+                                          provider.user?.user?.gender = "Other";
+                                        }
+                                        FocusScope.of(context).unfocus();
+                                      });
                                     },
                                     selectedColor:
                                         AppColors.profileSectionButtonColor,
