@@ -599,6 +599,7 @@ class UpcomingBookingList extends StatelessWidget {
                   const Divider(),
                   const SizedBox(height: 10),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         "Sports: ",
@@ -609,6 +610,8 @@ class UpcomingBookingList extends StatelessWidget {
                         style: AppTextStyle.blackText(fontSize: 12),
                       ),
                       const Spacer(),
+                      Icon(Icons.access_time, size: 14),
+                      SizedBox(width: 1),
                       Text(
                         "Time: ",
                         style: AppTextStyle.blackText(fontSize: 10),
@@ -625,6 +628,8 @@ class UpcomingBookingList extends StatelessWidget {
                   const SizedBox(height: 10),
                   Row(
                     children: [
+                      Icon(Icons.calendar_month, size: 14),
+                      SizedBox(width: 1),
                       Text(
                         "Date: ",
                         style: AppTextStyle.blackText(fontSize: 10),
@@ -634,6 +639,8 @@ class UpcomingBookingList extends StatelessWidget {
                         style: AppTextStyle.blackText(fontSize: 12),
                       ),
                       const Spacer(),
+                      Icon(Icons.history, size: 14),
+                      SizedBox(width: 1),
                       Text(
                         "Duration: ",
                         style: AppTextStyle.blackText(fontSize: 10),
@@ -649,7 +656,10 @@ class UpcomingBookingList extends StatelessWidget {
                     children: [
                       Text(
                         "₹ ${booking.payment?.collectPayment ?? '0'}",
-                        style: AppTextStyle.blackText(fontSize: 12),
+                        style: AppTextStyle.blackText(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const Spacer(),
                       if (booking.cancellationStatus == "PENDING" ||
@@ -774,6 +784,8 @@ class PastBookingList extends StatelessWidget {
                         style: AppTextStyle.blackText(fontSize: 12),
                       ),
                       const Spacer(),
+                      Icon(Icons.access_time, size: 14),
+                      SizedBox(width: 1),
                       Text(
                         "Time: ",
                         style: AppTextStyle.blackText(fontSize: 10),
@@ -793,6 +805,8 @@ class PastBookingList extends StatelessWidget {
                   // Date & Duration row
                   Row(
                     children: [
+                      Icon(Icons.calendar_month, size: 14),
+                      SizedBox(width: 1),
                       Text(
                         "Date: ",
                         style: AppTextStyle.blackText(fontSize: 10),
@@ -802,6 +816,8 @@ class PastBookingList extends StatelessWidget {
                         style: AppTextStyle.blackText(fontSize: 12),
                       ),
                       const Spacer(),
+                      Icon(Icons.history, size: 14),
+                      SizedBox(width: 1),
                       Text(
                         "Duration: ",
                         style: AppTextStyle.blackText(fontSize: 10),
@@ -823,7 +839,10 @@ class PastBookingList extends StatelessWidget {
                     children: [
                       Text(
                         "₹ ${booking.payment?.collectPayment ?? '0'}",
-                        style: AppTextStyle.blackText(fontSize: 12),
+                        style: AppTextStyle.blackText(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const Spacer(),
                       if (booking.cancellationStatus == "PENDING" ||
@@ -1304,6 +1323,8 @@ class CancelledBookingList extends StatelessWidget {
                         style: AppTextStyle.blackText(fontSize: 12),
                       ),
                       const Spacer(),
+                      Icon(Icons.access_time, size: 14),
+                      SizedBox(width: 1),
                       Text(
                         "Time: ",
                         style: AppTextStyle.blackText(fontSize: 10),
@@ -1323,6 +1344,8 @@ class CancelledBookingList extends StatelessWidget {
                   // Date & Duration
                   Row(
                     children: [
+                      Icon(Icons.calendar_month, size: 14),
+                      SizedBox(width: 1),
                       Text(
                         "Date: ",
                         style: AppTextStyle.blackText(fontSize: 10),
@@ -1337,6 +1360,8 @@ class CancelledBookingList extends StatelessWidget {
                       ),
 
                       const Spacer(),
+                      Icon(Icons.history, size: 14),
+                      SizedBox(width: 1),
                       Text(
                         "Duration: ",
                         style: AppTextStyle.blackText(fontSize: 10),
@@ -1355,7 +1380,10 @@ class CancelledBookingList extends StatelessWidget {
                     children: [
                       Text(
                         "₹ ${booking.payment?.collectPayment ?? '0'}",
-                        style: AppTextStyle.blackText(fontSize: 12),
+                        style: AppTextStyle.blackText(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const Spacer(),
                       if (booking.cancellationStatus != null)

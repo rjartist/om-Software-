@@ -17,6 +17,7 @@ class LoginAuthService {
     String mobileNo,
     String otp,
     String playerId,
+    String deviceId,
   ) async {
     try {
       ApiService apiService = ApiService(
@@ -25,6 +26,7 @@ class LoginAuthService {
           "phoneNumber": mobileNo,
           "otp": otp,
           "oneSignalPlayerId": playerId,
+          "deviceId": deviceId,
         }),
         method: HTTP_METHOD.POST,
         headers: HttpHeader.getLoginHeader(),
@@ -36,11 +38,19 @@ class LoginAuthService {
     }
   }
 
-  Future<RestResponse> sendOtpService(String mobileNo) async {
+  Future<RestResponse> sendOtpService(
+    String mobileNo,
+    String referralCode,
+    String deviceId,
+  ) async {
     try {
       ApiService apiService = ApiService(
         endpoint: getSendOtpApi,
-        body: jsonEncode({"phoneNumber": mobileNo}),
+        body: jsonEncode({
+          "phoneNumber": mobileNo,
+          "referralCode": referralCode,
+          "deviceId": deviceId,
+        }),
         method: HTTP_METHOD.POST,
         headers: HttpHeader.getLoginHeader(),
       );

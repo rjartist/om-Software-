@@ -51,12 +51,14 @@ class _ProfilePageState extends State<ProfilePage> {
           widget.homePage
               ? GlobalAppBar(
                 title: "Profile",
+                titleStyle: AppTextStyle.blackText(fontSize: 20),
                 showBackButton: false,
                 isHomeScreen: true,
                 backgroundColor: Colors.transparent,
               )
               : GlobalAppBar(
                 title: "Profile",
+                titleStyle: AppTextStyle.blackText(fontSize: 20),
                 showBackButton: true,
                 backgroundColor: Colors.transparent,
               ),
@@ -144,14 +146,25 @@ class _ProfilePageState extends State<ProfilePage> {
                                             ),
                                           ),
                                     )
-                                    : CircleAvatar(
-                                      radius: 35,
-                                      backgroundColor: Colors.grey[300],
-                                      child: const Icon(
-                                        size: 40,
-                                        Icons.person,
-                                        color: Colors.white,
-                                      ),
+                                    : user?.user?.gender == "Male"
+                                    ? Image.asset(
+                                      "assets/images/male.png",
+                                      height: 70,
+                                      width: 70,
+                                      // fit: BoxFit.cover,
+                                    )
+                                    : user?.user?.gender == "Female"
+                                    ? Image.asset(
+                                      "assets/images/female.png",
+                                      height: 70,
+                                      width: 70,
+                                      // fit: BoxFit.cover,
+                                    )
+                                    : Image.asset(
+                                      "assets/images/user.jpeg",
+                                      height: 70,
+                                      width: 70,
+                                      // fit: BoxFit.cover,
                                     ),
                           ),
                           const SizedBox(width: 16),
@@ -207,7 +220,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               child: Text(
                                 "EDIT",
                                 style: AppTextStyle.blackText(
-                                  fontSize: 18,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -220,35 +233,33 @@ class _ProfilePageState extends State<ProfilePage> {
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
                           children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  width: 0.2,
-                                  color: AppColors.buttonDisabled,
+                            InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  PageTransition(
+                                    type: PageTransitionType.rightToLeft,
+                                    duration: const Duration(milliseconds: 300),
+                                    child: const MyCoins(),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    width: 0.2,
+                                    color: AppColors.buttonDisabled,
+                                  ),
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: AppColors.white,
                                 ),
-                                borderRadius: BorderRadius.circular(20),
-                                color: AppColors.white,
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                  top: 20,
-                                  bottom: 20,
-                                  left: 15,
-                                  right: 15,
-                                ),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      PageTransition(
-                                        type: PageTransitionType.rightToLeft,
-                                        duration: const Duration(
-                                          milliseconds: 300,
-                                        ),
-                                        child: const MyCoins(),
-                                      ),
-                                    );
-                                  },
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                    top: 20,
+                                    bottom: 20,
+                                    left: 15,
+                                    right: 15,
+                                  ),
                                   child: Row(
                                     children: [
                                       Column(
@@ -262,13 +273,23 @@ class _ProfilePageState extends State<ProfilePage> {
                                               fontWeight: FontWeight.w500,
                                             ),
                                           ),
-
-                                          Text(
-                                            coinsModel?.remainingBonusCoins ==
-                                                    null
-                                                ? "0 Points"
-                                                : "${coinsModel?.remainingBonusCoins} Points",
-                                            style: AppTextStyle.primaryText(),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                coinsModel?.remainingBonusCoins ==
+                                                        null
+                                                    ? "0"
+                                                    : "${coinsModel?.remainingBonusCoins}",
+                                                style:
+                                                    AppTextStyle.primaryText(),
+                                              ),
+                                              SizedBox(width: 2),
+                                              Icon(
+                                                Icons.monetization_on,
+                                                size: 20,
+                                                color: AppColors.primaryColor,
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
@@ -293,8 +314,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                                 child: Padding(
                                   padding: const EdgeInsets.all(10.0),
-                                  child: _profileTile(
-                                    "assets/images/check_calendar.png",
+                                  child: _iconTile(
+                                    Icons.calendar_month,
                                     "My Bookings",
                                     () {
                                       Navigator.push(

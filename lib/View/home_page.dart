@@ -1,3 +1,4 @@
+import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:gkmarts/Provider/HomePage/Bottom_navigationBar/bottom_navigationbar.dart';
 import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
@@ -26,6 +27,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late final AppLinks _appLinks;
+  String refCode = "";
+  bool _navigated = false;
+
   @override
   void initState() {
     super.initState();

@@ -13,6 +13,7 @@ import 'package:gkmarts/Provider/Profile/profile_page_provider.dart';
 import 'package:gkmarts/Services/AuthServices/auth_services.dart';
 import 'package:gkmarts/Services/AuthServices/login_auth_service.dart';
 import 'package:gkmarts/View/Auth_view/login.dart';
+import 'package:gkmarts/View/BottomNavigationBar/HomeTab/profile_page.dart';
 import 'package:gkmarts/Widget/global.dart';
 import 'package:gkmarts/Utils/SharedPrefHelper/shared_local_storage.dart';
 import 'package:gkmarts/View/home_page.dart';
@@ -134,7 +135,9 @@ class LoginProvider extends ChangeNotifier {
   Future<void> verifyOtp(
     BuildContext context,
     String mobileNo,
-    String otp, {
+    String otp,
+    String deviceId,
+    String oneSignalId, {
     bool isHome = false,
   }) async {
     final trimmedMobile = mobileNo.trim();
@@ -160,6 +163,7 @@ class LoginProvider extends ChangeNotifier {
         trimmedMobile,
         trimmedOtp,
         playerId ?? "",
+        deviceId,
       );
 
       if (response.isSuccess) {
@@ -191,11 +195,25 @@ class LoginProvider extends ChangeNotifier {
             context,
             MaterialPageRoute(builder: (_) => HomePage()),
             (route) => false,
-          );
-        } else {
-          Navigator.pop(context); // Go back to previous screen
-          Navigator.pop(context); // Then go back again
+          ); // ✅ important: mark that we are done
         }
+
+        // if (isHome) {
+        // Navigator.pushAndRemoveUntil(
+        //   context,
+        //   MaterialPageRoute(builder: (_) => HomePage()),
+        //   (route) => false,
+        // );
+        // } else {
+        //   if (Navigator.canPop(context)) {
+        //     Navigator.pop(context); // pop once
+        //   }
+        //   if (Navigator.canPop(context)) {
+        //     Navigator.pop(context); // pop second time if still possible
+        //   }
+        // Navigator.pop(context); // Go back to previous screen
+        // Navigator.pop(context); // Then go back again
+        // }
       } else {
         startOtpTimer();
         GlobalSnackbar.error(context, response.message);
@@ -209,7 +227,12 @@ class LoginProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> sendOtp(BuildContext context, String mobileNo) async {
+  Future<void> sendOtp(
+    BuildContext context,
+    String mobileNo,
+    String referralCode,
+    String deviceId,
+  ) async {
     final trimmedMobile = mobileNo.trim();
 
     if (trimmedMobile.length != 10 ||
@@ -229,7 +252,11 @@ class LoginProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await LoginAuthService().sendOtpService(trimmedMobile);
+      final response = await LoginAuthService().sendOtpService(
+        trimmedMobile,
+        referralCode,
+        deviceId,
+      );
 
       if (response.isSuccess) {
         final data = jsonDecode(response.responseData);

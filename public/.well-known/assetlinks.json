@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+    "namespace": "android_app",
+    "package_name": "com.omsoftware.cxplayground",
+    "sha256_cert_fingerprints": [
+        "5C:B7:47:73:51:6F:42:20:68:FD:4B:A8:F4:A1:CE:A5:3B:C2:3F:76:61:BF:53:5E:72:E1:A0:7B:D9:23:94:35"    
+      ]
+    }
+  }
+]

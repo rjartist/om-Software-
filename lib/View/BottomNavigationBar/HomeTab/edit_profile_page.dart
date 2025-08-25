@@ -4,6 +4,7 @@ import 'package:gkmarts/Provider/Profile/profile_page_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/Widget/global_appbar.dart';
+import 'package:gkmarts/Widget/global_snackbar.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -105,8 +106,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     style: AppTextStyle.primaryText(),
                   ),
                   onTap: () {
-                    Navigator.pop(context);
-                    provider.clearImage();
+                    setState(() {
+                      provider.clearImage();
+                      Navigator.pop(context);
+                    });
                   },
                 ),
             ],
@@ -116,225 +119,326 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
+  bool _isValidEmail(String email) {
+    // Basic email regex
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    return emailRegex.hasMatch(email);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
       appBar: GlobalAppBar(title: "Edit Profile", showBackButton: true),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        child: Consumer<EditProfileProvider>(
-          builder: (context, provider, _) {
-            final imageUrl = provider.user?.user?.profileImage;
-            return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // CircleAvatar(
-                  //   radius: 50,
-                  //   backgroundImage:
-                  //       provider.selectedImage != null
-                  //           ? FileImage(provider.selectedImage!)
-                  //           : imageUrl != null
-                  //           ? NetworkImage(imageUrl)
-                  //           : const AssetImage('assets/images/user.jpeg')
-                  //               as ImageProvider,
-                  //   backgroundColor: Colors.white,
-                  // ),
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.grey.shade300, // neutral bg
-                    backgroundImage:
-                        provider.selectedImage != null
-                            ? FileImage(provider.selectedImage!)
-                            : imageUrl != null
-                            ? NetworkImage(imageUrl)
-                            : null, // no image -> show icon instead
-                    child:
-                        (provider.selectedImage == null && imageUrl == null)
-                            ? const Icon(
-                              Icons.person, // neutral user icon
-                              size: 50,
-                              color: Colors.white,
-                            )
-                            : null,
-                  ),
-                  const SizedBox(height: 10),
-                  InkWell(
-                    onTap: () {
-                      _showImagePickerBottomSheet(context);
-                    },
-                    child: Text(
-                      "Change Profile Image",
-                      style: AppTextStyle.primaryText(
-                        fontSize: 14,
-                        color: AppColors.primaryColor,
-                        fontWeight: FontWeight.w500,
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Consumer<EditProfileProvider>(
+            builder: (context, provider, _) {
+              final imageUrl = provider.user?.user?.profileImage;
+
+              final ImageProvider imageProvider =
+                  provider.selectedImage != null
+                      ? FileImage(provider.selectedImage!)
+                      : (imageUrl != null && imageUrl.isNotEmpty)
+                      ? NetworkImage(imageUrl)
+                      : AssetImage(
+                            provider.user?.user?.gender == "Male"
+                                ? 'assets/images/male.png'
+                                : provider.user?.user?.gender == "Female"
+                                ? 'assets/images/female.png'
+                                : 'assets/images/user.jpeg',
+                          )
+                          as ImageProvider;
+
+              return SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder:
+                              (_) => Dialog(
+                                backgroundColor: Colors.black,
+                                insetPadding: EdgeInsets.all(10),
+                                child: GestureDetector(
+                                  onTap: () => Navigator.pop(context),
+                                  child: InteractiveViewer(
+                                    panEnabled: true,
+                                    minScale: 0.8,
+                                    maxScale: 2.5,
+                                    child: Image(
+                                      image: imageProvider,
+                                      fit: BoxFit.contain,
+                                      height: 350,
+                                      width: 300,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                        );
+                      },
+                      child: CircleAvatar(
+                        radius: 50,
+                        child: ClipOval(
+                          child:
+                              provider.selectedImage != null
+                                  ? Image.file(
+                                    provider.selectedImage!,
+                                    width: 100,
+                                    height: 100,
+                                  )
+                                  : imageUrl != imageUrl
+                                  ? Image.network(
+                                    imageUrl!,
+                                    width: 100,
+                                    height: 100,
+                                  )
+                                  : Image.asset(
+                                    provider.user?.user?.gender == "Male"
+                                        ? 'assets/images/male.png'
+                                        : provider.user?.user?.gender ==
+                                            "Female"
+                                        ? 'assets/images/female.png'
+                                        : 'assets/images/user.jpeg',
+                                    width: 100,
+                                    height: 100,
+                                  ),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
+                    const SizedBox(height: 10),
+                    InkWell(
+                      onTap: () {
+                        _showImagePickerBottomSheet(context);
+                      },
+                      child: Text(
+                        "Update Profile Image",
+                        style: AppTextStyle.primaryText(
+                          fontSize: 14,
+                          color: AppColors.primaryColor,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
 
-                  // Input Fields
-                  _buildTextField(
-                    "assets/images/userIcon.png",
-                    provider.nameController,
-                  ),
-                  _buildTextField(
-                    "assets/images/phoneIcon.png",
-                    provider.phoneController,
-                  ),
-                  _buildTextFieldEmail(
-                    "assets/images/mailIcon.png",
-                    provider.emailController,
-                  ),
+                    // Input Fields
+                    _buildTextField(
+                      "assets/images/userIcon.png",
+                      provider.nameController,
+                    ),
+                    _buildTextField(
+                      "assets/images/phoneIcon.png",
+                      provider.phoneController,
+                    ),
+                    _buildTextFieldEmail(
+                      "assets/images/mailIcon.png",
+                      provider.emailController,
+                    ),
 
-                  // Birthday Picker
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20),
-                    child: InkWell(
-                      onTap: _pickDate,
+                    // Birthday Picker
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: InkWell(
+                        onTap: _pickDate,
+                        child: Container(
+                          padding: const EdgeInsets.all(14),
+                          color: AppColors.white,
+                          child: Row(
+                            children: [
+                              Image.asset(
+                                "assets/images/calendarIcon.png",
+                                height: 20,
+                                width: 20,
+                                color: AppColors.black,
+                              ),
+                              const SizedBox(width: 20),
+                              Text(
+                                provider.selectedDate != null
+                                    ? DateFormat(
+                                      'dd-MM-yyyy',
+                                    ).format(provider.selectedDate!)
+                                    : "Enter Your Birthday",
+                                style: AppTextStyle.blackText(),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Gender Choice Chips
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20),
                       child: Container(
-                        padding: const EdgeInsets.all(14),
                         color: AppColors.white,
                         child: Row(
                           children: [
-                            Image.asset(
-                              "assets/images/calendarIcon.png",
-                              height: 20,
-                              width: 20,
-                              color: AppColors.black,
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: 12,
+                                right: 15,
+                              ),
+                              child: Image.asset(
+                                "assets/images/genderIcon.png",
+                                height: 20,
+                                width: 20,
+                                color: AppColors.black,
+                              ),
                             ),
-                            const SizedBox(width: 20),
-                            Text(
-                              provider.selectedDate != null
-                                  ? DateFormat(
-                                    'dd-MM-yyyy',
-                                  ).format(provider.selectedDate!)
-                                  : "Enter Your Birthday",
-                              style: AppTextStyle.blackText(),
+                            Wrap(
+                              spacing: 20.0,
+                              children: List.generate(
+                                ['Male', 'Female', 'Other'].length,
+                                (index) {
+                                  final label =
+                                      ['Male', 'Female', 'Other'][index];
+                                  final selected =
+                                      provider.selectedGenderIndex == index;
+
+                                  return ChoiceChip(
+                                    label: Text(
+                                      label,
+                                      style: AppTextStyle.blackText(
+                                        color:
+                                            selected
+                                                ? AppColors.white
+                                                : AppColors.black,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    selected: selected,
+                                    onSelected: (value) {
+                                      setState(() {
+                                        provider.setSelectedGender(index);
+                                        if (provider.selectedGenderIndex == 0) {
+                                          provider.user?.user?.gender = "Male";
+                                        } else if (provider
+                                                .selectedGenderIndex ==
+                                            1) {
+                                          provider.user?.user?.gender =
+                                              "Female";
+                                        } else {
+                                          provider.user?.user?.gender = "Other";
+                                        }
+                                        FocusScope.of(context).unfocus();
+                                      });
+                                    },
+                                    selectedColor:
+                                        AppColors.profileSectionButtonColor,
+                                    backgroundColor: AppColors.white,
+                                    showCheckmark: false,
+                                  );
+                                },
+                              ),
                             ),
                           ],
                         ),
                       ),
                     ),
-                  ),
 
-                  // Gender Choice Chips
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20),
-                    child: Container(
-                      color: AppColors.white,
-                      child: Row(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 12, right: 15),
-                            child: Image.asset(
-                              "assets/images/genderIcon.png",
-                              height: 20,
-                              width: 20,
-                              color: AppColors.black,
-                            ),
-                          ),
-                          Wrap(
-                            spacing: 20.0,
-                            children: List.generate(
-                              ['Male', 'Female', 'Other'].length,
-                              (index) {
-                                final label =
-                                    ['Male', 'Female', 'Other'][index];
-                                final selected =
-                                    provider.selectedGenderIndex == index;
-
-                                return ChoiceChip(
-                                  label: Text(
-                                    label,
-                                    style: AppTextStyle.blackText(
-                                      color:
-                                          selected
-                                              ? AppColors.white
-                                              : AppColors.black,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  selected: selected,
-                                  onSelected:
-                                      (_) => provider.setSelectedGender(index),
-                                  selectedColor:
-                                      AppColors.profileSectionButtonColor,
-                                  backgroundColor: AppColors.white,
-                                  showCheckmark: false,
-                                );
-                              },
-                            ),
-                          ),
-                        ],
+                    // Action Buttons
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        top: 50,
+                        right: 15,
+                        left: 15,
                       ),
-                    ),
-                  ),
-
-                  // Action Buttons
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      top: 50,
-                      right: 15,
-                      left: 15,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () => Navigator.pop(context),
-                            style: ElevatedButton.styleFrom(
-                              elevation: 0,
-                              backgroundColor: AppColors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            child: Text(
-                              "Cancel",
-                              style: AppTextStyle.blackText(),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Container(
-                            height: 40,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  AppColors.profileSectionButtonColor,
-                                  AppColors.profileSectionButtonColor2,
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
                             child: ElevatedButton(
-                              onPressed: () => provider.editProfile(context),
+                              onPressed: () => Navigator.pop(context),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.transparent,
-                                shadowColor: Colors.transparent,
+                                elevation: 0,
+                                backgroundColor: AppColors.white,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
                               child: Text(
-                                "Save",
-                                style: AppTextStyle.whiteText(),
+                                "Cancel",
+                                style: AppTextStyle.blackText(),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Container(
+                              height: 40,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    AppColors.profileSectionButtonColor,
+                                    AppColors.profileSectionButtonColor2,
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  final name =
+                                      provider.nameController.text.trim();
+                                  final email =
+                                      provider.emailController.text.trim();
+
+                                  if (name.isEmpty) {
+                                    GlobalSnackbar.error(
+                                      context,
+                                      "Name cannot be empty",
+                                    );
+                                    return;
+                                  }
+
+                                  if (email.isEmpty) {
+                                    GlobalSnackbar.error(
+                                      context,
+                                      "Email cannot be empty",
+                                    );
+                                    return;
+                                  }
+
+                                  if (!_isValidEmail(email)) {
+                                    GlobalSnackbar.error(
+                                      context,
+                                      "Enter a valid email address",
+                                    );
+                                    return;
+                                  }
+
+                                  // ✅ All validations passed → Call API
+                                  provider.editProfile(context);
+                                },
+                                // onPressed: () => provider.editProfile(context),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  shadowColor: Colors.transparent,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: Text(
+                                  "Save",
+                                  style: AppTextStyle.whiteText(),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            );
-          },
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );

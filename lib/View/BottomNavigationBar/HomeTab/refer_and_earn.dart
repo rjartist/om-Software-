@@ -76,9 +76,11 @@ class _ReferAndEarnState extends State<ReferAndEarn> {
     }
   }
 
-  void _shareReferral(String? referralLink) {
+  void _shareReferral(String? referralLink, String refCode) {
     if (referralLink != null) {
-      Share.share("Join me on CX Play! Use my referral link: $referralLink");
+      Share.share(
+        "Join me on CX Play! Use my referral link: ${'https://cxplay-bb5b4.web.app/refer/?code=$refCode'}",
+      );
     }
   }
 
@@ -148,7 +150,10 @@ class _ReferAndEarnState extends State<ReferAndEarn> {
                   SizedBox(height: 30),
                   InkWell(
                     onTap: () {
-                      _shareReferral(referral?.referralLink);
+                      _shareReferral(
+                        referral?.referralLink,
+                        referral?.referralCode ?? "",
+                      );
                     },
                     child: Container(
                       width: 150,
@@ -181,74 +186,74 @@ class _ReferAndEarnState extends State<ReferAndEarn> {
                     ),
                   ),
                   SizedBox(height: 20),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Referral history",
-                          style: AppTextStyle.blackText(
-                            fontSize: 14,
-                            color: AppColors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Referral history list
-                  referrals.isNotEmpty
-                      ? Column(
-                        children:
-                            referrals.map((user) {
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 15),
-                                child: Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  color: AppColors.bgColor,
-                                  child: ListTile(
-                                    leading: CircleAvatar(
-                                      backgroundColor: Colors.red.shade100,
-                                      child: Text(
-                                        user['points'],
-                                        style: AppTextStyle.blackText(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    title: Text(
-                                      user['title'],
-                                      style: AppTextStyle.blackText(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    subtitle: Text(
-                                      "Status: ${user['status']}",
-                                      style: AppTextStyle.blackText(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                      )
-                      : Padding(
-                        padding: const EdgeInsets.only(top: 50),
-                        child: Center(
-                          child: Text(
-                            "No referral history found!",
-                            style: AppTextStyle.blackText(
-                              fontSize: 14,
-                              color: AppColors.greytext,
-                            ),
-                          ),
-                        ),
-                      ),
+                  // Padding(
+                  //   padding: const EdgeInsets.only(top: 10),
+                  //   child: Row(
+                  //     mainAxisAlignment: MainAxisAlignment.start,
+                  //     children: [
+                  //       Text(
+                  //         "Referral history",
+                  //         style: AppTextStyle.blackText(
+                  //           fontSize: 14,
+                  //           color: AppColors.black,
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+                  // // Referral history list
+                  // referrals.isNotEmpty
+                      // ? Column(
+                      //   children:
+                      //       referrals.map((user) {
+                      //         return Padding(
+                      //           padding: const EdgeInsets.only(top: 15),
+                      //           child: Card(
+                      //             shape: RoundedRectangleBorder(
+                      //               borderRadius: BorderRadius.circular(10),
+                      //             ),
+                      //             color: AppColors.bgColor,
+                      //             child: ListTile(
+                      //               leading: CircleAvatar(
+                      //                 backgroundColor: Colors.red.shade100,
+                      //                 child: Text(
+                      //                   user['points'],
+                      //                   style: AppTextStyle.blackText(
+                      //                     fontWeight: FontWeight.bold,
+                      //                   ),
+                      //                 ),
+                      //               ),
+                      //               title: Text(
+                      //                 user['title'],
+                      //                 style: AppTextStyle.blackText(
+                      //                   fontWeight: FontWeight.bold,
+                      //                   fontSize: 14,
+                      //                 ),
+                      //               ),
+                      //               subtitle: Text(
+                      //                 "Status: ${user['status']}",
+                      //                 style: AppTextStyle.blackText(
+                      //                   fontSize: 12,
+                      //                   fontWeight: FontWeight.w400,
+                      //                 ),
+                      //               ),
+                      //             ),
+                      //           ),
+                      //         );
+                      //       }).toList(),
+                      // )
+                  //     : Padding(
+                  //       padding: const EdgeInsets.only(top: 50),
+                  //       child: Center(
+                  //         child: Text(
+                  //           "No referral history found!",
+                  //           style: AppTextStyle.blackText(
+                  //             fontSize: 14,
+                  //             color: AppColors.greytext,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ),
                   SizedBox(height: 20),
                 ],
               ),

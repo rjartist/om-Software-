@@ -1052,11 +1052,23 @@ class _PaymentSummaryFromBookingState extends State<PaymentSummaryFromBooking> {
           const SizedBox(height: 8),
 
           if (isExpanded) ...[
-            _buildRow("Court Fee", "₹${widget.courtFee}"),
-            _buildRow("Coupon Discount", "- ₹${p.couponDiscount ?? '0.00'}"),
-            _buildRow("Coin Redemption", "- ₹${p.coinDiscount ?? '0.00'}"),
+            _buildRow(
+              "Court Fee",
+              "₹${widget.courtFee}",
+              icon: Icons.payments_rounded,
+            ),
+            _buildRow(
+              "Coupon Discount",
+              "- ₹${p.couponDiscount ?? '0.00'}",
+              icon: Icons.local_offer_outlined,
+            ),
+            _buildRow(
+              "Coin Redemption",
+              "- ₹${p.coinDiscount ?? '0.00'}",
+              icon: Icons.monetization_on_outlined,
+            ),
             const Divider(height: 16),
-            _buildRow("Sub Total", "₹${_calculateSubTotal()}"),
+            _buildRow("Sub Total", "₹${_calculateSubTotal()}", isTotal: true),
             _buildRow("Convenience Fee", "₹${widget.convenienceFee}"),
             _buildRow("Platform Fee (2%)", "₹${p.platformFees ?? '0.00'}"),
             _buildRow("GST (18%)", "₹${p.gst ?? '0.00'}"),
@@ -1081,12 +1093,19 @@ class _PaymentSummaryFromBookingState extends State<PaymentSummaryFromBooking> {
     return subTotal.toStringAsFixed(2);
   }
 
-  Widget _buildRow(String title, String value, {bool isTotal = false}) {
+  Widget _buildRow(
+    String title,
+    String value, {
+    IconData? icon,
+    bool isTotal = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
+          if (icon != null) Icon(icon, size: 18, color: Colors.grey[700]),
+          if (icon != null) const SizedBox(width: 6),
           Text(
             title,
             style: AppTextStyle.primaryText(
@@ -1095,6 +1114,7 @@ class _PaymentSummaryFromBookingState extends State<PaymentSummaryFromBooking> {
               color: isTotal ? Colors.green[800] ?? Colors.green : Colors.black,
             ),
           ),
+          Spacer(),
           Text(
             value,
             style: AppTextStyle.primaryText(

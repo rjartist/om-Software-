@@ -6,6 +6,7 @@ import 'package:gkmarts/Provider/Favorites/my_favorites_provider.dart';
 import 'package:gkmarts/Provider/Login/login_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
+import 'package:gkmarts/View/BottomNavigationBar/BookTab/book_tab.dart';
 import 'package:gkmarts/View/BottomNavigationBar/BookTab/venue_details_page.dart';
 import 'package:gkmarts/Widget/global_appbar.dart' show GlobalAppBar;
 import 'package:page_transition/page_transition.dart';
@@ -48,6 +49,73 @@ class _MyFavoritesState extends State<MyFavorites> {
           if (provider.error != null) {
             return Center(child: Text(provider.error!));
           }
+
+          // ✅ Empty state check
+          if (provider.favoritesList.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    "assets/images/empty_favorites.png", // 👈 Add your placeholder asset
+                    height: 100,
+                    width: 100,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    "No favorites yet",
+                    style: AppTextStyle.primaryText(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Start adding venues to your favorites!",
+                    style: AppTextStyle.greytext(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Container(
+                    height: 40,
+                    width: 150,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          AppColors.profileSectionButtonColor,
+                          AppColors.profileSectionButtonColor2,
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const BookTab()),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        "View Venues",
+                        style: AppTextStyle.whiteText(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
           return ListView.builder(
             padding: const EdgeInsets.only(
               top: 20,
@@ -86,7 +154,7 @@ class _MyFavoritesState extends State<MyFavorites> {
                             alignment: AlignmentDirectional.topEnd,
                             children: [
                               ClipRRect(
-                               borderRadius: BorderRadius.circular(10),                        
+                                borderRadius: BorderRadius.circular(10),
                                 child: CachedNetworkImage(
                                   imageUrl:
                                       item[index].facilityImages!.first.image

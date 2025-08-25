@@ -74,6 +74,8 @@ dependencies:
   firebase_core: ^4.0.0
   firebase_messaging: ^16.0.0
   smooth_page_indicator: ^1.2.1
+  app_links: ^6.0.2
+  device_info_plus: ^11.5.0
 
 
   
