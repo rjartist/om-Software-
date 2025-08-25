@@ -2,12 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
-
 class GlobalButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
   final bool isLoading;
   final double height;
+  final double width;   // ✅ Added width
   final double borderRadius;
 
   const GlobalButton({
@@ -16,13 +16,14 @@ class GlobalButton extends StatelessWidget {
     required this.onPressed,
     this.isLoading = false,
     this.height = 45,
+    this.width = double.infinity, // ✅ Default full width
     this.borderRadius = 12,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: double.infinity,
+      width: width,   // ✅ Now uses custom width
       height: height,
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
@@ -38,41 +39,32 @@ class GlobalButton extends StatelessWidget {
         child: Ink(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(borderRadius),
-            // gradient:
-            //     isLoading
-            //         ? null
-            //         : const LinearGradient(
-            //           colors: [AppColors.primaryColor, AppColors.primaryColor],
-            //         ),
-            gradient:
-                isLoading
-                    ? null
-                    : const LinearGradient(
-                      colors: [Color(0xFFE60909), Color(0xFFF35A5A)],
-                    ),
-
+            gradient: isLoading
+                ? null
+                : const LinearGradient(
+                    colors: [Color(0xFFE60909), Color(0xFFF35A5A)],
+                  ),
             color: isLoading ? AppColors.disabledButtonColor : null,
           ),
           child: Container(
             alignment: Alignment.center,
             height: height,
-            child:
-                isLoading
-                    ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                    : Text(
-                      text.toUpperCase(),
-                      style: AppTextStyle.whiteText(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                      ).copyWith(letterSpacing: 1.2),
+            child: isLoading
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
+                  )
+                : Text(
+                    text.toUpperCase(),
+                    style: AppTextStyle.whiteText(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ).copyWith(letterSpacing: 1.2),
+                  ),
           ),
         ),
       ),

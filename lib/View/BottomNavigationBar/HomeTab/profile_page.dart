@@ -84,6 +84,38 @@ class _ProfilePageState extends State<ProfilePage> {
                       Row(
                         children: [
                           const SizedBox(width: 16),
+                          // ClipOval(
+                          //   child:
+                          //       imageUrl != null
+                          //           ? CachedNetworkImage(
+                          //             imageUrl: imageUrl,
+                          //             width: 70,
+                          //             height: 70,
+                          //             fit: BoxFit.cover,
+                          //             placeholder:
+                          //                 (context, url) => CircleAvatar(
+                          //                   radius: 35,
+                          //                   backgroundColor: Colors.grey[200],
+                          //                   child: const Icon(
+                          //                     Icons.person,
+                          //                     color: Colors.grey,
+                          //                   ),
+                          //                 ),
+                          //             errorWidget:
+                          //                 (context, url, error) =>
+                          //                     const CircleAvatar(
+                          //                       radius: 35,
+                          //                       backgroundImage: AssetImage(
+                          //                         'assets/images/user.jpeg',
+                          //                       ),
+                          //                       backgroundColor: Colors.white,
+                          //                     ),
+                          //           )
+                          //           : Image.asset(
+                          //             "assets/images/user.jpeg",
+                          //             height: 70,
+                          //             width: 70,
+                          //           ),
                           ClipOval(
                             child:
                                 imageUrl != null
@@ -102,19 +134,24 @@ class _ProfilePageState extends State<ProfilePage> {
                                             ),
                                           ),
                                       errorWidget:
-                                          (context, url, error) =>
-                                              const CircleAvatar(
-                                                radius: 35,
-                                                backgroundImage: AssetImage(
-                                                  'assets/images/user.jpeg',
-                                                ),
-                                                backgroundColor: Colors.white,
-                                              ),
+                                          (context, url, error) => CircleAvatar(
+                                            radius: 35,
+                                            backgroundColor: Colors.grey[300],
+                                            child: Icon(
+                                              size: 40,
+                                              Icons.person,
+                                              color: Colors.white,
+                                            ),
+                                          ),
                                     )
-                                    : Image.asset(
-                                      "assets/images/user.jpeg",
-                                      height: 70,
-                                      width: 70,
+                                    : CircleAvatar(
+                                      radius: 35,
+                                      backgroundColor: Colors.grey[300],
+                                      child: const Icon(
+                                        size: 40,
+                                        Icons.person,
+                                        color: Colors.white,
+                                      ),
                                     ),
                           ),
                           const SizedBox(width: 16),
@@ -150,7 +187,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (_) => const MobileInputPage(referralCode: ""),
+                                      builder:
+                                          (_) => const MobileInputPage(
+                                            referralCode: "",
+                                          ),
                                     ),
                                   );
                                   return;
@@ -228,8 +268,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                     null
                                                 ? "0 Points"
                                                 : "${coinsModel?.remainingBonusCoins} Points",
-                                            style: AppTextStyle.primaryText(
-                                            ),
+                                            style: AppTextStyle.primaryText(),
                                           ),
                                         ],
                                       ),
@@ -419,27 +458,27 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                               ),
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  width: 0.2,
-                                  color: AppColors.buttonDisabled,
-                                ),
-                                borderRadius: BorderRadius.only(
-                                  bottomLeft: Radius.circular(20),
-                                  bottomRight: Radius.circular(20),
-                                ),
-                                color: AppColors.white,
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: _profileTile(
-                                  "assets/images/share.png",
-                                  "Invite a Friend",
-                                  () {},
-                                ),
-                              ),
-                            ),
+                            // Container(
+                            //   decoration: BoxDecoration(
+                            //     border: Border.all(
+                            //       width: 0.2,
+                            //       color: AppColors.buttonDisabled,
+                            //     ),
+                            //     borderRadius: BorderRadius.only(
+                            //       bottomLeft: Radius.circular(20),
+                            //       bottomRight: Radius.circular(20),
+                            //     ),
+                            //     color: AppColors.white,
+                            //   ),
+                            //   child: Padding(
+                            //     padding: const EdgeInsets.all(10.0),
+                            //     child: _profileTile(
+                            //       "assets/images/share.png",
+                            //       "Invite a Friend",
+                            //       () {},
+                            //     ),
+                            //   ),
+                            // ),
                             Container(
                               decoration: BoxDecoration(
                                 border: Border.all(
@@ -456,7 +495,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 padding: const EdgeInsets.all(10.0),
                                 child: _profileTile(
                                   "assets/images/paid.png",
-                                  "Refer & Earn",
+                                  "Invite & Earn",
                                   () {
                                     Navigator.push(
                                       context,
@@ -549,38 +588,41 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void _showHelpBottomSheet(BuildContext context) {
     showModalBottomSheet(
+      isScrollControlled: true, // important to allow full height with keyboard
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       backgroundColor: Colors.white,
       builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "Need Help!",
-                style: AppTextStyle.primaryText(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500,
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Need Help?",
+                  style: AppTextStyle.primaryText(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                "To get any help or support, contact our support team",
-                style: AppTextStyle.blackText(fontSize: 14),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _supportButton("CHAT", "assets/images/whatsapp.png"),
-                  _supportButton("CALL", null, icon: Icons.call),
-                ],
-              ),
-            ],
+                const SizedBox(height: 20),
+                Text(
+                  "Feel free to contact our support team via WhatsApp or Call.",
+                  style: AppTextStyle.blackText(fontSize: 14),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _supportButton("CHAT", "assets/images/whatsapp.png"),
+                    _supportButton("CALL", null, icon: Icons.call),
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -590,53 +632,65 @@ class _ProfilePageState extends State<ProfilePage> {
   void _showCancelBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true, // ✅ Important
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       backgroundColor: Colors.white,
       builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "Cancellation / Reschedule",
-                style: AppTextStyle.primaryText(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                "To cancel a booking, go to 'My Bookings' and submit a cancellation request.",
-                style: AppTextStyle.blackText(fontSize: 14),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    PageTransition(
-                      type: PageTransitionType.rightToLeft,
-                      duration: const Duration(milliseconds: 300),
-                      child: const MyBookings(),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+        return SafeArea(
+          // ✅ Prevents overlap with device bottom bar
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: 16,
+              bottom:
+                  MediaQuery.of(context).viewInsets.bottom +
+                  16, // ✅ Dynamic padding
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Cancellation / Reschedule",
+                  style: AppTextStyle.primaryText(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-                child: Text(
-                  "GO TO MY BOOKINGS",
-                  style: AppTextStyle.whiteText(),
+                const SizedBox(height: 20),
+                Text(
+                  "To cancel a booking, go to 'My Bookings' and submit a cancellation request.",
+                  style: AppTextStyle.blackText(fontSize: 14),
+                  textAlign: TextAlign.center,
                 ),
-              ),
-            ],
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      PageTransition(
+                        type: PageTransitionType.rightToLeft,
+                        duration: const Duration(milliseconds: 300),
+                        child: const MyBookings(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text(
+                    "GO TO MY BOOKINGS",
+                    style: AppTextStyle.whiteText(),
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },

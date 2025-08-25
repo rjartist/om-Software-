@@ -13,6 +13,11 @@
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
         android:enableOnBackInvokedCallback="true">
+         <!-- OneSignal Required Config -->
+    <meta-data android:name="com.onesignal.NotificationIcon"
+               android:resource="@mipmap/launcher_icon"/> <!-- your custom icon -->
+    <meta-data android:name="com.onesignal.NotificationAccentColor"
+               android:resource="@color/onesignal_accent_color"/> <!-- red color -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -61,9 +66,7 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-       <meta-data android:name="com.phonepe.android.sdk.isUAT" android:value="true"/>
-       <meta-data android:name="com.phonepe.android.sdk.MerchantId" android:value="TEST-M2283QQKJ8ABA_25072"/>
-
+    
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

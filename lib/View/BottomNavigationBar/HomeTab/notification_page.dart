@@ -1,28 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/Widget/global_appbar.dart';
+import 'package:intl/intl.dart';
 
-import 'package:flutter/material.dart';
-
-// Dummy notification data
-final List<Map<String, String>> notifications = [
-  {
-    "title": "8 -10 PM slot available",
-    "description": "Can play both cricket/football ",
-    "date": "08:20 PM",
-  },
-  {
-    "title": "New Feature",
-    "description": "Kumar has requested to join your Football gameon 22nd mar. Let them know if you’re game.",
-    "date": "08:20 PM",
-  },
-  {
-    "title": "Account Update",
-    "description": "Your profile was updated successfully.",
-    "date": "08:20 PM",
-  },
-];
+import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -33,67 +17,246 @@ class NotificationPage extends StatefulWidget {
 
 class _NotificationPageState extends State<NotificationPage> {
   @override
+  void initState() {
+    super.initState();
+    // Fetch notifications on page load
+    Future.microtask(() async {
+      final provider = Provider.of<HomeTabProvider>(context, listen: false);
+      await provider.getNotifications(context);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: GlobalAppBar(title: "Notifications", showBackButton: true),
+      appBar: const GlobalAppBar(title: "Notifications", showBackButton: true),
       backgroundColor: AppColors.bgColor,
-      body: ListView.separated(
-        itemCount: notifications.length,
-        separatorBuilder:
-            (context, index) => const Divider(height: 1, thickness: 1),
-        itemBuilder: (context, index) {
-          final notification = notifications[index];
+      body: PopScope(
+        canPop: true, // ✅ allow back navigation
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) {
+            context.read<HomeTabProvider>().markUnreadAsRead(context);
+          }
+        },
+        child: Consumer<HomeTabProvider>(
+          builder: (context, provider, child) {
+            if (provider.isNotificationsLoading) {
+              return const NotificationShimmer();
+            }
 
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-            child: Row(
+            if (provider.notificationList.isEmpty) {
+              return const Center(child: Text("No notifications yet"));
+            }
+            return ListView.separated(
+              itemCount: provider.notificationList.length,
+              separatorBuilder:
+                  (_, __) => const Divider(height: 1, thickness: 1),
+              itemBuilder: (context, index) {
+                final notification = provider.notificationList[index];
+
+                return NotificationTile(
+                  title: notification.title,
+                  description: notification.message,
+                  date: notification.date,
+                  sentAt: notification.sentAt,
+                  isRead: notification.isRead,
+                );
+              },
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class NotificationTile extends StatelessWidget {
+  final String title;
+  final String description;
+  final String date; // yyyy-MM-dd
+  final DateTime sentAt; // full DateTime
+  final bool isRead;
+
+  const NotificationTile({
+    super.key,
+    required this.title,
+    required this.description,
+    required this.date,
+    required this.sentAt,
+    required this.isRead,
+  });
+
+  String get formattedTime {
+    return DateFormat(
+      'hh:mm a',
+    ).format(sentAt.toLocal()); // convert UTC to local
+  }
+
+  String get formattedDate {
+    return DateFormat(
+      'dd MMM yyyy',
+    ).format(sentAt.toLocal()); // convert UTC to local
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: isRead ? Colors.white : AppColors.bgColor, // highlight unread
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Circular icon with unread indicator
+          Stack(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color:
+                      isRead
+                          ? Colors.grey
+                          : AppColors.primaryColor.withOpacity(0.7),
+                ),
+                child: const Icon(Icons.notifications, color: Colors.white),
+              ),
+            ],
+          ),
+          const SizedBox(width: 12),
+
+          // Title, description, date & time
+          Expanded(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Circular Image Placeholder
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.grey, // Placeholder color
-                  ),
-                  child: const Icon(Icons.notifications, color: Colors.white),
+                // Title + Date & Time
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: AppTextStyle.blackText(
+                          fontSize: 14,
+                          fontWeight:
+                              isRead ? FontWeight.w500 : FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '$formattedDate, $formattedTime',
+                      style: AppTextStyle.base(
+                        color: AppColors.grey,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 4),
 
-                const SizedBox(width: 10),
-
-                // Title, Description, Date
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              notification["title"]!,
-                              style: AppTextStyle.blackText()
-                            ),
-                          ),
-                          Text(
-                            notification["date"]!,
-                           style: AppTextStyle.smallBlack(),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        notification["description"]!,
-                        style: AppTextStyle.smallBlack(),
-                      ),
-                    ],
+                // Description
+                Text(
+                  description,
+                  style: AppTextStyle.smallBlack().copyWith(
+                    color: isRead ? Colors.grey[700] : Colors.black,
+                    fontWeight: isRead ? FontWeight.normal : FontWeight.w500,
                   ),
                 ),
               ],
             ),
-          );
-        },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class NotificationShimmer extends StatelessWidget {
+  const NotificationShimmer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      itemCount: 6, // number of shimmer items
+      separatorBuilder: (_, __) => const Divider(height: 1, thickness: 1),
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Circle shimmer (icon placeholder)
+              Shimmer.fromColors(
+                baseColor: Colors.grey.shade300,
+                highlightColor: Colors.grey.shade100,
+                child: Container(
+                  width: 50,
+                  height: 50,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+
+              // Text shimmer placeholders
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title + Date row
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ShimmerBox(
+                            height: 14,
+                            margin: const EdgeInsets.only(right: 8),
+                          ),
+                        ),
+                        ShimmerBox(height: 12, width: 60),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Description lines
+                    ShimmerBox(height: 12, width: double.infinity),
+                    const SizedBox(height: 6),
+                    ShimmerBox(
+                      height: 12,
+                      width: MediaQuery.of(context).size.width * 0.6,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Small helper widget for shimmer boxes
+class ShimmerBox extends StatelessWidget {
+  final double height;
+  final double? width;
+  final EdgeInsetsGeometry? margin;
+
+  const ShimmerBox({super.key, required this.height, this.width, this.margin});
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade300,
+      highlightColor: Colors.grey.shade100,
+      child: Container(
+        height: height,
+        width: width,
+        margin: margin,
+        color: Colors.white,
       ),
     );
   }

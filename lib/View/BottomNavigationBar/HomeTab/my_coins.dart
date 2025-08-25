@@ -29,13 +29,47 @@ class MyCoins extends StatelessWidget {
         children: [
           const GlobalAppBar(title: "My Coins", showBackButton: true),
 
+          // if (coinsModel == null)
+          //   const Expanded(child: Center(child: Text("No coin data available")))
+          // else
+          //   Expanded(
+          //     child: SingleChildScrollView(
+          //       padding: const EdgeInsets.all(16),
+          //       child: MyCoinsCard(coinsModel: coinsModel),
+          //     ),
+          //   ),
           if (coinsModel == null)
             const Expanded(child: Center(child: Text("No coin data available")))
           else
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: MyCoinsCard(coinsModel: coinsModel),
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Welcome Bonus Coins Card
+                  MyCoinsCard(coinsModel: coinsModel),
+
+                  const SizedBox(height: 20),
+
+                  // Referral Coins Section
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.monetization_on,
+                        color: AppColors.primaryColor,
+                        size: 24,
+                      ),
+                      const SizedBox(width: 10),
+                      Text("Referral Coins", style: AppTextStyle.titleText()),
+                    ],
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // You can now add a referral coins list or card below
+                  // Example: ReferralCoinsList widget or ListView.builder
+                  // ReferralCoinsList(coins: coinsModel.referralCoins),
+                ],
               ),
             ),
         ],
@@ -119,7 +153,7 @@ class _MyCoinsCardState extends State<MyCoinsCard> {
                   size: 24,
                 ),
                 const SizedBox(width: 10),
-                Text("My Coins", style: AppTextStyle.titleText()),
+                Text("Welcome Bonus Coins", style: AppTextStyle.titleText()),
               ],
             ),
 
@@ -220,8 +254,7 @@ class _MyCoinsCardState extends State<MyCoinsCard> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      "You can use up to 500 coins per booking. "
-                      "Coins can be used across up to 10 bookings.",
+                      "You can use up to 500 coins per booking. ",
                       style: const TextStyle(fontSize: 13),
                     ),
                   ),

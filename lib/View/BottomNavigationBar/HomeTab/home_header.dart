@@ -11,6 +11,8 @@ import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/home_banner.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/profile_page.dart';
+import 'package:gkmarts/Widget/global_button.dart';
+import 'package:gkmarts/Widget/global_snackbar.dart';
 import 'package:gkmarts/Widget/mobile_otp_login_widget.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
@@ -20,9 +22,9 @@ class HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final homeProvider = context.read<HomeTabProvider>();
+    // final homeProvider = context.read<HomeTabProvider>();
     final location = context.watch<LocationProvider>().userAddress;
-    final user = context.watch<LoginProvider>().user;
+    // final user = context.watch<LoginProvider>().user;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -49,10 +51,7 @@ class HomeHeader extends StatelessWidget {
                   ),
 
                   const Spacer(),
-                  _notificationIcon(
-                    badge: homeProvider.unreadNotifications,
-                    context: context,
-                  ),
+                  _notificationIcon(context),
                   const SizedBox(width: 8),
                   _profileAvatar(),
                 ],
@@ -129,10 +128,7 @@ class HomeHeader extends StatelessWidget {
     );
   }
 
-  Widget _notificationIcon({
-    required int badge,
-    required BuildContext context,
-  }) {
+  _notificationIcon(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
@@ -150,8 +146,21 @@ class HomeHeader extends StatelessWidget {
             color: AppColors.black,
             size: 30,
           ),
-          if (badge > 0)
-            Positioned(right: 0, top: -8, child: _badge(count: badge)),
+
+          // 👇 Only rebuilds when unreadNotifications changes
+          Selector<HomeTabProvider, int>(
+            selector: (_, provider) => provider.unreadNotifications,
+            builder: (_, badge, __) {
+              if (badge > 0) {
+                return Positioned(
+                  right: 0,
+                  top: -8,
+                  child: _badge(count: badge),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
         ],
       ),
     );
@@ -165,7 +174,9 @@ class HomeHeader extends StatelessWidget {
         // If not logged in, navigate to login page
         Navigator.push(
           navigatorKey.currentContext!,
-          MaterialPageRoute(builder: (_) => const MobileInputPage(referralCode: "")),
+          MaterialPageRoute(
+            builder: (_) => const MobileInputPage(referralCode: ""),
+          ),
         );
         return; // Prevent further execution
       }
@@ -258,36 +269,6 @@ class _LocationBottomSheetState extends State<LocationBottomSheet> {
                   ],
                 ),
 
-                // TextField(
-                //   controller: _searchController,
-                //   decoration: InputDecoration(
-                //     hintText: 'Type Location',
-                //     filled: true,
-                //     fillColor: AppColors.bgColor,
-                //     suffixIcon: const Icon(Icons.search), // Icon at the end
-                //     contentPadding: const EdgeInsets.symmetric(
-                //       horizontal: 16,
-                //       vertical: 14,
-                //     ),
-                //     border: OutlineInputBorder(
-                //       borderRadius: BorderRadius.circular(8),
-                //       borderSide: BorderSide.none, // No visible border
-                //     ),
-                //     enabledBorder: OutlineInputBorder(
-                //       borderRadius: BorderRadius.circular(8),
-                //       borderSide: BorderSide.none,
-                //     ),
-                //     focusedBorder: OutlineInputBorder(
-                //       borderRadius: BorderRadius.circular(8),
-                //       borderSide: BorderSide.none,
-                //     ),
-                //   ),
-                //   onSubmitted: (value) {
-                //     setState(() {
-                //       selectedAddress = value.trim();
-                //     });
-                //   },
-                // ),
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -335,7 +316,7 @@ class _LocationBottomSheetState extends State<LocationBottomSheet> {
                   children:
                       popularCities.map((city) {
                         return GestureDetector(
-                          onTap: () {
+                          onTap: () async {
                             context.read<LocationProvider>().setCustomAddress(
                               city,
                             );
@@ -344,6 +325,7 @@ class _LocationBottomSheetState extends State<LocationBottomSheet> {
                             );
                             Navigator.pop(context);
                           },
+
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 14,
@@ -408,6 +390,50 @@ class _LocationBottomSheetState extends State<LocationBottomSheet> {
           ),
         );
       },
+    );
+  }
+}
+
+class EmptyVenuesWidget extends StatelessWidget {
+  final VoidCallback onRetry;
+
+  final bool showImage; // 👈 flag to control image visibility
+
+  const EmptyVenuesWidget({
+    super.key,
+    required this.onRetry,
+    this.showImage = false, // 👈 default: true
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Container(
+        width: double.infinity,
+        color: AppColors.bgColor,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (showImage) // 👈 only shows if flag is true
+              const NoDataWidget(
+                assetName: 'assets/images/No data.svg',
+                // width: 180,
+                height: 180,
+                message: "No Venues Available",
+              ),
+            const SizedBox(height: 8),
+            const Text(
+              "Looks like no venues are nearby. \nPlease try another location",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey),
+            ),
+            const SizedBox(height: 8),
+            GlobalPrimaryButton(text: "Change Location", onTap: onRetry),
+          ],
+        ),
+      ),
     );
   }
 }

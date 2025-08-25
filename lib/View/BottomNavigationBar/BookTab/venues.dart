@@ -2,13 +2,35 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
+import 'package:gkmarts/Provider/HomePage/book_tab_provider.dart';
+import 'package:gkmarts/Services/AuthServices/auth_services.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
+import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/View/BottomNavigationBar/BookTab/venue_details_page.dart';
+import 'package:gkmarts/View/BottomNavigationBar/HomeTab/home_header.dart';
+import 'package:gkmarts/Widget/mobile_otp_login_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-class Venues extends StatelessWidget {
+class Venues extends StatefulWidget {
   final bool gamePage;
   Venues({super.key, required this.gamePage});
+
+  @override
+  State<Venues> createState() => _VenuesState();
+}
+
+class _VenuesState extends State<Venues> {
+  final Map<int, PageController> _controllers = {};
+
+  @override
+  void dispose() {
+    // Dispose all controllers when Venues is destroyed
+    for (final controller in _controllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,11 +41,27 @@ class Venues extends StatelessWidget {
         }
 
         if (provider.filteredVenueList.isEmpty) {
-          return const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text(
-              "No venues found.",
-              style: TextStyle(color: Colors.grey),
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: EmptyVenuesWidget(
+              showImage: true,
+              onRetry: () {
+                // close any existing sheet first
+                Navigator.popUntil(context, (route) => route.isFirst);
+
+                // reopen Location BottomSheet
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: AppColors.bgColor,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
+                  ),
+                  builder: (_) => const LocationBottomSheet(),
+                );
+              },
             ),
           );
         }
@@ -35,7 +73,7 @@ class Venues extends StatelessWidget {
           itemCount: provider.filteredVenueList.length,
           itemBuilder: (context, index) {
             final venue = provider.filteredVenueList[index];
-
+            _controllers[index] = _controllers[index] ?? PageController();
             return Container(
               margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
@@ -43,7 +81,7 @@ class Venues extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2), // Increased opacity
+                    color: Colors.black.withOpacity(0.2),
                     blurRadius:
                         8, // Increased blur to match search field shadow
                     offset: const Offset(0, 2),
@@ -57,7 +95,7 @@ class Venues extends StatelessWidget {
                   color: Colors.white,
                   child: InkWell(
                     onTap: () {
-                      if (gamePage == false) {
+                      if (widget.gamePage == false) {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -74,38 +112,198 @@ class Venues extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Image with padding and rounded corner
                         Padding(
                           padding: const EdgeInsets.all(12),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(10),
-                            child: SizedBox(
-                              height: 140,
-                              width: double.infinity,
-                              child: CachedNetworkImage(
-                                imageUrl: venue.imageUrl,
-                                fit: BoxFit.cover,
-                                placeholder:
-                                    (context, url) => Container(
-                                      color: Colors.grey.shade200,
-                                      child: const Center(child: SizedBox()),
-                                    ),
-                                errorWidget:
-                                    (context, url, error) => Container(
-                                      color: Colors.grey.shade100,
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          const Icon(
-                                            Icons.broken_image_outlined,
-                                            size: 40,
-                                            color: Colors.grey,
+                            child: Stack(
+                              children: [
+                                SizedBox(
+                                  height: 140,
+                                  width: double.infinity,
+                                  child:
+                                      venue.facilityImages.isNotEmpty
+                                          ? Stack(
+                                            children: [
+                                              PageView.builder(
+                                                controller: _controllers[index],
+                                                itemCount:
+                                                    venue.facilityImages.length,
+                                                itemBuilder: (
+                                                  context,
+                                                  imgIndex,
+                                                ) {
+                                                  return Image.network(
+                                                    venue
+                                                        .facilityImages[imgIndex],
+                                                    fit: BoxFit.cover,
+                                                    width: double.infinity,
+                                                    loadingBuilder: (
+                                                      context,
+                                                      child,
+                                                      loadingProgress,
+                                                    ) {
+                                                      if (loadingProgress ==
+                                                          null)
+                                                        return child;
+                                                      return Container(
+                                                        color:
+                                                            Colors
+                                                                .grey
+                                                                .shade200,
+                                                      );
+                                                    },
+                                                    errorBuilder:
+                                                        (
+                                                          context,
+                                                          error,
+                                                          stackTrace,
+                                                        ) => Container(
+                                                          color:
+                                                              Colors
+                                                                  .grey
+                                                                  .shade100,
+                                                          child: const Center(
+                                                            child: Icon(
+                                                              Icons
+                                                                  .broken_image_outlined,
+                                                              size: 40,
+                                                              color:
+                                                                  Colors.grey,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                  );
+                                                },
+                                              ),
+                                              Positioned(
+                                                bottom: 8,
+                                                left: 0,
+                                                right: 0,
+                                                child: Center(
+                                                  child: SmoothPageIndicator(
+                                                    controller:
+                                                        _controllers[index]!,
+                                                    count:
+                                                        venue
+                                                            .facilityImages
+                                                            .length,
+                                                    effect: ExpandingDotsEffect(
+                                                      dotHeight: 6,
+                                                      dotWidth: 6,
+                                                      activeDotColor:
+                                                          AppColors
+                                                              .primaryColor,
+                                                      dotColor: Colors.white54,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                          : Image.network(
+                                            venue.imageUrl,
+                                            fit: BoxFit.cover,
+                                            width: double.infinity,
+                                            loadingBuilder: (
+                                              context,
+                                              child,
+                                              loadingProgress,
+                                            ) {
+                                              if (loadingProgress == null)
+                                                return child;
+                                              return Container(
+                                                color: Colors.grey.shade200,
+                                              );
+                                            },
+                                            errorBuilder:
+                                                (
+                                                  context,
+                                                  error,
+                                                  stackTrace,
+                                                ) => Container(
+                                                  color: Colors.grey.shade100,
+                                                  child: const Center(
+                                                    child: Icon(
+                                                      Icons
+                                                          .broken_image_outlined,
+                                                      size: 40,
+                                                      color: Colors.grey,
+                                                    ),
+                                                  ),
+                                                ),
                                           ),
-                                        ],
-                                      ),
-                                    ),
-                              ),
+                                ),
+
+                                // Favorite Button (top right corner)
+                                Positioned(
+                                  top: 8,
+                                  right: 8,
+                                  child: Consumer<BookTabProvider>(
+                                    builder: (context, provider, _) {
+                                      return IgnorePointer(
+                                        ignoring: provider
+                                            .isFavoriteListLoading(
+                                              venue.facilityId,
+                                            ),
+                                        child: AnimatedOpacity(
+                                          opacity:
+                                              provider.isFavoriteListLoading(
+                                                    venue.facilityId,
+                                                  )
+                                                  ? 0.5
+                                                  : 1,
+                                          duration: const Duration(
+                                            milliseconds: 300,
+                                          ),
+                                          child: GestureDetector(
+                                            onTap: () async {
+                                              final isLoggedIn =
+                                                  await AuthService.isLoggedIn();
+                                              if (!isLoggedIn) {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder:
+                                                        (_) =>
+                                                            const MobileInputPage(
+                                                              referralCode: "",
+                                                            ),
+                                                  ),
+                                                );
+                                                return;
+                                              }
+                                              provider.toggleFavoriteList(
+                                                context,
+                                                venue.facilityId,
+                                              );
+                                            },
+                                            child: CircleAvatar(
+                                              radius: 14,
+                                              backgroundColor: Colors.white
+                                                  .withOpacity(0.8),
+                                              child: Icon(
+                                                provider.isFavoriteList(
+                                                      venue.facilityId,
+                                                    )
+                                                    ? Icons.favorite
+                                                    : Icons.favorite_border,
+                                                color:
+                                                    provider.isFavoriteList(
+                                                          venue.facilityId,
+                                                        )
+                                                        ? Colors.red
+                                                        : Colors.black,
+                                                size: 17,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),

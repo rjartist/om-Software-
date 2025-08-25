@@ -14,6 +14,7 @@ import 'package:gkmarts/Widget/global_snackbar.dart';
 import 'package:gkmarts/Widget/mobile_otp_login_widget.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class VenueDetailsPage extends StatefulWidget {
   final int facilityId;
@@ -44,7 +45,7 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
 
     return PopScope(
       canPop: true,
-      onPopInvoked: (bool didPop) {
+      onPopInvokedWithResult: (didPop, result) {
         if (didPop) {
           Provider.of<BookTabProvider>(
             context,
@@ -68,6 +69,7 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
                     children: [
                       VenueImageSlider(
                         facilityId: model.modifiedFacility.facilityId,
+                        facilityName: model.modifiedFacility.facilityName,
                         imageUrls:
                             model.modifiedFacility.facilityImages
                                 .map((e) => e.image)
@@ -220,6 +222,9 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
                       () => provider.selectSport(
                         service.serviceName,
                         service.serviceId,
+                        service.serviceImages.isNotEmpty
+                            ? service.serviceImages.first.image
+                            : null,
                       ),
                   child: Container(
                     width: 90,
@@ -397,13 +402,14 @@ class _VenueDetailsPageState extends State<VenueDetailsPage> {
   }
 
   Widget _buildBottomButtons(BuildContext context, BookTabProvider provider) {
+    final double bottomPadding = MediaQuery.of(context).viewPadding.bottom + 16;
     return SafeArea(
       // ✅ Wrap with SafeArea
-      minimum: const EdgeInsets.only(
+      minimum: EdgeInsets.only(
         left: 16,
         right: 16,
         top: 10,
-        bottom: 15,
+        bottom: bottomPadding,
       ), // Padding inside safe area
       child: Row(
         children: [
@@ -457,6 +463,7 @@ class VenueImageSlider extends StatelessWidget {
   final List<String> imageUrls;
   final int currentIndex;
   final int facilityId;
+  final String facilityName;
   final Function(int) onPageChanged;
   final VoidCallback onBackTap;
 
@@ -465,6 +472,7 @@ class VenueImageSlider extends StatelessWidget {
     required this.imageUrls,
     required this.currentIndex,
     required this.facilityId,
+    required this.facilityName,
     required this.onPageChanged,
     required this.onBackTap,
   });
@@ -647,7 +655,17 @@ class VenueImageSlider extends StatelessWidget {
                   child: CircleIconButton(
                     icon: Icons.share,
                     onTap: () {
-                      // Your share function here
+                      final venueId = facilityId;
+
+                      // Temporary shareable link (can be upgraded later to App Links / Branch / etc.)
+                      final shareLink = "https://myapp.com/venue/$venueId";
+
+                      SharePlus.instance.share(
+                        ShareParams(
+                          text: "Check out this venue!\n$shareLink",
+                          subject: facilityName,
+                        ),
+                      );
                     },
                   ),
                 ),
@@ -659,181 +677,6 @@ class VenueImageSlider extends StatelessWidget {
     );
   }
 }
-
-// class ViewVenueReviewsBottomSheet extends StatefulWidget {
-//   // final VenueDetailModel model;
-//   const ViewVenueReviewsBottomSheet({super.key});
-
-//   // const ViewVenueReviewsBottomSheet({super.key, required this.model});
-
-//   @override
-//   State<ViewVenueReviewsBottomSheet> createState() =>
-//       _ViewVenueReviewsBottomSheetState();
-// }
-
-// class _ViewVenueReviewsBottomSheetState
-//     extends State<ViewVenueReviewsBottomSheet> {
-//   @override
-//   Widget build(BuildContext context) {
-//     final provider = context.watch<BookTabProvider>();
-//     final venueReviews = provider.venueReviews;
-
-//     return DraggableScrollableSheet(
-//       expand: false,
-//       initialChildSize: 0.7,
-//       maxChildSize: 0.95,
-//       builder: (context, scrollController) {
-//         return Container(
-//           decoration: const BoxDecoration(
-//             color: Colors.white,
-//             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-//           ),
-//           child: Padding(
-//             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 // Drag Handle
-//                 Center(
-//                   child: Container(
-//                     width: 40,
-//                     height: 4,
-//                     margin: const EdgeInsets.only(bottom: 16),
-//                     decoration: BoxDecoration(
-//                       color: Colors.grey[300],
-//                       borderRadius: BorderRadius.circular(10),
-//                     ),
-//                   ),
-//                 ),
-
-//                 // Title
-//                 Center(
-//                   child: Text(
-//                     "Ratings & Reviews",
-//                     style: AppTextStyle.titleText(),
-//                   ),
-//                 ),
-//                 const SizedBox(height: 8),
-
-//                 if (provider.isReviewsLoading)
-//                   const Center(child: CircularProgressIndicator())
-//                 else if (venueReviews == null || venueReviews.reviews.isEmpty)
-//                   Center(
-//                     child: Text(
-//                       "No reviews available.",
-//                       style: AppTextStyle.greytext(),
-//                     ),
-//                   )
-//                 else ...[
-//                   // ⭐ Average Rating Section
-//                   Center(
-//                     child: Row(
-//                       mainAxisSize: MainAxisSize.min,
-//                       children: [
-//                         const Icon(Icons.star, color: Colors.orange, size: 20),
-//                         const SizedBox(width: 4),
-//                         Text(
-//                           venueReviews.averageRating.toStringAsFixed(1),
-//                           style: AppTextStyle.blackText(fontSize: 16),
-//                         ),
-//                         const SizedBox(width: 6),
-//                         Text(
-//                           "(${venueReviews.totalReviews} reviews)",
-//                           style: AppTextStyle.greytext(fontSize: 14),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                   const SizedBox(height: 20),
-
-//                   // 📝 Reviews List
-//                   Expanded(
-//                     child: ListView.separated(
-//                       controller: scrollController,
-//                       itemCount: venueReviews.reviews.length,
-//                       separatorBuilder:
-//                           (_, __) => const Divider(height: 24, thickness: 0.8),
-//                       itemBuilder: (_, index) {
-//                         final review = venueReviews.reviews[index];
-
-//                         return Row(
-//                           crossAxisAlignment: CrossAxisAlignment.start,
-//                           children: [
-//                             // Profile image
-//                             ClipOval(
-//                               child: Image.network(
-//                                 review.user.profileImage,
-//                                 width: 40,
-//                                 height: 40,
-//                                 fit: BoxFit.cover,
-//                                 errorBuilder: (context, error, stackTrace) {
-//                                   return Image.asset(
-//                                     'assets/images/userIcon.png',
-//                                     width: 35,
-//                                     height: 35,
-//                                     fit: BoxFit.cover,
-//                                   );
-//                                 },
-//                               ),
-//                             ),
-
-//                             const SizedBox(width: 12),
-
-//                             // Review content
-//                             Expanded(
-//                               child: Column(
-//                                 crossAxisAlignment: CrossAxisAlignment.start,
-//                                 children: [
-//                                   Text(
-//                                     review.user.name,
-//                                     style: AppTextStyle.blackText(fontSize: 14),
-//                                   ),
-//                                   const SizedBox(height: 2),
-
-//                                   // Star rating
-//                                   Row(
-//                                     children: List.generate(5, (i) {
-//                                       return Icon(
-//                                         i < review.rating
-//                                             ? Icons.star
-//                                             : Icons.star_border,
-//                                         size: 16,
-//                                         color: Colors.orange,
-//                                       );
-//                                     }),
-//                                   ),
-
-//                                   if ((review.feedback ?? "").isNotEmpty) ...[
-//                                     const SizedBox(height: 6),
-//                                     Text(
-//                                       review.feedback!,
-//                                       style: AppTextStyle.greytext(
-//                                         fontSize: 13,
-//                                       ),
-//                                     ),
-//                                   ],
-//                                   const SizedBox(height: 4),
-//                                   Text(
-//                                     formatFullDateString(review.createdAt),
-//                                     style: AppTextStyle.greytext(fontSize: 11),
-//                                   ),
-//                                 ],
-//                               ),
-//                             ),
-//                           ],
-//                         );
-//                       },
-//                     ),
-//                   ),
-//                 ],
-//               ],
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
-// }
 
 class ViewVenueReviewsBottomSheet extends StatefulWidget {
   const ViewVenueReviewsBottomSheet({super.key});
@@ -960,10 +803,12 @@ class _ViewVenueReviewsBottomSheetState
                                           error,
                                           stackTrace,
                                         ) {
-                                          return Image.asset(
-                                            'assets/images/userIcon.png',
-                                            width: 40,
-                                            height: 40,
+                                          return Center(
+                                            child: Icon(
+                                              Icons.person,
+                                              size: 24,
+                                              color: Colors.grey,
+                                            ),
                                           );
                                         },
                                       ),
@@ -1044,40 +889,64 @@ class _ViewVenueReviewsBottomSheetState
                                             right: 8,
                                           ),
                                           child: GestureDetector(
+                                            // onTap: () {
+                                            //   // Open image in fullscreen dialog
+                                            //   showDialog(
+                                            //     context: context,
+                                            //     builder:
+                                            //         (_) => Dialog(
+                                            //           backgroundColor:
+                                            //               Colors.black,
+                                            //           insetPadding:
+                                            //               EdgeInsets.zero,
+                                            //           child: InteractiveViewer(
+                                            //             child: Center(
+                                            //               child: Image.network(
+                                            //                 imgUrl,
+                                            //                 fit: BoxFit.contain,
+                                            //                 errorBuilder:
+                                            //                     (
+                                            //                       _,
+                                            //                       __,
+                                            //                       ___,
+                                            //                     ) => const Icon(
+                                            //                       Icons
+                                            //                           .broken_image,
+                                            //                       color:
+                                            //                           Colors
+                                            //                               .white,
+                                            //                       size: 50,
+                                            //                     ),
+                                            //               ),
+                                            //             ),
+                                            //           ),
+                                            //         ),
+                                            //   );
+                                            // },
                                             onTap: () {
-                                              // Open image in fullscreen dialog
                                               showDialog(
                                                 context: context,
-                                                builder:
-                                                    (_) => Dialog(
-                                                      backgroundColor:
-                                                          Colors.black,
-                                                      insetPadding:
-                                                          EdgeInsets.zero,
-                                                      child: InteractiveViewer(
-                                                        child: Center(
-                                                          child: Image.network(
-                                                            imgUrl,
-                                                            fit: BoxFit.contain,
-                                                            errorBuilder:
-                                                                (
-                                                                  _,
-                                                                  __,
-                                                                  ___,
-                                                                ) => const Icon(
-                                                                  Icons
-                                                                      .broken_image,
-                                                                  color:
-                                                                      Colors
-                                                                          .white,
-                                                                  size: 50,
-                                                                ),
-                                                          ),
+                                                barrierColor:
+                                                    Colors
+                                                        .black, // Dark background
+                                                builder: (_) {
+                                                  return Dialog(
+                                                    backgroundColor:
+                                                        Colors.black,
+                                                    insetPadding:
+                                                        EdgeInsets
+                                                            .zero, // Fullscreen
+                                                    child:
+                                                        FullScreenImageViewer(
+                                                          images: review.images,
+                                                          initialIndex:
+                                                              imgIndex,
                                                         ),
-                                                      ),
-                                                    ),
+                                                  );
+                                                },
                                               );
                                             },
+
                                             child: ClipRRect(
                                               borderRadius:
                                                   BorderRadius.circular(8),
@@ -1257,53 +1126,240 @@ class RateVenueBottomSheet extends StatelessWidget {
   }
 }
 
-class FullScreenImageViewer extends StatelessWidget {
+class FullScreenImageViewer extends StatefulWidget {
   final List<String> images;
   final int initialIndex;
+
   const FullScreenImageViewer({
-    super.key,
+    Key? key,
     required this.images,
     this.initialIndex = 0,
-  });
+  }) : super(key: key);
+
+  @override
+  State<FullScreenImageViewer> createState() => _FullScreenImageViewerState();
+}
+
+class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
+  late PageController _pageController;
+  int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+    _pageController = PageController(initialPage: widget.initialIndex);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: PageView.builder(
-        controller: PageController(initialPage: initialIndex),
-        itemCount: images.length,
-        itemBuilder: (context, index) {
-          return Center(
-            child: PhotoView(
-              imageProvider: NetworkImage(images[index]),
-              backgroundDecoration: const BoxDecoration(color: Colors.black),
-              loadingBuilder:
-                  (context, event) =>
-                      const Center(child: CircularProgressIndicator()),
+    return Stack(
+      children: [
+        PageView.builder(
+          controller: _pageController,
+          itemCount: widget.images.length,
+          onPageChanged: (index) {
+            setState(() => _currentIndex = index);
+          },
+          itemBuilder: (context, index) {
+            final imgUrl = widget.images[index];
+            return InteractiveViewer(
+              child: Center(
+                child: Image.network(
+                  imgUrl,
+                  fit: BoxFit.contain,
+                  errorBuilder:
+                      (_, __, ___) => const Icon(
+                        Icons.broken_image,
+                        color: Colors.white,
+                        size: 50,
+                      ),
+                ),
+              ),
+            );
+          },
+        ),
+
+        // Close button
+        Positioned(
+          top: 40,
+          right: 20,
+          child: IconButton(
+            icon: const Icon(Icons.close, color: Colors.white, size: 28),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+
+        // Indicator (e.g. 1/5)
+        if (widget.images.length > 1)
+          Positioned(
+            bottom: 20,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Text(
+                "${_currentIndex + 1} / ${widget.images.length}",
+                style: const TextStyle(color: Colors.white, fontSize: 14),
+              ),
             ),
-          );
-        },
-      ),
+          ),
+      ],
     );
   }
 }
 
+// class CorporateBookingSheet extends StatelessWidget {
+//   const CorporateBookingSheet({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final height = MediaQuery.of(context).size.height * 0.65;
+
+//     return SafeArea(
+//       child: SizedBox(
+//         height: height,
+//         child: Container(
+//           decoration: const BoxDecoration(
+//             color: Colors.white,
+//             borderRadius: BorderRadius.only(
+//               topLeft: Radius.circular(24),
+//               topRight: Radius.circular(24),
+//             ),
+//           ),
+
+//           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+//           child: SingleChildScrollView(
+//             child: Column(
+//               spacing: 24,
+//               crossAxisAlignment: CrossAxisAlignment.center,
+//               children: [
+//                 vSizeBox(10),
+//                 Container(
+//                   padding: EdgeInsets.symmetric(vertical: 10),
+//                   width: double.infinity,
+//                   decoration: const BoxDecoration(color: Color(0xFFD9D9D9)),
+//                   child: Text(
+//                     "Corporate Bookings",
+//                     textAlign: TextAlign.center,
+//                     style: AppTextStyle.boldBlackText(),
+//                   ),
+//                 ),
+
+//                 Row(
+//                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//                   children: const [
+//                     _BookingFeature(
+//                       label: "Venue\nReservation",
+//                       assetPath: "assets/images/c1.png",
+//                     ),
+//                     _BookingFeature(
+//                       label: "Scheduling\nFixtures",
+//                       assetPath: "assets/images/c2.png",
+//                     ),
+//                     _BookingFeature(
+//                       label: "Hospitality\nServices",
+//                       assetPath: "assets/images/c3.png",
+//                     ),
+//                   ],
+//                 ),
+
+//                 // GlobalPrimaryButton(
+//                 //   text: "I’m Interested",
+//                 //   onTap: () {
+//                 //     showModalBottomSheet(
+//                 //       context: context,
+//                 //       isScrollControlled: true,
+//                 //       shape: const RoundedRectangleBorder(
+//                 //         borderRadius: BorderRadius.vertical(
+//                 //           top: Radius.circular(20),
+//                 //         ),
+//                 //       ),
+//                 //       builder:
+//                 //           (_) => CallNow(
+//                 //             title: "Corporate Booking Enquiry",
+//                 //             description:
+//                 //                 "Looking to reserve a venue for your corporate event?\nOur team is here to assist you with scheduling\nand more. Reach out now!",
+//                 //             phoneNumber: "+91 9999999999",
+//                 //             onConfirm: () {}, // Optional action after call
+//                 //           ),
+//                 //     );
+//                 //   },
+//                 // ),
+
+//                 Container(
+//                   padding: EdgeInsets.symmetric(vertical: 10),
+//                   width: double.infinity,
+//                   decoration: const BoxDecoration(color: Color(0xFFD9D9D9)),
+//                   child: Text(
+//                     "Long Term / Bulk Booking",
+//                     textAlign: TextAlign.center,
+//                     style: AppTextStyle.boldBlackText(),
+//                   ),
+//                 ),
+
+//                 Row(
+//                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//                   children: const [
+//                     _BookingFeature(
+//                       label: "Repeat\nBookings",
+//                       assetPath: "assets/images/c4.png",
+//                     ),
+//                     _BookingFeature(
+//                       label: "Volume\nDiscounts",
+//                       assetPath: "assets/images/c5.png",
+//                     ),
+//                     _BookingFeature(
+//                       label: "Easy\nReschedule",
+//                       assetPath: "assets/images/c6.png",
+//                     ),
+//                   ],
+//                 ),
+
+//                 GlobalPrimaryButton(
+//                   text: "Enquire Now",
+//                   onTap: () {
+//                     showModalBottomSheet(
+//                       context: context,
+//                       isScrollControlled: true,
+//                       shape: const RoundedRectangleBorder(
+//                         borderRadius: BorderRadius.vertical(
+//                           top: Radius.circular(20),
+//                         ),
+//                       ),
+//                       builder:
+//                           (_) => CallNow(
+//                             title: "Need Help?",
+//                             description:
+//                                 "Want to enquire about the venue or your booking?\nFeel free to call our support team.",
+//                             phoneNumber: "+91 9999999999",
+//                             onConfirm: () {}, // Optional action after call
+//                           ),
+//                     );
+//                   },
+//                 ),
+
+//                 vSizeBox(20),
+//               ],
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
 class CorporateBookingSheet extends StatelessWidget {
   const CorporateBookingSheet({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height * 0.65;
+    final maxHeight = MediaQuery.of(context).size.height * 0.7;
 
     return SafeArea(
-      child: SizedBox(
-        height: height,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          // 👇 content can grow but won’t exceed 70% of screen
+          maxHeight: maxHeight,
+        ),
         child: Container(
           decoration: const BoxDecoration(
             color: Colors.white,
@@ -1312,16 +1368,16 @@ class CorporateBookingSheet extends StatelessWidget {
               topRight: Radius.circular(24),
             ),
           ),
-
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: SingleChildScrollView(
             child: Column(
-              spacing: 24,
+              mainAxisSize: MainAxisSize.min, // 👈 shrink to fit content
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                vSizeBox(10),
+                vSizeBox(15),
+
                 Container(
-                  padding: EdgeInsets.symmetric(vertical: 10),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
                   width: double.infinity,
                   decoration: const BoxDecoration(color: Color(0xFFD9D9D9)),
                   child: Text(
@@ -1330,6 +1386,7 @@ class CorporateBookingSheet extends StatelessWidget {
                     style: AppTextStyle.boldBlackText(),
                   ),
                 ),
+                vSizeBox(15),
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -1348,32 +1405,10 @@ class CorporateBookingSheet extends StatelessWidget {
                     ),
                   ],
                 ),
-
-                GlobalPrimaryButton(
-                  text: "I’m Interested",
-                  onTap: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(20),
-                        ),
-                      ),
-                      builder:
-                          (_) => CallNow(
-                            title: "Corporate Booking Enquiry",
-                            description:
-                                "Looking to reserve a venue for your corporate event?\nOur team is here to assist you with scheduling\nand more. Reach out now!",
-                            phoneNumber: "+91 9999999999",
-                            onConfirm: () {}, // Optional action after call
-                          ),
-                    );
-                  },
-                ),
+                vSizeBox(15),
 
                 Container(
-                  padding: EdgeInsets.symmetric(vertical: 10),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
                   width: double.infinity,
                   decoration: const BoxDecoration(color: Color(0xFFD9D9D9)),
                   child: Text(
@@ -1382,6 +1417,7 @@ class CorporateBookingSheet extends StatelessWidget {
                     style: AppTextStyle.boldBlackText(),
                   ),
                 ),
+                vSizeBox(15),
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -1400,6 +1436,7 @@ class CorporateBookingSheet extends StatelessWidget {
                     ),
                   ],
                 ),
+                vSizeBox(15),
 
                 GlobalPrimaryButton(
                   text: "Enquire Now",
@@ -1418,7 +1455,7 @@ class CorporateBookingSheet extends StatelessWidget {
                             description:
                                 "Want to enquire about the venue or your booking?\nFeel free to call our support team.",
                             phoneNumber: "+91 9999999999",
-                            onConfirm: () {}, // Optional action after call
+                            onConfirm: () {},
                           ),
                     );
                   },

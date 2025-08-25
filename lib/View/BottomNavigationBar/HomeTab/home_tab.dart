@@ -36,6 +36,7 @@ class _HomeTabState extends State<HomeTab> {
     super.initState();
     Future.microtask(() {
       context.read<HomeTabProvider>().showCoinPopupOnce(context);
+      context.read<HomeTabProvider>().getNotifications(context);
     });
   }
 
@@ -62,25 +63,6 @@ class _HomeTabState extends State<HomeTab> {
               child: HomeBanner(),
             ),
 
-            // Align(
-            //   alignment:Alignment.center ,
-            //   child: ElevatedButton(
-            //     onPressed: () {
-            //       final razorpayProvider = Provider.of<RazorpayProvider>(
-            //         context,
-            //         listen: false,
-            //       );
-
-            //       razorpayProvider.startPayment(
-            //         amount: 50000, // ₹500 in paise
-            //         name: "Ritesh Jogi",
-            //         phone: "9876543210",
-            //         email: "ritesh@example.com",
-            //       );
-            //     },
-            //     child: Text("pay"),
-            //   ),
-            // ),
             vSizeBox(8),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -159,23 +141,6 @@ class _HomeTabState extends State<HomeTab> {
           ],
         ),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     // Your onTap logic
-      //   },
-      //   backgroundColor: AppColors.primaryColor,
-      //   shape: const CircleBorder(),
-      //   child: Container(
-      //     width: 23,
-      //     height: 23,
-      //     decoration: const BoxDecoration(
-      //       image: DecorationImage(
-      //         image: AssetImage('assets/images/Vector.png'),
-      //         fit: BoxFit.contain,
-      //       ),
-      //     ),
-      //   ),
-      // ),
     );
   }
 
@@ -829,12 +794,37 @@ class BookaVenueSection extends StatelessWidget {
         if (provider.venueList.isEmpty) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Text(
-              "No venues available at the moment.",
-              style: AppTextStyle.greytext(),
+            child: EmptyVenuesWidget(
+              onRetry: () {
+                // close any existing sheet first
+                Navigator.popUntil(context, (route) => route.isFirst);
+
+                // reopen Location BottomSheet
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: AppColors.bgColor,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
+                  ),
+                  builder: (_) => const LocationBottomSheet(),
+                );
+              },
             ),
           );
         }
+
+        // if (provider.venueList.isEmpty) {
+        //   return Padding(
+        //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        //     child: Text(
+        //       "No venues available at the moment.",
+        //       style: AppTextStyle.greytext(),
+        //     ),
+        //   );
+        // }
 
         return SizedBox(
           height: 230,

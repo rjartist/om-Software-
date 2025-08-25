@@ -842,119 +842,26 @@ class PastBookingList extends StatelessWidget {
                   ),
 
                   // Rate & Review Button
-                  // if (booking.userSubmittedFeedback == false)
-                  //   Padding(
-                  //     padding: const EdgeInsets.only(top: 10),
-                  //     child: Row(
-                  //       mainAxisAlignment: MainAxisAlignment.end,
-                  //       children: [
-                  //         Container(
-                  //           height: 35,
-                  //           decoration: BoxDecoration(
-                  //             gradient: LinearGradient(
-                  //               begin: Alignment.topCenter,
-                  //               end: Alignment.bottomCenter,
-                  //               colors: [
-                  //                 AppColors
-                  //                     .profileSectionButtonColor, // your existing colors
-                  //                 AppColors.profileSectionButtonColor2,
-                  //               ],
-                  //             ),
-                  //             borderRadius: BorderRadius.circular(8),
-                  //           ),
-                  //           child: ElevatedButton(
-                  //             onPressed: () {
-                  //               _showReviewBottomSheet(
-                  //                 context,
-                  //                 venueName: slot?.facility?.facilityName,
-                  //                 bookingId: booking.bookingId ?? 0,
-                  //                 venueId: slot?.facility?.facilityId ?? 0,
-                  //               );
-                  //             },
-                  //             style: ElevatedButton.styleFrom(
-                  //               backgroundColor: Colors.transparent,
-                  //               shadowColor: Colors.transparent,
-                  //               shape: RoundedRectangleBorder(
-                  //                 borderRadius: BorderRadius.circular(8),
-                  //               ),
-                  //             ),
-                  //             child: Text(
-                  //               "Rate & Review",
-                  //               style: AppTextStyle.whiteText(),
-                  //             ),
-                  //           ),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //   )
-                  // else
-                  //   Padding(
-                  //     padding: const EdgeInsets.only(top: 10),
-                  //     child: Row(
-                  //       mainAxisAlignment: MainAxisAlignment.end,
-                  //       children: [
-                  //         Container(
-                  //           height: 35,
-                  //           decoration: BoxDecoration(
-                  //             gradient: const LinearGradient(
-                  //               begin: Alignment.topCenter,
-                  //               end: Alignment.bottomCenter,
-                  //               colors: [
-                  //                 Color(0xFF4CAF50), // ✅ Green shade
-                  //                 Color(0xFF2E7D32), // ✅ Darker green shade
-                  //               ],
-                  //             ),
-                  //             borderRadius: BorderRadius.circular(8),
-                  //           ),
-                  //           child: ElevatedButton(
-                  //             onPressed: () async {
-                  //               await context
-                  //                   .read<BookTabProvider>()
-                  //                   .getReviews(
-                  //                     venueId:
-                  //                         booking
-                  //                             .facilityBookingSlots
-                  //                             ?.first
-                  //                             .facility
-                  //                             ?.facilityId ??
-                  //                         0,
-                  //                   );
-                  //               showModalBottomSheet(
-                  //                 context: context,
-                  //                 isScrollControlled: true,
-                  //                 shape: const RoundedRectangleBorder(
-                  //                   borderRadius: BorderRadius.vertical(
-                  //                     top: Radius.circular(20),
-                  //                   ),
-                  //                 ),
-                  //                 builder: (_) => ViewVenueReviewsBottomSheet(),
-                  //               );
-                  //             },
-                  //             style: ElevatedButton.styleFrom(
-                  //               backgroundColor: Colors.transparent,
-                  //               shadowColor: Colors.transparent,
-                  //               shape: RoundedRectangleBorder(
-                  //                 borderRadius: BorderRadius.circular(8),
-                  //               ),
-                  //             ),
-                  //             child: Text(
-                  //               "View All Review",
-                  //               style: AppTextStyle.whiteText(),
-                  //             ),
-                  //           ),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //   ),
-                  // Rate & Review Button
                   if (booking.userSubmittedFeedback == false)
                     Padding(
                       padding: const EdgeInsets.only(top: 10),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          SizedBox(
+                          Container(
                             height: 35,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  AppColors
+                                      .profileSectionButtonColor, // your existing colors
+                                  AppColors.profileSectionButtonColor2,
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                             child: ElevatedButton(
                               onPressed: () {
                                 _showReviewBottomSheet(
@@ -965,22 +872,15 @@ class PastBookingList extends StatelessWidget {
                                 );
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                foregroundColor: Colors.red, // text color red
+                                backgroundColor: Colors.transparent,
                                 shadowColor: Colors.transparent,
-                                side: const BorderSide(
-                                  color: Colors.red, // 🔴 red border
-                                  width: 1.5,
-                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
                               child: Text(
                                 "Rate & Review",
-                                style: AppTextStyle.blackText(
-                                  fontSize: 13,
-                                ), // black text like green button
+                                style: AppTextStyle.whiteText(),
                               ),
                             ),
                           ),
@@ -993,52 +893,34 @@ class PastBookingList extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          SizedBox(
-                            height: 35,
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                await context
-                                    .read<BookTabProvider>()
-                                    .getReviews(
-                                      venueId:
-                                          booking
-                                              .facilityBookingSlots
-                                              ?.first
-                                              .facility
-                                              ?.facilityId ??
-                                          0,
-                                    );
-                                showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.vertical(
-                                      top: Radius.circular(20),
-                                    ),
-                                  ),
-                                  builder: (_) => ViewVenueReviewsBottomSheet(),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                foregroundColor: const Color(
-                                  0xFF2E7D32,
-                                ), // text color green
-                                shadowColor: Colors.transparent,
-                                side: const BorderSide(
-                                  color: Color(0xFF4CAF50),
-                                  width: 1.5,
-                                ), // green border
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color:
+                                    Colors
+                                        .green, // ✅ Green border to match style
+                                width: 1.5,
+                              ),
+                              color: Colors.white, // keep background white
+                            ),
+                            child: Row(
+                              children: [
+                                Text(
+                                  "You rated ${booking.userFeedback?.rating ?? 0} ",
+                                  style: AppTextStyle.blackText(fontSize: 13),
                                 ),
-                              ),
-                              child: Text(
-                                "View All Review",
-                                style: AppTextStyle.blackText(
-                                  fontSize: 13,
-                                ), // use your custom style if available
-                              ),
+                                const SizedBox(width: 4),
+                                const Icon(
+                                  Icons.star,
+                                  size: 18,
+                                  color: AppColors.accentColor, // yellow star
+                                ),
+                              ],
                             ),
                           ),
                         ],
@@ -1142,7 +1024,7 @@ class PastBookingList extends StatelessWidget {
                       ),
                       filled: true,
                       fillColor: AppColors.white,
-                      hintText: 'share your experience',
+                      hintText: 'Share your experience.',
                       labelStyle: AppTextStyle.blackText(),
                       hintStyle: AppTextStyle.greytext(),
                       contentPadding: const EdgeInsets.symmetric(

@@ -41,22 +41,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   void navigateto() async {
     await Future.delayed(const Duration(seconds: 3));
-    // final locationProvider = context.read<LocationProvider>();
-    // locationProvider.fetchAndSaveLocation();
-    // bool isLoggedIn = await AuthService.isLoggedIn();
-
-    // if (isLoggedIn) {
-    //   Navigator.pushReplacement(
-    //     context,
-    //     MaterialPageRoute(builder: (context) => HomePage()),
-    //   );
-    // } else {
-    //   Navigator.pushReplacement(
-    //     context,
-    //     MaterialPageRoute(builder: (context) => const Onboarding()),
-    //   );
-    // }
-
+   
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => HomePage()),

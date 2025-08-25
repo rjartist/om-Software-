@@ -55,7 +55,7 @@ class BookTab extends StatelessWidget {
                   context.read<HomeTabProvider>().searchVenues(value);
                 },
                 decoration: InputDecoration(
-                  hintText: 'Type venues...',
+                  hintText: 'Search venues...',
                   suffixIcon: Padding(
                     padding: const EdgeInsets.all(12.5),
                     child: Image.asset(

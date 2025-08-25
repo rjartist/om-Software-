@@ -130,16 +130,34 @@ class _EditProfilePageState extends State<EditProfilePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  // CircleAvatar(
+                  //   radius: 50,
+                  //   backgroundImage:
+                  //       provider.selectedImage != null
+                  //           ? FileImage(provider.selectedImage!)
+                  //           : imageUrl != null
+                  //           ? NetworkImage(imageUrl)
+                  //           : const AssetImage('assets/images/user.jpeg')
+                  //               as ImageProvider,
+                  //   backgroundColor: Colors.white,
+                  // ),
                   CircleAvatar(
                     radius: 50,
+                    backgroundColor: Colors.grey.shade300, // neutral bg
                     backgroundImage:
                         provider.selectedImage != null
                             ? FileImage(provider.selectedImage!)
                             : imageUrl != null
                             ? NetworkImage(imageUrl)
-                            : const AssetImage('assets/images/user.jpeg')
-                                as ImageProvider,
-                    backgroundColor: Colors.white,
+                            : null, // no image -> show icon instead
+                    child:
+                        (provider.selectedImage == null && imageUrl == null)
+                            ? const Icon(
+                              Icons.person, // neutral user icon
+                              size: 50,
+                              color: Colors.white,
+                            )
+                            : null,
                   ),
                   const SizedBox(height: 10),
                   InkWell(

@@ -31,6 +31,15 @@ class BookTabProvider extends ChangeNotifier {
   bool isgetVenueDetailsGetting = false;
   bool isFavorite = false;
   bool isFavoriteLoading = false;
+  // bool isFavoriteList = false;
+  // bool isFavoriteListLoading = false;
+  final Map<int, bool> _favoriteListStatus = {};
+  final Map<int, bool> _favoriteListLoading = {};
+
+  bool isFavoriteList(int venueId) => _favoriteListStatus[venueId] ?? false;
+  bool isFavoriteListLoading(int venueId) =>
+      _favoriteListLoading[venueId] ?? false;
+
   VenueReviewsResponseModel? venueReviews;
 
   bool isReviewsLoading = false;
@@ -51,6 +60,7 @@ class BookTabProvider extends ChangeNotifier {
   final PageController imagePageController = PageController();
   int currentImageIndex = 0;
   String? selectedSport;
+  String? selectedSportImage;
   int? selectedSportId;
   DateTime selectedDate = DateTime.now();
   bool isCalendarExpanded = false;
@@ -91,6 +101,81 @@ class BookTabProvider extends ChangeNotifier {
 
   void setCoinWalletId(int? id) {
     coinWalletId = id;
+  }
+
+
+  Future<void> toggleFavoriteList(BuildContext context, int venueId) async {
+    final isOnline = navigatorKey.currentContext!
+        .read<ConnectivityProvider>()
+        .isOnline;
+
+    if (!isOnline) {
+      GlobalSnackbar.error(context, "No internet connection");
+      return;
+    }
+
+    final previousFavoriteStatus = _favoriteListStatus[venueId] ?? false;
+    _favoriteListStatus[venueId] = !previousFavoriteStatus;
+    _favoriteListLoading[venueId] = true;
+    notifyListeners();
+
+    try {
+      final response = await BookTabService().addFavoriteService(venueId);
+
+      if (response.isSuccess) {
+        final Map<String, dynamic> data =
+            jsonDecode(response.responseData);
+        _favoriteListStatus[venueId] = data['isFavorite'] == true;
+        GlobalSnackbar.success(context, response.message);
+      } else {
+        _favoriteListStatus[venueId] = previousFavoriteStatus;
+        GlobalSnackbar.error(context, response.message);
+      }
+    } catch (e) {
+      debugPrint("Error toggling favorite: $e");
+      _favoriteListStatus[venueId] = previousFavoriteStatus;
+      GlobalSnackbar.error(context, "Something went wrong");
+    } finally {
+      _favoriteListLoading[venueId] = false;
+      notifyListeners();
+    }
+  }  
+
+
+
+  Future<void> toggleFavorite(BuildContext context, int venueId) async {
+    final isOnline =
+        navigatorKey.currentContext!.read<ConnectivityProvider>().isOnline;
+
+    if (!isOnline) {
+      GlobalSnackbar.error(context, "No internet connection");
+      return;
+    }
+
+    final previousFavoriteStatus = isFavorite;
+    isFavorite = !isFavorite;
+    isFavoriteLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await BookTabService().addFavoriteService(venueId);
+
+      if (response.isSuccess) {
+        final Map<String, dynamic> data = jsonDecode(response.responseData);
+        isFavorite = data['isFavorite'] == true;
+        GlobalSnackbar.success(context, response.message);
+      } else {
+        isFavorite = previousFavoriteStatus;
+        GlobalSnackbar.error(context, response.message);
+      }
+    } catch (e) {
+      debugPrint("Error toggling favorite: $e");
+      isFavorite = previousFavoriteStatus;
+      GlobalSnackbar.error(context, "Something went wrong");
+    } finally {
+      isFavoriteLoading = false;
+      notifyListeners();
+    }
   }
 
   void toggleUseCoins(bool value, int available) {
@@ -599,9 +684,10 @@ class BookTabProvider extends ChangeNotifier {
     return organizedChart;
   }
 
-  void selectSport(String sportName, int sportId) {
+  void selectSport(String sportName, int sportId, String? sportImage) {
     selectedSport = sportName;
     selectedSportId = sportId;
+    selectedSportImage = sportImage;
     notifyListeners();
   }
 
@@ -770,41 +856,6 @@ class BookTabProvider extends ChangeNotifier {
       );
     } finally {
       isCouponLoading = false;
-      notifyListeners();
-    }
-  }
-
-  Future<void> toggleFavorite(BuildContext context, int venueId) async {
-    final isOnline =
-        navigatorKey.currentContext!.read<ConnectivityProvider>().isOnline;
-
-    if (!isOnline) {
-      GlobalSnackbar.error(context, "No internet connection");
-      return;
-    }
-
-    final previousFavoriteStatus = isFavorite;
-    isFavorite = !isFavorite;
-    isFavoriteLoading = true;
-    notifyListeners();
-
-    try {
-      final response = await BookTabService().addFavoriteService(venueId);
-
-      if (response.isSuccess) {
-        final Map<String, dynamic> data = jsonDecode(response.responseData);
-        isFavorite = data['isFavorite'] == true;
-        GlobalSnackbar.success(context, response.message);
-      } else {
-        isFavorite = previousFavoriteStatus;
-        GlobalSnackbar.error(context, response.message);
-      }
-    } catch (e) {
-      debugPrint("Error toggling favorite: $e");
-      isFavorite = previousFavoriteStatus;
-      GlobalSnackbar.error(context, "Something went wrong");
-    } finally {
-      isFavoriteLoading = false;
       notifyListeners();
     }
   }
@@ -982,6 +1033,7 @@ class BookTabProvider extends ChangeNotifier {
     venueDetailModel = null;
     currentImageIndex = 0;
     selectedSport = null;
+    selectedSportImage = null;
     selectedDate = DateTime.now();
     isCalendarExpanded = false;
     selectedSlot = null;
@@ -1209,8 +1261,12 @@ class BookTabProvider extends ChangeNotifier {
         onFailure: (code, message) {
           GlobalSnackbar.error(
             navigatorKey.currentContext!,
-            "Payment failed: $message",
+            "Something went wrong. Please try again.",
           );
+          // GlobalSnackbar.error(
+          //   navigatorKey.currentContext!,
+          //   "Payment failed: $message",
+          // );
           isProceedToPlay = false; // reset here
           notifyListeners();
         },

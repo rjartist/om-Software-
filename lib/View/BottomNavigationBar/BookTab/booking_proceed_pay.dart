@@ -7,6 +7,7 @@ import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/View/BottomNavigationBar/BookTab/apply_coupen_book.dart';
 import 'package:gkmarts/View/BottomNavigationBar/BookTab/congratulation_booking.dart';
+import 'package:gkmarts/Widget/global.dart';
 import 'package:gkmarts/Widget/global_appbar.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -27,7 +28,7 @@ class BookingProceedPayPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.bgColor,
-      appBar: GlobalAppBar(title: "Booking", showBackButton: true),
+      appBar: GlobalAppBar(title: "Review & Pay", showBackButton: true),
 
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -36,7 +37,7 @@ class BookingProceedPayPage extends StatelessWidget {
               left: 16,
               right: 16,
               top: 16,
-              bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+              bottom: 0,
             ),
             child: ConstrainedBox(
               constraints: BoxConstraints(minHeight: constraints.maxHeight),
@@ -210,9 +211,15 @@ class BookingProceedPayPage extends StatelessWidget {
       ),
 
       bottomNavigationBar: Consumer<BookTabProvider>(
-        builder:
-            (_, provider, __) => SafeArea(
-               minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        builder: (_, provider, __) {
+          return SafeArea(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                16,
+                8,
+                16,
+                MediaQuery.of(context).viewPadding.bottom + 16,
+              ),
               child: GestureDetector(
                 onTap:
                     provider.isProceedToPlay
@@ -231,7 +238,7 @@ class BookingProceedPayPage extends StatelessWidget {
                     ),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -275,6 +282,8 @@ class BookingProceedPayPage extends StatelessWidget {
                 ),
               ),
             ),
+          );
+        },
       ),
     );
   }
@@ -497,11 +506,6 @@ class BookingInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl =
-        model.modifiedFacility.facilityImages.isNotEmpty
-            ? model.modifiedFacility.facilityImages.first.image
-            : '';
-
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -518,28 +522,6 @@ class BookingInfoCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ClipRRect(
-          //   borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-          //   child:
-          //       imageUrl.isNotEmpty
-          //           ? Image.network(
-          //             imageUrl,
-          //             width: double.infinity,
-          //             height: 180,
-          //             fit: BoxFit.cover,
-          //             errorBuilder:
-          //                 (context, error, stackTrace) => const SizedBox(
-          //                   height: 180,
-          //                   child: Center(
-          //                     child: Icon(Icons.image_not_supported),
-          //                   ),
-          //                 ),
-          //           )
-          //           : const SizedBox(
-          //             height: 180,
-          //             child: Center(child: Icon(Icons.image_not_supported)),
-          //           ),
-          // ),
           Padding(
             padding: const EdgeInsets.all(16),
             child: _buildBookingDetails(context),
@@ -563,8 +545,8 @@ class BookingInfoCard extends StatelessWidget {
           style: const TextStyle(fontSize: 14, color: Colors.grey),
         ),
         const SizedBox(height: 12),
-        _buildInfoRow(
-          Icons.flag,
+        _buildInfoRowWithImage(
+          provider.selectedSportImage, // pass the URL here
           provider.selectedSport ?? "Selected Sport",
           isBold: true,
         ),
@@ -572,6 +554,32 @@ class BookingInfoCard extends StatelessWidget {
         _buildInfoRow(Icons.calendar_today, _formatDate(provider.selectedDate)),
         const SizedBox(height: 8),
         _buildInfoRow(Icons.access_time, _getFormattedTimeRange(context)),
+      ],
+    );
+  }
+
+  Widget _buildInfoRowWithImage(
+    String? imageUrl,
+    String text, {
+    bool isBold = false,
+  }) {
+    return Row(
+      children: [
+        if (imageUrl != null && imageUrl.isNotEmpty)
+          ClipOval(
+            child: buildNetworkOrSvgImage(imageUrl, width: 24, height: 24),
+          )
+        else
+          const SizedBox(width: 24, height: 24), // fallback
+
+        const SizedBox(width: 8),
+        Text(
+          text,
+          style: AppTextStyle.blackText(
+            fontSize: 14,
+            fontWeight: isBold ? FontWeight.w500 : FontWeight.normal,
+          ),
+        ),
       ],
     );
   }

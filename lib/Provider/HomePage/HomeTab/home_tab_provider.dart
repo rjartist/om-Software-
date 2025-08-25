@@ -5,6 +5,7 @@ import 'package:gkmarts/Models/GenaralModels/coins_model.dart';
 import 'package:gkmarts/Models/HomeTab_Models/banner_model.dart';
 import 'package:gkmarts/Models/HomeTab_Models/game_join_model.dart';
 import 'package:gkmarts/Models/BookTabModel/venue_model.dart';
+import 'package:gkmarts/Models/HomeTab_Models/notification_model.dart';
 import 'package:gkmarts/Provider/Connectivity/connectivity_provider.dart';
 import 'package:gkmarts/Provider/Location/location_provider.dart';
 import 'package:gkmarts/Services/AuthServices/auth_services.dart';
@@ -17,7 +18,6 @@ import 'package:gkmarts/Widget/global_button.dart';
 import 'package:provider/provider.dart';
 
 class HomeTabProvider with ChangeNotifier {
-  int unreadNotifications = 6;
   bool isBannerGetting = false;
   bool isBookVenueLoading = false;
   bool isGamesLoading = false;
@@ -30,11 +30,83 @@ class HomeTabProvider with ChangeNotifier {
   int _currentBannerIndex = 0;
   int get currentBannerIndex => _currentBannerIndex;
 
+  int unreadNotifications = 0;
+  List<NotificationModel> notificationList = [];
+  bool isNotificationsLoading = false;
+
   //--
   int _selectedServiceIndex = -1;
   int get selectedServiceIndex => _selectedServiceIndex;
   CoinsModel? coinsModel;
   bool isCoinsLoading = false;
+  Future<void> getNotifications(BuildContext context) async {
+    final isOnline =
+        Provider.of<ConnectivityProvider>(context, listen: false).isOnline;
+    if (!isOnline) return;
+
+    final isLoggedIn = await AuthService.isLoggedIn();
+    if (!isLoggedIn) return;
+
+    isNotificationsLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await HomeTabService().getNotificationService();
+
+      if (response.isSuccess) {
+        final data = jsonDecode(response.responseData);
+
+        unreadNotifications = data['unreadCount'] ?? 0;
+
+        // Parse notifications list
+        notificationList =
+            (data['data'] as List)
+                .map((e) => NotificationModel.fromJson(e))
+                .toList();
+      } else {
+        debugPrint("Notifications API error: ${response.message}");
+      }
+    } catch (e) {
+      debugPrint("Error fetching notifications: $e");
+    } finally {
+      isNotificationsLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Mark all unread notifications as read
+  Future<void> markUnreadAsRead(BuildContext context) async {
+    try {
+      // 1. Collect unread notification IDs
+      final unreadIds =
+          notificationList.where((n) => !n.isRead).map((n) => n.id).toList();
+
+      if (unreadIds.isEmpty) return; // nothing to mark as read
+
+      debugPrint("📩 Marking notifications as read: $unreadIds");
+
+      // 2. Call API to mark them as read
+      final response = await HomeTabService().markNotificationsAsRead(
+        unreadIds,
+      );
+
+      if (response.isSuccess) {
+        // 3. Update local state
+        for (var n in notificationList) {
+          if (unreadIds.contains(n.id)) {
+            n.isRead = true;
+          }
+        }
+
+        unreadNotifications = 0;
+        notifyListeners();
+      } else {
+        debugPrint("Failed to mark notifications as read: ${response.message}");
+      }
+    } catch (e) {
+      debugPrint("Error marking notifications as read: $e");
+    }
+  }
 
   Future<void> showCoinPopupOnce(BuildContext context) async {
     // final coins = coinsModel?.remainingBonusCoins ?? 0;
@@ -44,7 +116,8 @@ class HomeTabProvider with ChangeNotifier {
     if (!isLoggedIn) {
       return;
     }
-
+    // final coins = coinsModel?.remainingBonusCoins ?? 0;
+    // showCoinPopup(context, coins);
     if (!SharedPrefHelper.hasShownCoinPopup()) {
       final coins = coinsModel?.remainingBonusCoins ?? 0;
       if (coins > 0) {
@@ -89,13 +162,15 @@ class HomeTabProvider with ChangeNotifier {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  "You’ve received $coins bonus coins!\nUse them on your bookings within the next 90 days .\n\nYou can redeem these coins across up to 10 bookings.\n\nHurry! Coins expire on $formattedExpiry.",
+                  "You’ve received $coins bonus coins!\nUse them on your bookings within the next 90 days .\nHurry! Coins expire on $formattedExpiry.",
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 14, color: Colors.grey[700]),
                 ),
                 const SizedBox(height: 16),
 
                 GlobalSmallButton(
+                  width: 150,
+                  height: 40,
                   text: "View My Coins",
                   onTap: () {
                     Navigator.pop(context);
@@ -110,6 +185,8 @@ class HomeTabProvider with ChangeNotifier {
                 ),
                 const SizedBox(height: 20),
                 GlobalButton(
+                  width: 150,
+                  height: 40,
                   text: "Got it!",
                   onPressed: () {
                     Navigator.pop(context);
@@ -189,10 +266,47 @@ class HomeTabProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getBookVenue(BuildContext context) async {
+  // Future<void> getBookVenue(BuildContext context) async {
+  //   final isOnline =
+  //       Provider.of<ConnectivityProvider>(context, listen: false).isOnline;
+  //   if (!isOnline) return;
+
+  //   isBookVenueLoading = true;
+  //   notifyListeners();
+
+  //   try {
+  //     final locationProvider = Provider.of<LocationProvider>(
+  //       context,
+  //       listen: false,
+  //     );
+  //     final city =
+  //         locationProvider.selectedCity.isNotEmpty
+  //             ? locationProvider.selectedCity
+  //             : "Pune";
+
+  //     final response = await HomeTabService().getAllVenueServices(city: city);
+
+  //     if (response.isSuccess) {
+  //       final data = jsonDecode(response.responseData);
+  //       final List<dynamic> facilitiesList = data['facilities'] ?? [];
+
+  //       venueList = facilitiesList.map((e) => VenueModel.fromJson(e)).toList();
+  //       setVenueList(venueList);
+  //     } else {
+  //       debugPrint("API Error: ${response.message}");
+  //     }
+  //   } catch (e) {
+  //     debugPrint("Venue fetch error: $e");
+  //   } finally {
+  //     isBookVenueLoading = false;
+  //     notifyListeners();
+  //   }
+  // }
+
+  Future<bool> getBookVenue(BuildContext context) async {
     final isOnline =
         Provider.of<ConnectivityProvider>(context, listen: false).isOnline;
-    if (!isOnline) return;
+    if (!isOnline) return false;
 
     isBookVenueLoading = true;
     notifyListeners();
@@ -215,6 +329,8 @@ class HomeTabProvider with ChangeNotifier {
 
         venueList = facilitiesList.map((e) => VenueModel.fromJson(e)).toList();
         setVenueList(venueList);
+
+        return venueList.isNotEmpty; // ✅ true if venues found
       } else {
         debugPrint("API Error: ${response.message}");
       }
@@ -224,6 +340,8 @@ class HomeTabProvider with ChangeNotifier {
       isBookVenueLoading = false;
       notifyListeners();
     }
+
+    return false; // ✅ default: no venues
   }
 
   Future<void> getJoinGame(BuildContext context) async {

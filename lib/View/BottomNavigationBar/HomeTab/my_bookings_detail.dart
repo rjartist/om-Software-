@@ -321,9 +321,9 @@ class _MyBookingsDetailState extends State<MyBookingsDetail> {
                       ),
 
                       child: Text(
-                        "Cancellation",
+                        "Cancel Booking",
                         style: AppTextStyle.whiteText(
-                          fontWeight: FontWeight.w500,        
+                          fontWeight: FontWeight.w500,
                           fontSize: 14,
                         ),
                       ),
@@ -341,14 +341,13 @@ class _MyBookingsDetailState extends State<MyBookingsDetail> {
     BuildContext context,
     dynamic cancellationItem,
   ) {
-    String? selectedReason;
-
     final List<String> reasons = [
       "Change of plans",
       "Found a better option",
       "Incorrect booking details",
       "Other",
     ];
+
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -356,204 +355,453 @@ class _MyBookingsDetailState extends State<MyBookingsDetail> {
       ),
       backgroundColor: Colors.white,
       builder: (context) {
-        return Material(
-          color: Colors.white,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: 20,
-              right: 20,
-              top: 20,
-              bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Handle
-                Container(
-                  width: 40,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(10),
+        String? selectedReason; // keep it local
+
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return SafeArea(
+              child: Material(
+                color: Colors.white,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    left: 20,
+                    right: 20,
+                    top: 20,
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 20,
                   ),
-                ),
-                const SizedBox(height: 16),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Handle
+                      Container(
+                        width: 40,
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
 
-                // Title
-                Text("Cancellation Request", style: AppTextStyle.titleText()),
-                const SizedBox(height: 16),
+                      // Title
+                      Text(
+                        "Cancellation Request",
+                        style: AppTextStyle.titleText(),
+                      ),
+                      const SizedBox(height: 16),
 
-                // Venue Info
-                _infoRow(
-                  Icons.location_on_outlined,
-                  cancellationItem
-                      .facilityBookingSlots
-                      ?.first
-                      .facility
-                      ?.facilityName!,
-                ),
-                const SizedBox(height: 8),
-                _infoRow(
-                  Icons.calendar_today_outlined,
-                  formatDate(
-                    widget.booking.facilityBookingSlots?.first.bookingDate,
-                  ),
-                ),
-                const SizedBox(height: 20),
+                      // Venue Info
+                      _infoRow(
+                        Icons.location_on_outlined,
+                        cancellationItem
+                            .facilityBookingSlots
+                            ?.first
+                            .facility
+                            ?.facilityName!,
+                      ),
+                      const SizedBox(height: 8),
+                      _infoRow(
+                        Icons.calendar_today_outlined,
+                        formatDate(
+                          widget
+                              .booking
+                              .facilityBookingSlots
+                              ?.first
+                              .bookingDate,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
 
-                // Label
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Reason for Cancellation",
-                    style: AppTextStyle.blackText(fontSize: 14),
-                  ),
-                ),
-                const SizedBox(height: 8),
+                      // Label
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Reason for Cancellation",
+                          style: AppTextStyle.blackText(fontSize: 14),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
 
-                // Dropdown
-                DropdownButtonFormField<String>(
-                  value: selectedReason,
-                  hint: Text("Select reason", style: AppTextStyle.greytext()),
-                  items:
-                      reasons.map((reason) {
-                        return DropdownMenuItem<String>(
-                          value: reason,
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.fiber_manual_record,
-                                size: 6,
-                                color: Colors.grey,
-                              ),
-                              const SizedBox(width: 10),
-                              Text(
-                                reason,
-                                overflow: TextOverflow.ellipsis,
-                                style: AppTextStyle.blackText(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
+                      // Dropdown
+                      DropdownButtonFormField<String>(
+                        value: selectedReason,
+                        hint: Text(
+                          "Select reason",
+                          style: AppTextStyle.greytext(),
+                        ),
+                        items:
+                            reasons.map((reason) {
+                              return DropdownMenuItem<String>(
+                                value: reason,
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.fiber_manual_record,
+                                      size: 6,
+                                      color: Colors.grey,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      reason,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: AppTextStyle.blackText(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedReason = value;
-                      context
-                          .read<CancelBookingProvider>()
-                          .setBookingIdAndReason(
-                            cancellationItem?.bookingId,
-                            selectedReason!,
-                          );
-                    });
-                  },
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.grey.shade100,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(
-                        color: AppColors.borderColor,
-                        width: 1.5,
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  icon: const Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    color: Colors.grey,
-                  ),
-                  dropdownColor: Colors.white,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Buttons
-                Row(
-                  children: [
-                    Expanded(
-                      child: GlobalCancelButton(
-                        borderColor: AppColors.borderColor,
-                        textColor: AppColors.black,
-                        backgroundColor: Colors.grey.shade100,
-                        text: "Cancel",
-                        onTap: () => Navigator.pop(context),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: GlobalPrimaryButton(
-                        text: "Submit Request",
-                        onTap: () {
-                          if (selectedReason == null) {
-                            GlobalSnackbar.error(
-                              context,
-                              "Please select a reason.",
-                            );
-                          } else {
-                            final reason = selectedReason;
-                            Navigator.pop(context);
-
-                            context.read<CancelBookingProvider>().cancelBooking(
-                              context,
-                              cancellationItem?.bookingId,
-                              selectedReason!,
-                            );
-                            showDialog(
-                              context: navigatorKey.currentContext!,
-                              barrierDismissible: false,
-                              builder:
-                                  (_) => CancellationSuccessDialog(
-                                    bookingId: cancellationItem?.bookingId,
-                                    venueName:
-                                        cancellationItem
-                                            .facilityBookingSlots
-                                            ?.first
-                                            .facility
-                                            ?.facilityName!,
-                                    reason: reason!,
-                                  ),
-                            );
-                          }
+                              );
+                            }).toList(),
+                        onChanged: (value) {
+                          setModalState(() {
+                            selectedReason = value;
+                            context
+                                .read<CancelBookingProvider>()
+                                .setBookingIdAndReason(
+                                  cancellationItem?.bookingId,
+                                  selectedReason!,
+                                );
+                          });
                         },
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.grey.shade100,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              color: AppColors.borderColor,
+                              width: 1.5,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        icon: const Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          color: Colors.grey,
+                        ),
+                        dropdownColor: Colors.white,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
 
-                // Bottom note
-                Text(
-                  "Cancellations are subject to facility policies.\nCharges may apply.",
-                  textAlign: TextAlign.center,
-                  style: AppTextStyle.greytext(fontSize: 12),
+                      const SizedBox(height: 24),
+
+                      // Buttons
+                      Row(
+                        children: [
+                          Expanded(
+                            child: GlobalCancelButton(
+                              borderColor: AppColors.borderColor,
+                              textColor: AppColors.black,
+                              backgroundColor: Colors.grey.shade100,
+                              text: "Cancel",
+                              onTap: () => Navigator.pop(context),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: GlobalPrimaryButton(
+                              text: "Submit Request",
+                              isEnabled:
+                                  selectedReason !=
+                                  null, // enable only if reason selected
+                              onTap:
+                                  selectedReason == null
+                                      ? () {
+                                        GlobalSnackbar.error(
+                                          context,
+                                          "Please select a reason.",
+                                        );
+                                      }
+                                      : () {
+                                        final reason = selectedReason;
+                                        Navigator.pop(context);
+
+                                        context
+                                            .read<CancelBookingProvider>()
+                                            .cancelBooking(
+                                              context,
+                                              cancellationItem?.bookingId,
+                                              selectedReason!,
+                                            );
+
+                                        showDialog(
+                                          context: navigatorKey.currentContext!,
+                                          barrierDismissible: false,
+                                          builder:
+                                              (_) => CancellationSuccessDialog(
+                                                bookingId:
+                                                    cancellationItem?.bookingId,
+                                                venueName:
+                                                    cancellationItem
+                                                        .facilityBookingSlots
+                                                        ?.first
+                                                        .facility
+                                                        ?.facilityName!,
+                                                reason: reason!,
+                                              ),
+                                        );
+                                      },
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Bottom note
+                      Text(
+                        "Cancellations are subject to facility policies.\nCharges may apply.",
+                        textAlign: TextAlign.center,
+                        style: AppTextStyle.greytext(fontSize: 12),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
   }
+
+  // void _showCancellationBottomSheet(
+  //   BuildContext context,
+  //   dynamic cancellationItem,
+  // ) {
+  //   String? selectedReason;
+
+  //   final List<String> reasons = [
+  //     "Change of plans",
+  //     "Found a better option",
+  //     "Incorrect booking details",
+  //     "Other",
+  //   ];
+  //   showModalBottomSheet(
+  //     context: context,
+  //     shape: const RoundedRectangleBorder(
+  //       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+  //     ),
+  //     backgroundColor: Colors.white,
+  //     builder: (context) {
+  //       return SafeArea(
+  //         child: Material(
+  //           color: Colors.white,
+  //           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+  //           child: Padding(
+  //             padding: EdgeInsets.only(
+  //               left: 20,
+  //               right: 20,
+  //               top: 20,
+  //               bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+  //             ),
+  //             child: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               children: [
+  //                 // Handle
+  //                 Container(
+  //                   width: 40,
+  //                   height: 5,
+  //                   decoration: BoxDecoration(
+  //                     color: Colors.grey[300],
+  //                     borderRadius: BorderRadius.circular(10),
+  //                   ),
+  //                 ),
+  //                 const SizedBox(height: 16),
+
+  //                 // Title
+  //                 Text("Cancellation Request", style: AppTextStyle.titleText()),
+  //                 const SizedBox(height: 16),
+
+  //                 // Venue Info
+  //                 _infoRow(
+  //                   Icons.location_on_outlined,
+  //                   cancellationItem
+  //                       .facilityBookingSlots
+  //                       ?.first
+  //                       .facility
+  //                       ?.facilityName!,
+  //                 ),
+  //                 const SizedBox(height: 8),
+  //                 _infoRow(
+  //                   Icons.calendar_today_outlined,
+  //                   formatDate(
+  //                     widget.booking.facilityBookingSlots?.first.bookingDate,
+  //                   ),
+  //                 ),
+  //                 const SizedBox(height: 20),
+
+  //                 // Label
+  //                 Align(
+  //                   alignment: Alignment.centerLeft,
+  //                   child: Text(
+  //                     "Reason for Cancellation",
+  //                     style: AppTextStyle.blackText(fontSize: 14),
+  //                   ),
+  //                 ),
+  //                 const SizedBox(height: 8),
+
+  //                 // Dropdown
+  //                 DropdownButtonFormField<String>(
+  //                   value: selectedReason,
+  //                   hint: Text("Select reason", style: AppTextStyle.greytext()),
+  //                   items:
+  //                       reasons.map((reason) {
+  //                         return DropdownMenuItem<String>(
+  //                           value: reason,
+  //                           child: Row(
+  //                             children: [
+  //                               const Icon(
+  //                                 Icons.fiber_manual_record,
+  //                                 size: 6,
+  //                                 color: Colors.grey,
+  //                               ),
+  //                               const SizedBox(width: 10),
+  //                               Text(
+  //                                 reason,
+  //                                 overflow: TextOverflow.ellipsis,
+  //                                 style: AppTextStyle.blackText(
+  //                                   fontSize: 14,
+  //                                   fontWeight: FontWeight.w500,
+  //                                 ),
+  //                               ),
+  //                             ],
+  //                           ),
+  //                         );
+  //                       }).toList(),
+  //                   onChanged: (value) {
+  //                     setState(() {
+  //                       selectedReason = value;
+  //                       context
+  //                           .read<CancelBookingProvider>()
+  //                           .setBookingIdAndReason(
+  //                             cancellationItem?.bookingId,
+  //                             selectedReason!,
+  //                           );
+  //                     });
+  //                   },
+  //                   decoration: InputDecoration(
+  //                     filled: true,
+  //                     fillColor: Colors.grey.shade100,
+  //                     contentPadding: const EdgeInsets.symmetric(
+  //                       horizontal: 16,
+  //                       vertical: 14,
+  //                     ),
+  //                     border: OutlineInputBorder(
+  //                       borderRadius: BorderRadius.circular(12),
+  //                     ),
+  //                     enabledBorder: OutlineInputBorder(
+  //                       borderSide: BorderSide(color: Colors.grey.shade300),
+  //                       borderRadius: BorderRadius.circular(12),
+  //                     ),
+  //                     focusedBorder: OutlineInputBorder(
+  //                       borderSide: const BorderSide(
+  //                         color: AppColors.borderColor,
+  //                         width: 1.5,
+  //                       ),
+  //                       borderRadius: BorderRadius.circular(12),
+  //                     ),
+  //                   ),
+  //                   icon: const Icon(
+  //                     Icons.keyboard_arrow_down_rounded,
+  //                     color: Colors.grey,
+  //                   ),
+  //                   dropdownColor: Colors.white,
+  //                   style: const TextStyle(
+  //                     fontSize: 14,
+  //                     color: Colors.black,
+  //                     fontWeight: FontWeight.w500,
+  //                   ),
+  //                 ),
+
+  //                 const SizedBox(height: 24),
+
+  //                 // Buttons
+  //                 Row(
+  //                   children: [
+  //                     Expanded(
+  //                       child: GlobalCancelButton(
+  //                         borderColor: AppColors.borderColor,
+  //                         textColor: AppColors.black,
+  //                         backgroundColor: Colors.grey.shade100,
+  //                         text: "Cancel",
+  //                         onTap: () => Navigator.pop(context),
+  //                       ),
+  //                     ),
+  //                     const SizedBox(width: 12),
+  //                     Expanded(
+  //                       child: GlobalPrimaryButton(
+  //                         text: "Submit Request",
+  //                         onTap: () {
+  //                           if (selectedReason == null) {
+  //                             GlobalSnackbar.error(
+  //                               context,
+  //                               "Please select a reason.",
+  //                             );
+  //                           } else {
+  //                             final reason = selectedReason;
+  //                             Navigator.pop(context);
+
+  //                             context.read<CancelBookingProvider>().cancelBooking(
+  //                               context,
+  //                               cancellationItem?.bookingId,
+  //                               selectedReason!,
+  //                             );
+  //                             showDialog(
+  //                               context: navigatorKey.currentContext!,
+  //                               barrierDismissible: false,
+  //                               builder:
+  //                                   (_) => CancellationSuccessDialog(
+  //                                     bookingId: cancellationItem?.bookingId,
+  //                                     venueName:
+  //                                         cancellationItem
+  //                                             .facilityBookingSlots
+  //                                             ?.first
+  //                                             .facility
+  //                                             ?.facilityName!,
+  //                                     reason: reason!,
+  //                                   ),
+  //                             );
+  //                           }
+  //                         },
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //                 const SizedBox(height: 20),
+
+  //                 // Bottom note
+  //                 Text(
+  //                   "Cancellations are subject to facility policies.\nCharges may apply.",
+  //                   textAlign: TextAlign.center,
+  //                   style: AppTextStyle.greytext(fontSize: 12),
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   Widget _buildShimmer() {
     return Shimmer.fromColors(

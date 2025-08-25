@@ -31,10 +31,15 @@ class _BookingDateTimePageState extends State<BookingDateTimePage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<BookTabProvider>(context, listen: false).getSlotPrices(
-        widget.model.modifiedFacility.facilityId,
-        widget.model.modifiedFacility.services.first.serviceId,
-      );
+      // Provider.of<BookTabProvider>(context, listen: false).getSlotPrices(
+      //   widget.model.modifiedFacility.facilityId,
+      //   widget.model.modifiedFacility.services.first.serviceId,
+      // );
+      final provider = Provider.of<BookTabProvider>(context, listen: false);
+      final sportId =
+          provider.selectedSportId ??
+          widget.model.modifiedFacility.services.first.serviceId;
+      provider.getSlotPrices(widget.model.modifiedFacility.facilityId, sportId);
     });
   }
 
@@ -87,10 +92,15 @@ class _BookingDateTimePageState extends State<BookingDateTimePage> {
             bottomNavigationBar: SafeArea(
               child: Container(
                 decoration: const BoxDecoration(
-                  border: Border(top: BorderSide(color: Colors.grey, width: 0.5)),
+                  border: Border(
+                    top: BorderSide(color: Colors.grey, width: 0.5),
+                  ),
                   color: Colors.white,
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 17,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -109,20 +119,22 @@ class _BookingDateTimePageState extends State<BookingDateTimePage> {
                           context,
                           listen: false,
                         );
-              
+
                         final isLoggedIn = await AuthService.isLoggedIn();
-              
+
                         if (!isLoggedIn) {
                           // If not logged in, navigate to login page
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const MobileInputPage(referralCode: "",),
+                              builder:
+                                  (_) =>
+                                      const MobileInputPage(referralCode: ""),
                             ),
                           );
                           return; // Prevent further execution
                         }
-              
+
                         // If logged in, proceed to booking page
                         Navigator.push(
                           context,
@@ -136,7 +148,7 @@ class _BookingDateTimePageState extends State<BookingDateTimePage> {
                           ),
                         );
                       },
-              
+
                       isEnabled: provider.isBookingReady,
                     ),
                   ],
@@ -1159,14 +1171,39 @@ class PriceChartBottomSheetTable extends StatelessWidget {
                                     ),
                                   ),
                                 ),
+                                // Expanded(
+                                //   child: Center(
+                                //     child: Text(
+                                //       "${formatTimeOnly12(slot.startTime)} - ${formatTimeOnly12(slot.endTime)}",
+                                //       style: AppTextStyle.smallGrey(),
+                                //     ),
+                                //   ),
+                                // ),
                                 Expanded(
-                                  child: Center(
-                                    child: Text(
-                                      "${formatTimeOnly12(slot.startTime)} - ${formatTimeOnly12(slot.endTime)}",
-                                      style: AppTextStyle.smallGrey(),
-                                    ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        formatTimeOnly12(slot.startTime),
+                                        style: AppTextStyle.smallGrey(),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        "to",
+                                        style: AppTextStyle.smallGrey(
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        formatTimeOnly12(slot.endTime),
+                                        style: AppTextStyle.smallGrey(),
+                                      ),
+                                    ],
                                   ),
                                 ),
+
                                 Expanded(
                                   child: Center(
                                     child: Text(

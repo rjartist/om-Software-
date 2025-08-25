@@ -5,6 +5,36 @@ import 'package:gkmarts/Utils/endpoint.dart';
 import 'package:gkmarts/Utils/headers.dart';
 
 class HomeTabService {
+  Future<RestResponse> markNotificationsAsRead(List<String> ids) async {
+    try {
+      ApiService apiService = ApiService(
+        endpoint: getReadNotificationApi,
+        body: jsonEncode({"notificationIds": ids}),
+        method: HTTP_METHOD.POST,
+        headers: await HttpHeader.getHeader(),
+      );
+      RestResponse response = await apiService.exec();
+      return response;
+    } catch (e) {
+      return RestResponse(isSuccess: false);
+    }
+  }
+
+  Future<RestResponse> getNotificationService() async {
+    try {
+      ApiService apiService = ApiService(
+        endpoint: getAllNotificationApi,
+        body: "",
+        method: HTTP_METHOD.POST,
+        headers: await HttpHeader.getHeader(),
+      );
+      RestResponse response = await apiService.exec();
+      return response;
+    } catch (e) {
+      return RestResponse(isSuccess: false);
+    }
+  }
+
   Future<RestResponse> getUserCoinsService() async {
     try {
       ApiService apiService = ApiService(

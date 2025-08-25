@@ -3,7 +3,7 @@ import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 class OneSignalService {
   static const String oneSignalAppId = "7da1b882-fbed-4feb-a589-cf3cab38f6df";
-
+  static Map<String, dynamic>? pendingNotificationData;
   static Future<void> init() async {
     // Initialize OneSignal
     OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
@@ -20,15 +20,16 @@ class OneSignalService {
       final body = event.notification.body;
       print("🔔 Foreground Notification - $title: $body");
 
-      // Cannot suppress it, just log or trigger custom logic
+     
     });
 
     // ✅ Notification tap/click listener
     OneSignal.Notifications.addClickListener((event) {
-      final additionalData = event.notification.additionalData;
-      print("🔗 Notification Clicked! Extra: $additionalData");
+      final data = event.notification.additionalData;
+      print("🔗 Notification Clicked! Extra: $data");
 
-      // TODO: Navigate or handle click
+      // Store the data, navigate later
+      pendingNotificationData = data;
     });
   }
 
@@ -52,4 +53,11 @@ class OneSignalService {
       print("⚠️ OneSignal Player ID not available after $maxRetries attempts.");
     }
   }
+}
+
+
+
+class NotificationType {
+  static const String booking = "booking";
+  static const String general = "notification";
 }

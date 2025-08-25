@@ -375,57 +375,63 @@ class _CreatedGameDetailsState extends State<CreatedGameDetails> {
           );
         },
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(bottom: 40, left: 15, right: 15),
-        child: Row(
-          spacing: 15,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Expanded(
-              child: Container(
-                height: 45,
-                // width: 190,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      AppColors.profileSectionButtonColor,
-                      AppColors.profileSectionButtonColor2,
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      PageTransition(
-                        type: PageTransitionType.rightToLeft,
-                        duration: const Duration(milliseconds: 300),
-                        child: const ChatScreen(),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewPadding.bottom + 16,
+            left: 15,
+            right: 15,
+          ),
+          child: Row(
+            spacing: 15,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Expanded(
+                child: Container(
+                  height: 45,
+                  // width: 190,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        AppColors.profileSectionButtonColor,
+                        AppColors.profileSectionButtonColor2,
+                      ],
                     ),
+                    borderRadius: BorderRadius.circular(8),
                   ),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        PageTransition(
+                          type: PageTransitionType.rightToLeft,
+                          duration: const Duration(milliseconds: 300),
+                          child: const ChatScreen(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
 
-                  child: Text(
-                    "GAME CHAT",
-                    style: AppTextStyle.whiteText(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 14,
+                    child: Text(
+                      "GAME CHAT",
+                      style: AppTextStyle.whiteText(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

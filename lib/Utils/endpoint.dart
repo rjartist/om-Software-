@@ -32,3 +32,5 @@ String getbookingsApi = "$prodDomain/api/bookings/user";
 String getOrderIdApi = "$prodDomain/api/payment/razorpay/order";
 
 String getReferralLink = "$prodDomain/api/auth/referral-link";
+String getAllNotificationApi = "$prodDomain/api/notification/get-all";
+String getReadNotificationApi = "$prodDomain/api/notification/read";

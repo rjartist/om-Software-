@@ -136,43 +136,45 @@ class _SelectSportState extends State<SelectSport> {
           ],
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(bottom: 20, left: 15, right: 15),
-        child: Container(
-          height: 45,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                AppColors.profileSectionButtonColor,
-                AppColors.profileSectionButtonColor2,
-              ],
-            ),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: ElevatedButton(
-            onPressed: () {
-              if (selectedIndex != null) {
-                Navigator.pop(context, sports[selectedIndex!]);
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Please select a sport")),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              shadowColor: Colors.transparent,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding:  EdgeInsets.only(bottom: MediaQuery.of(context).viewPadding.bottom + 16, left: 15, right: 15),
+          child: Container(
+            height: 45,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  AppColors.profileSectionButtonColor,
+                  AppColors.profileSectionButtonColor2,
+                ],
               ),
+              borderRadius: BorderRadius.circular(8),
             ),
-            child: Text(
-              "SELECT",
-              style: AppTextStyle.whiteText(
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
+            child: ElevatedButton(
+              onPressed: () {
+                if (selectedIndex != null) {
+                  Navigator.pop(context, sports[selectedIndex!]);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Please select a sport")),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                "SELECT",
+                style: AppTextStyle.whiteText(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                ),
               ),
             ),
           ),

@@ -258,92 +258,98 @@ class _GameSettingsState extends State<GameSettings> {
           ],
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(bottom: 20, left: 15, right: 15),
-        child: Row(
-          spacing: 15,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Expanded(
-              child: Container(
-                height: 45,
-                // width: 190,
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewPadding.bottom + 16,
+            left: 15,
+            right: 15,
+          ),
+          child: Row(
+            spacing: 15,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Expanded(
+                child: Container(
+                  height: 45,
+                  // width: 190,
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(8),
                   ),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
 
-                  child: Text(
-                    "CANCEL",
-                    style: AppTextStyle.blackText(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 14,
+                    child: Text(
+                      "CANCEL",
+                      style: AppTextStyle.blackText(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            Expanded(
-              child: Container(
-                height: 45,
-                // width: 190,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      AppColors.profileSectionButtonColor,
-                      AppColors.profileSectionButtonColor2,
-                    ],
+              Expanded(
+                child: Container(
+                  height: 45,
+                  // width: 190,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        AppColors.profileSectionButtonColor,
+                        AppColors.profileSectionButtonColor2,
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: ElevatedButton(
-                  onPressed: () {
-                    final selectedInstructions = <String>[];
-                    for (int i = 0; i < items.length; i++) {
-                      if (isChecked[i]) {
-                        selectedInstructions.add(items[i]);
+                  child: ElevatedButton(
+                    onPressed: () {
+                      final selectedInstructions = <String>[];
+                      for (int i = 0; i < items.length; i++) {
+                        if (isChecked[i]) {
+                          selectedInstructions.add(items[i]);
+                        }
                       }
-                    }
 
-                    Navigator.pop(context, {
-                      'selectedSkill': selectedOption,
-                      'costPerPlayer': firstController.text,
-                      'totalPlayers': secondController.text,
-                      'instructions': selectedInstructions,
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      Navigator.pop(context, {
+                        'selectedSkill': selectedOption,
+                        'costPerPlayer': firstController.text,
+                        'totalPlayers': secondController.text,
+                        'instructions': selectedInstructions,
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                  ),
 
-                  child: Text(
-                    "OK",
-                    style: AppTextStyle.whiteText(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 14,
+                    child: Text(
+                      "OK",
+                      style: AppTextStyle.whiteText(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
