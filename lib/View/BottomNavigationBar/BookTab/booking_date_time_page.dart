@@ -11,7 +11,7 @@ import 'package:gkmarts/Widget/global.dart';
 import 'package:gkmarts/Widget/global_appbar.dart';
 import 'package:gkmarts/Widget/global_button.dart';
 import 'package:gkmarts/Widget/global_snackbar.dart';
-import 'package:gkmarts/Widget/mobile_otp_login_widget.dart';
+import 'package:gkmarts/View/Auth_view/mobile_otp_login_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -128,8 +128,10 @@ class _BookingDateTimePageState extends State<BookingDateTimePage> {
                             context,
                             MaterialPageRoute(
                               builder:
-                                  (_) =>
-                                      const MobileInputPage(referralCode: ""),
+                                  (_) => const MobileInputPage(
+                                    referralCode: "",
+                                    isHome: false,
+                                  ),
                             ),
                           );
                           return; // Prevent further execution

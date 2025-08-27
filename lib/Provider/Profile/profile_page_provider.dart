@@ -23,6 +23,13 @@ class ProfileProvider extends ChangeNotifier {
     return null;
   }
 
+  void clearProfileImage() {
+    if (_profile?.user != null) {
+      _profile!.user!.profileImage = ''; // Set empty string
+      notifyListeners();
+    }
+  }
+
   void clearProfileProviderAllData() {
     isLoading = false;
     _profile = null;

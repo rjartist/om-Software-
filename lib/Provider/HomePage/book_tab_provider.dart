@@ -31,14 +31,13 @@ class BookTabProvider extends ChangeNotifier {
   bool isgetVenueDetailsGetting = false;
   bool isFavorite = false;
   bool isFavoriteLoading = false;
-  // bool isFavoriteList = false;
-  // bool isFavoriteListLoading = false;
-  final Map<int, bool> _favoriteListStatus = {};
-  final Map<int, bool> _favoriteListLoading = {};
 
-  bool isFavoriteList(int venueId) => _favoriteListStatus[venueId] ?? false;
-  bool isFavoriteListLoading(int venueId) =>
-      _favoriteListLoading[venueId] ?? false;
+  // final Map<int, bool> _favoriteListStatus = {};
+  // final Map<int, bool> _favoriteListLoading = {};
+
+  // bool isFavoriteList(int venueId) => _favoriteListStatus[venueId] ?? false;
+  // bool isFavoriteListLoading(int venueId) =>
+  //     _favoriteListLoading[venueId] ?? false;
 
   VenueReviewsResponseModel? venueReviews;
 
@@ -104,42 +103,42 @@ class BookTabProvider extends ChangeNotifier {
   }
 
 
-  Future<void> toggleFavoriteList(BuildContext context, int venueId) async {
-    final isOnline = navigatorKey.currentContext!
-        .read<ConnectivityProvider>()
-        .isOnline;
+  // Future<void> toggleFavoriteList(BuildContext context, int venueId) async {
+  //   final isOnline = navigatorKey.currentContext!
+  //       .read<ConnectivityProvider>()
+  //       .isOnline;
 
-    if (!isOnline) {
-      GlobalSnackbar.error(context, "No internet connection");
-      return;
-    }
+  //   if (!isOnline) {
+  //     GlobalSnackbar.error(context, "No internet connection");
+  //     return;
+  //   }
 
-    final previousFavoriteStatus = _favoriteListStatus[venueId] ?? false;
-    _favoriteListStatus[venueId] = !previousFavoriteStatus;
-    _favoriteListLoading[venueId] = true;
-    notifyListeners();
+  //   final previousFavoriteStatus = _favoriteListStatus[venueId] ?? false;
+  //   _favoriteListStatus[venueId] = !previousFavoriteStatus;
+  //   _favoriteListLoading[venueId] = true;
+  //   notifyListeners();
 
-    try {
-      final response = await BookTabService().addFavoriteService(venueId);
+  //   try {
+  //     final response = await BookTabService().addFavoriteService(venueId);
 
-      if (response.isSuccess) {
-        final Map<String, dynamic> data =
-            jsonDecode(response.responseData);
-        _favoriteListStatus[venueId] = data['isFavorite'] == true;
-        GlobalSnackbar.success(context, response.message);
-      } else {
-        _favoriteListStatus[venueId] = previousFavoriteStatus;
-        GlobalSnackbar.error(context, response.message);
-      }
-    } catch (e) {
-      debugPrint("Error toggling favorite: $e");
-      _favoriteListStatus[venueId] = previousFavoriteStatus;
-      GlobalSnackbar.error(context, "Something went wrong");
-    } finally {
-      _favoriteListLoading[venueId] = false;
-      notifyListeners();
-    }
-  }  
+  //     if (response.isSuccess) {
+  //       final Map<String, dynamic> data =
+  //           jsonDecode(response.responseData);
+  //       _favoriteListStatus[venueId] = data['isFavorite'] == true;
+  //       GlobalSnackbar.success(context, response.message);
+  //     } else {
+  //       _favoriteListStatus[venueId] = previousFavoriteStatus;
+  //       GlobalSnackbar.error(context, response.message);
+  //     }
+  //   } catch (e) {
+  //     debugPrint("Error toggling favorite: $e");
+  //     _favoriteListStatus[venueId] = previousFavoriteStatus;
+  //     GlobalSnackbar.error(context, "Something went wrong");
+  //   } finally {
+  //     _favoriteListLoading[venueId] = false;
+  //     notifyListeners();
+  //   }
+  // }  
 
 
 

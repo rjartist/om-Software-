@@ -61,42 +61,6 @@ class CongratulationBooking extends StatelessWidget {
                 // Booking Details Card
                 BookingInfoCard(model: model, provider: provider),
 
-                // Container(
-                //   width: double.infinity,
-                //   decoration: BoxDecoration(
-                //     color: Colors.white,
-                //     borderRadius: BorderRadius.circular(8),
-                //     boxShadow: [
-                //       BoxShadow(
-                //         color: Colors.black.withOpacity(0.05),
-                //         blurRadius: 10,
-                //         offset: const Offset(0, 4),
-                //       ),
-                //     ],
-                //   ),
-                //   padding: const EdgeInsets.symmetric(horizontal: 16),
-                //   child: Column(
-                //     crossAxisAlignment: CrossAxisAlignment.start,
-                //     children: [
-                //       _buildInfoRow(
-                //         "Payment Date",
-                //         provider.paymentDate ?? "N/A",
-                //       ),
-                //       _buildInfoRow(
-                //         "Payment Time",
-                //         provider.paymentTime ?? "N/A",
-                //       ),
-                //       _buildInfoRow(
-                //         "Payment Method",
-                //         provider.paymentMethod ?? "UPI",
-                //       ),
-                //       _buildInfoRow(
-                //         "Booking ID",
-                //         provider.bookingId.toString(),
-                //       ),
-                //     ],
-                //   ),
-                // ),
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -128,19 +92,43 @@ class CongratulationBooking extends StatelessWidget {
                 ),
 
                 PaymentSummaryWidget(provider: provider),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    GlobalPrimaryButton(
-                      text: "Back To Home",
-                      onTap: () {
-                        context.read<BookTabProvider>().clearBookingData();
-                        context.read<BottomNavProvider>().changeIndex(0);
-                        Navigator.popUntil(context, (route) => route.isFirst);
-                      },
-                      width: 150,
-                    ),
-                  ],
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                //   children: [
+                //     GlobalPrimaryButton(
+                //       text: "Back To Home",
+                //       onTap: () {
+                //         context.read<BookTabProvider>().clearBookingData();
+                //         context.read<BottomNavProvider>().changeIndex(0);
+                //         Navigator.popUntil(context, (route) => route.isFirst);
+                //       },
+                //       width: 150,
+                //     ),
+                //   ],
+                // ),
+              ],
+            ),
+          ),
+        ),
+        bottomNavigationBar: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              16,
+              0,
+              16,
+              MediaQuery.of(context).viewPadding.bottom + 16,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                GlobalPrimaryButton(
+                  text: "Back To Home",
+                  onTap: () {
+                    context.read<BookTabProvider>().clearBookingData();
+                    context.read<BottomNavProvider>().changeIndex(0);
+                    Navigator.popUntil(context, (route) => route.isFirst);
+                  },
+                  width: 150,
                 ),
               ],
             ),

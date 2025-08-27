@@ -343,7 +343,7 @@ class _RedeemCoinsWidgetState extends State<RedeemCoinsWidget> {
   void initState() {
     super.initState();
     final coinsModel = context.read<HomeTabProvider>().coinsModel;
-    final coinWalletId = coinsModel?.coinwalletid;
+    final coinWalletId = coinsModel?.coinWalletId;
     if (coinWalletId != null) {
       context.read<BookTabProvider>().setCoinWalletId(coinWalletId);
     }
@@ -421,7 +421,7 @@ class _RedeemCoinsWidgetState extends State<RedeemCoinsWidget> {
     return Consumer2<HomeTabProvider, BookTabProvider>(
       builder: (context, homeProvider, bookProvider, _) {
         final availableCoins =
-            homeProvider.coinsModel?.remainingBonusCoins ?? 0;
+            homeProvider.coinsModel?.totalCoinsWithReferral ?? 0;
         final isToggleOn = bookProvider.useCoins;
         final canUseCoins = availableCoins >= 500;
 

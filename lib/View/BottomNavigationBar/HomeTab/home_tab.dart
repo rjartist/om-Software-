@@ -967,10 +967,21 @@ class BookaVenueSection extends StatelessWidget {
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
-                                      Text(
-                                        "₹${venue.price}",
-                                        style: AppTextStyle.blackText(
-                                          fontSize: 14,
+                                      RichText(
+                                        text: TextSpan(
+                                          text: "₹${venue.price} ",
+                                          style: AppTextStyle.blackText(
+                                            fontSize: 14,
+                                          ),
+                                          children: [
+                                            TextSpan(
+                                              text: "Onwards",
+                                              style: AppTextStyle.greytext(
+                                                fontSize: 12,
+                                                color: AppColors.borderColor,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ],

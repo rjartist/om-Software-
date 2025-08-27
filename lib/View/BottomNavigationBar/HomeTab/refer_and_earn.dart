@@ -108,7 +108,7 @@ class _ReferAndEarnState extends State<ReferAndEarn> {
                   ),
                   SizedBox(height: 20),
                   Text(
-                    "Share your referral code with friends and earn points when they install and complete their first booking on CX Play. The more you refer, the more you earn!",
+                    "Share your referral code with friends and earn coins when they install and complete their first booking on CX Play. The more you refer, the more you earn!",
                     style: AppTextStyle.blackText(
                       fontSize: 12,
                       color: AppColors.greytext,

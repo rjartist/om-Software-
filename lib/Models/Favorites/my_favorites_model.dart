@@ -11,18 +11,18 @@ class MyFavoritesModel {
     if (json['listOfFacilities'] != null) {
       listOfFacilities = <ListOfFacilities>[];
       json['listOfFacilities'].forEach((v) {
-        listOfFacilities!.add(new ListOfFacilities.fromJson(v));
+        listOfFacilities!.add(ListOfFacilities.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['success'] = this.success;
-    data['message'] = this.message;
-    if (this.listOfFacilities != null) {
+    final data = <String, dynamic>{};
+    data['success'] = success;
+    data['message'] = message;
+    if (listOfFacilities != null) {
       data['listOfFacilities'] =
-          this.listOfFacilities!.map((v) => v.toJson()).toList();
+          listOfFacilities!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -40,7 +40,7 @@ class ListOfFacilities {
   List<FacilityImages>? facilityImages;
   List<Favorites>? favorites;
   List<Services>? services;
-  Feedback? feedback;
+  FacilityFeedback? feedback; // ✅ renamed
 
   ListOfFacilities({
     this.facilityId,
@@ -66,52 +66,54 @@ class ListOfFacilities {
     zipcode = json['zipcode'];
     other = json['other'];
     googleMapUrl = json['google_map_url'];
+
     if (json['facility_images'] != null) {
       facilityImages = <FacilityImages>[];
       json['facility_images'].forEach((v) {
-        facilityImages!.add(new FacilityImages.fromJson(v));
+        facilityImages!.add(FacilityImages.fromJson(v));
       });
     }
+
     if (json['favorites'] != null) {
       favorites = <Favorites>[];
       json['favorites'].forEach((v) {
-        favorites!.add(new Favorites.fromJson(v));
+        favorites!.add(Favorites.fromJson(v));
       });
     }
+
     if (json['services'] != null) {
       services = <Services>[];
       json['services'].forEach((v) {
-        services!.add(new Services.fromJson(v));
+        services!.add(Services.fromJson(v));
       });
     }
+
     feedback =
-        json['feedback'] != null
-            ? new Feedback.fromJson(json['feedback'])
-            : null;
+        json['feedback'] != null ? FacilityFeedback.fromJson(json['feedback']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['facility_id'] = this.facilityId;
-    data['facility_name'] = this.facilityName;
-    data['address'] = this.address;
-    data['city'] = this.city;
-    data['state'] = this.state;
-    data['zipcode'] = this.zipcode;
-    data['other'] = this.other;
-    data['google_map_url'] = this.googleMapUrl;
-    if (this.facilityImages != null) {
-      data['facility_images'] =
-          this.facilityImages!.map((v) => v.toJson()).toList();
+    final data = <String, dynamic>{};
+    data['facility_id'] = facilityId;
+    data['facility_name'] = facilityName;
+    data['address'] = address;
+    data['city'] = city;
+    data['state'] = state;
+    data['zipcode'] = zipcode;
+    data['other'] = other;
+    data['google_map_url'] = googleMapUrl;
+
+    if (facilityImages != null) {
+      data['facility_images'] = facilityImages!.map((v) => v.toJson()).toList();
     }
-    if (this.favorites != null) {
-      data['favorites'] = this.favorites!.map((v) => v.toJson()).toList();
+    if (favorites != null) {
+      data['favorites'] = favorites!.map((v) => v.toJson()).toList();
     }
-    if (this.services != null) {
-      data['services'] = this.services!.map((v) => v.toJson()).toList();
+    if (services != null) {
+      data['services'] = services!.map((v) => v.toJson()).toList();
     }
-    if (this.feedback != null) {
-      data['feedback'] = this.feedback!.toJson();
+    if (feedback != null) {
+      data['feedback'] = feedback!.toJson();
     }
     return data;
   }
@@ -129,9 +131,9 @@ class FacilityImages {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['facility_image_id'] = this.facilityImageId;
-    data['image'] = this.image;
+    final data = <String, dynamic>{};
+    data['facility_image_id'] = facilityImageId;
+    data['image'] = image;
     return data;
   }
 }
@@ -146,9 +148,7 @@ class Favorites {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['is_favorite'] = this.isFavorite;
-    return data;
+    return {'is_favorite': isFavorite};
   }
 }
 
@@ -166,29 +166,29 @@ class Services {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['service_id'] = this.serviceId;
-    data['service_name'] = this.serviceName;
-    data['min_rate'] = this.minRate;
-    return data;
+    return {
+      'service_id': serviceId,
+      'service_name': serviceName,
+      'min_rate': minRate,
+    };
   }
 }
 
-class Feedback {
+class FacilityFeedback {
   int? totalCount;
   dynamic averageRating;
 
-  Feedback({this.totalCount, this.averageRating});
+  FacilityFeedback({this.totalCount, this.averageRating});
 
-  Feedback.fromJson(Map<String, dynamic> json) {
+  FacilityFeedback.fromJson(Map<String, dynamic> json) {
     totalCount = json['totalCount'];
     averageRating = json['averageRating'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['totalCount'] = this.totalCount;
-    data['averageRating'] = this.averageRating;
-    return data;
+    return {
+      'totalCount': totalCount,
+      'averageRating': averageRating,
+    };
   }
 }

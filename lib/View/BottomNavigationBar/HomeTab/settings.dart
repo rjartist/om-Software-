@@ -52,7 +52,7 @@ class _SettingsState extends State<Settings> {
                               ),
 
                               Text(
-                                "BTurn on to receive notifications about booking updates, offers, and more from CXPlay",
+                                "Turn on to receive notifications about booking updates, offers, and more from CXPlay",
                                 style: AppTextStyle.blackText(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w400,

@@ -11,7 +11,7 @@ import 'package:gkmarts/View/BottomNavigationBar/BookTab/cancle_booking.dart';
 import 'package:gkmarts/Widget/global.dart';
 import 'package:gkmarts/Widget/global_button.dart';
 import 'package:gkmarts/Widget/global_snackbar.dart';
-import 'package:gkmarts/Widget/mobile_otp_login_widget.dart';
+import 'package:gkmarts/View/Auth_view/mobile_otp_login_widget.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -655,10 +655,8 @@ class VenueImageSlider extends StatelessWidget {
                   child: CircleIconButton(
                     icon: Icons.share,
                     onTap: () {
-                      final venueId = facilityId;
-
-                      // Temporary shareable link (can be upgraded later to App Links / Branch / etc.)
-                      final shareLink = "https://myapp.com/venue/$venueId";
+                      final shareLink =
+                          "https://cxplay-bb5b4.web.app/venue/$facilityId";
 
                       SharePlus.instance.share(
                         ShareParams(
@@ -792,27 +790,68 @@ class _ViewVenueReviewsBottomSheetState
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     // Profile image
+                                    // ClipOval(
+                                    //   child: Image.network(
+                                    //     review.user.profileImage,
+                                    //     width: 40,
+                                    //     height: 40,
+                                    //     fit: BoxFit.cover,
+                                    //     errorBuilder: (
+                                    //       context,
+                                    //       error,
+                                    //       stackTrace,
+                                    //     ) {
+                                    //       return Center(
+                                    //         child: Icon(
+                                    //           Icons.person,
+                                    //           size: 24,
+                                    //           color: Colors.grey,
+                                    //         ),
+                                    //       );
+                                    //     },
+                                    //   ),
+                                    // ),
+                                    // Profile image
                                     ClipOval(
-                                      child: Image.network(
-                                        review.user.profileImage,
-                                        width: 40,
-                                        height: 40,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (
-                                          context,
-                                          error,
-                                          stackTrace,
-                                        ) {
-                                          return Center(
-                                            child: Icon(
-                                              Icons.person,
-                                              size: 24,
-                                              color: Colors.grey,
-                                            ),
-                                          );
-                                        },
-                                      ),
+                                      child:
+                                          review.user.profileImage.isNotEmpty
+                                              ? Image.network(
+                                                review.user.profileImage,
+                                                width: 40,
+                                                height: 40,
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (
+                                                  context,
+                                                  error,
+                                                  stackTrace,
+                                                ) {
+                                                  // If network image fails, show gender-based asset
+                                                  return Image.asset(
+                                                    review.user.gender == "Male"
+                                                        ? 'assets/images/male.png'
+                                                        : review.user.gender ==
+                                                            "Female"
+                                                        ? 'assets/images/female.png'
+                                                        : 'assets/images/user.png',
+                                                    width: 40,
+                                                    height: 40,
+                                                    fit: BoxFit.cover,
+                                                  );
+                                                },
+                                              )
+                                              : Image.asset(
+                                                review.user.gender == "Male"
+                                                    ? 'assets/images/male.png'
+                                                    : review.user.gender ==
+                                                        "Female"
+                                                    ? 'assets/images/female.png'
+                                                    : 'assets/images/user.png',
+                                                width: 40,
+                                                height: 40,
+                                                fit: BoxFit.cover,
+                                              ),
                                     ),
+
                                     const SizedBox(width: 12),
 
                                     // Name + Date
@@ -889,40 +928,6 @@ class _ViewVenueReviewsBottomSheetState
                                             right: 8,
                                           ),
                                           child: GestureDetector(
-                                            // onTap: () {
-                                            //   // Open image in fullscreen dialog
-                                            //   showDialog(
-                                            //     context: context,
-                                            //     builder:
-                                            //         (_) => Dialog(
-                                            //           backgroundColor:
-                                            //               Colors.black,
-                                            //           insetPadding:
-                                            //               EdgeInsets.zero,
-                                            //           child: InteractiveViewer(
-                                            //             child: Center(
-                                            //               child: Image.network(
-                                            //                 imgUrl,
-                                            //                 fit: BoxFit.contain,
-                                            //                 errorBuilder:
-                                            //                     (
-                                            //                       _,
-                                            //                       __,
-                                            //                       ___,
-                                            //                     ) => const Icon(
-                                            //                       Icons
-                                            //                           .broken_image,
-                                            //                       color:
-                                            //                           Colors
-                                            //                               .white,
-                                            //                       size: 50,
-                                            //                     ),
-                                            //               ),
-                                            //             ),
-                                            //           ),
-                                            //         ),
-                                            //   );
-                                            // },
                                             onTap: () {
                                               showDialog(
                                                 context: context,

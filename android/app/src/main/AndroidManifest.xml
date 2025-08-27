@@ -52,10 +52,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <!-- Accepts URIs that begin with https://YOUR_HOST -->
-                <data
-                    android:scheme="https"
-                    android:host="cxplay-bb5b4.web.app"
-                    android:pathPrefix="/refer/" />
+          <data android:scheme="https" android:host="cxplay-bb5b4.web.app" android:pathPrefix="/venue/" />
+          <data android:scheme="https" android:host="cxplay-bb5b4.web.app" android:pathPrefix="/refer/" />
             </intent-filter>
 
         </activity>

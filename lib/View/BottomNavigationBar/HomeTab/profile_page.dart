@@ -6,7 +6,7 @@ import 'package:gkmarts/Models/MyBookings/bookings_count_model.dart';
 import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
 import 'package:gkmarts/Services/AuthServices/auth_services.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/refer_and_earn.dart';
-import 'package:gkmarts/Widget/mobile_otp_login_widget.dart';
+import 'package:gkmarts/View/Auth_view/mobile_otp_login_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -86,87 +86,26 @@ class _ProfilePageState extends State<ProfilePage> {
                       Row(
                         children: [
                           const SizedBox(width: 16),
-                          // ClipOval(
-                          //   child:
-                          //       imageUrl != null
-                          //           ? CachedNetworkImage(
-                          //             imageUrl: imageUrl,
-                          //             width: 70,
-                          //             height: 70,
-                          //             fit: BoxFit.cover,
-                          //             placeholder:
-                          //                 (context, url) => CircleAvatar(
-                          //                   radius: 35,
-                          //                   backgroundColor: Colors.grey[200],
-                          //                   child: const Icon(
-                          //                     Icons.person,
-                          //                     color: Colors.grey,
-                          //                   ),
-                          //                 ),
-                          //             errorWidget:
-                          //                 (context, url, error) =>
-                          //                     const CircleAvatar(
-                          //                       radius: 35,
-                          //                       backgroundImage: AssetImage(
-                          //                         'assets/images/user.jpeg',
-                          //                       ),
-                          //                       backgroundColor: Colors.white,
-                          //                     ),
-                          //           )
-                          //           : Image.asset(
-                          //             "assets/images/user.jpeg",
-                          //             height: 70,
-                          //             width: 70,
-                          //           ),
+
                           ClipOval(
-                            child:
-                                imageUrl != null
-                                    ? CachedNetworkImage(
-                                      imageUrl: imageUrl,
-                                      width: 70,
-                                      height: 70,
-                                      fit: BoxFit.cover,
-                                      placeholder:
-                                          (context, url) => CircleAvatar(
-                                            radius: 35,
-                                            backgroundColor: Colors.grey[200],
-                                            child: const Icon(
-                                              Icons.person,
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                      errorWidget:
-                                          (context, url, error) => CircleAvatar(
-                                            radius: 35,
-                                            backgroundColor: Colors.grey[300],
-                                            child: Icon(
-                                              size: 40,
-                                              Icons.person,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                    )
-                                    : user?.user?.gender == "Male"
-                                    ? Image.asset(
-                                      "assets/images/male.png",
-                                      height: 70,
-                                      width: 70,
-                                      // fit: BoxFit.cover,
-                                    )
-                                    : user?.user?.gender == "Female"
-                                    ? Image.asset(
-                                      "assets/images/female.png",
-                                      height: 70,
-                                      width: 70,
-                                      // fit: BoxFit.cover,
-                                    )
-                                    : Image.asset(
-                                      "assets/images/user.jpeg",
-                                      height: 70,
-                                      width: 70,
-                                      // fit: BoxFit.cover,
-                                    ),
+                            child: Image(
+                              image:
+                                  imageUrl != null && imageUrl.isNotEmpty
+                                      ? NetworkImage(imageUrl)
+                                      : AssetImage(
+                                            user?.user?.gender == "Male"
+                                                ? "assets/images/male.png"
+                                                : user?.user?.gender == "Female"
+                                                ? "assets/images/female.png"
+                                                : "assets/images/user.png",
+                                          )
+                                          as ImageProvider,
+                              width: 60, // 2 * radius
+                              height: 60, // 2 * radius
+                              fit: BoxFit.cover, // 👈 force cover
+                            ),
                           ),
+
                           const SizedBox(width: 16),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -276,10 +215,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                           Row(
                                             children: [
                                               Text(
-                                                coinsModel?.remainingBonusCoins ==
-                                                        null
-                                                    ? "0"
-                                                    : "${coinsModel?.remainingBonusCoins}",
+                                                "${coinsModel?.totalCoinsWithReferral ?? 0}",
                                                 style:
                                                     AppTextStyle.primaryText(),
                                               ),

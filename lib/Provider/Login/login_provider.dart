@@ -13,13 +13,14 @@ import 'package:gkmarts/Provider/Profile/profile_page_provider.dart';
 import 'package:gkmarts/Services/AuthServices/auth_services.dart';
 import 'package:gkmarts/Services/AuthServices/login_auth_service.dart';
 import 'package:gkmarts/View/Auth_view/login.dart';
+import 'package:gkmarts/View/Auth_view/login_edit_profile.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/profile_page.dart';
 import 'package:gkmarts/Widget/global.dart';
 import 'package:gkmarts/Utils/SharedPrefHelper/shared_local_storage.dart';
 import 'package:gkmarts/View/home_page.dart';
 import 'package:gkmarts/Widget/global_snackbar.dart';
 
-import 'package:gkmarts/Widget/mobile_otp_login_widget.dart';
+import 'package:gkmarts/View/Auth_view/mobile_otp_login_widget.dart';
 
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
@@ -189,30 +190,24 @@ class LoginProvider extends ChangeNotifier {
         context.read<HomeTabProvider>().getCoinsData(
           navigatorKey.currentContext!,
         );
+        
 
-        if (isHome) {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (_) => HomePage()),
-            (route) => false,
-          ); // ✅ important: mark that we are done
-        }
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => LoginEditProfile()),
+        );
+
 
         // if (isHome) {
-        // Navigator.pushAndRemoveUntil(
-        //   context,
-        //   MaterialPageRoute(builder: (_) => HomePage()),
-        //   (route) => false,
-        // );
+        //   Navigator.pushAndRemoveUntil(
+        //     context,
+        //     MaterialPageRoute(builder: (_) => HomePage()),
+        //     (route) => false,
+        //   );
         // } else {
-        //   if (Navigator.canPop(context)) {
-        //     Navigator.pop(context); // pop once
-        //   }
-        //   if (Navigator.canPop(context)) {
-        //     Navigator.pop(context); // pop second time if still possible
-        //   }
-        // Navigator.pop(context); // Go back to previous screen
-        // Navigator.pop(context); // Then go back again
+
+        //   Navigator.pop(context); // Go back to previous screen
+        //   Navigator.pop(context); // Then go back again
         // }
       } else {
         startOtpTimer();

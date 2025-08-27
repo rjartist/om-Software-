@@ -3,27 +3,37 @@ import 'package:gkmarts/Provider/Profile/edit_profile_provider.dart';
 import 'package:gkmarts/Provider/Profile/profile_page_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
+import 'package:gkmarts/View/home_page.dart';
+import 'package:gkmarts/Widget/global.dart';
 import 'package:gkmarts/Widget/global_appbar.dart';
 import 'package:gkmarts/Widget/global_snackbar.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-class EditProfilePage extends StatefulWidget {
-  const EditProfilePage({super.key});
+class LoginEditProfile extends StatefulWidget {
+  const LoginEditProfile({super.key});
 
   @override
-  State<EditProfilePage> createState() => _EditProfilePageState();
+  State<LoginEditProfile> createState() => _LoginEditProfileState();
 }
 
-class _EditProfilePageState extends State<EditProfilePage> {
+class _LoginEditProfileState extends State<LoginEditProfile> {
+  bool _isSaving = false;
   @override
   void initState() {
     super.initState();
-    // Initialize provider values if needed
-    final profile = context.read<ProfileProvider>().user;
-    if (profile != null) {
-      context.read<EditProfileProvider>().initializeFromProfile(profile);
-    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final profileProvider = context.read<ProfileProvider>();
+
+      // wait for profile API to complete
+      await profileProvider.getProfile(context);
+
+      final profile = profileProvider.user;
+      if (profile != null) {
+        context.read<EditProfileProvider>().initializeFromProfile(profile);
+      }
+    });
   }
 
   Future<void> _pickDate() async {
@@ -56,7 +66,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   void _showImagePickerBottomSheet(BuildContext context) {
     final provider = Provider.of<EditProfileProvider>(context, listen: false);
-    final profileProvider = Provider.of<ProfileProvider>(context, listen: false);
     showModalBottomSheet(
       useSafeArea: true,
       context: context,
@@ -65,58 +74,55 @@ class _EditProfilePageState extends State<EditProfilePage> {
       ),
       backgroundColor: AppColors.white,
       builder: (_) {
-        return SafeArea(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              16,
-              8,
-              16,
-              MediaQuery.of(context).viewPadding.bottom + 16,
-            ),
-            child: Wrap(
-              children: [
+        return Padding(
+          padding: const EdgeInsets.only(
+            bottom: 20,
+            left: 15,
+            right: 15,
+            top: 20,
+          ),
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(
+                  Icons.photo_camera,
+                  color: AppColors.primaryColor,
+                ),
+                title: Text('Camera', style: AppTextStyle.primaryText()),
+                onTap: () {
+                  Navigator.pop(context);
+                  provider.pickImageFromCamera();
+                },
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.photo_library,
+                  color: AppColors.primaryColor,
+                ),
+                title: Text('Gallery', style: AppTextStyle.primaryText()),
+                onTap: () {
+                  Navigator.pop(context);
+                  provider.pickImageFromGallery();
+                },
+              ),
+              if (provider.selectedImage != null)
                 ListTile(
                   leading: const Icon(
-                    Icons.photo_camera,
+                    Icons.delete,
                     color: AppColors.primaryColor,
                   ),
-                  title: Text('Camera', style: AppTextStyle.primaryText()),
+                  title: Text(
+                    'Remove Image',
+                    style: AppTextStyle.primaryText(),
+                  ),
                   onTap: () {
-                    Navigator.pop(context);
-                    provider.pickImageFromCamera();
+                    setState(() {
+                      provider.clearImage();
+                      Navigator.pop(context);
+                    });
                   },
                 ),
-                ListTile(
-                  leading: const Icon(
-                    Icons.photo_library,
-                    color: AppColors.primaryColor,
-                  ),
-                  title: Text('Gallery', style: AppTextStyle.primaryText()),
-                  onTap: () {
-                    Navigator.pop(context);
-                    provider.pickImageFromGallery();
-                  },
-                ),
-                if (provider.selectedImage != null)
-                  ListTile(
-                    leading: const Icon(
-                      Icons.delete,
-                      color: AppColors.primaryColor,
-                    ),
-                    title: Text(
-                      'Remove Image',
-                      style: AppTextStyle.primaryText(),
-                    ),
-                    onTap: () {
-                      setState(() {
-                        provider.clearImage();
-                         profileProvider.clearProfileImage();
-                        Navigator.pop(context);
-                      });
-                    },
-                  ),
-              ],
-            ),
+            ],
           ),
         );
       },
@@ -131,10 +137,30 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return PopScope(
+      canPop: false,
+
+      onPopInvoked: (didPop) {
+        if (!didPop) {
+          if (_isSaving) {
+            // ignore back while saving
+            return;
+          }
+          // device/system back button → go to HomePage
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => HomePage()),
+            (route) => false,
+          );
+        }
+      },
       child: Scaffold(
         backgroundColor: AppColors.bgColor,
-        appBar: GlobalAppBar(title: "Edit Profile", showBackButton: true),
+        appBar: GlobalAppBar(
+          title: "Edit Profile",
+          showBackButton: false,
+          centerTitle: true,
+        ),
         body: GestureDetector(
           onTap: () {
             FocusScope.of(context).unfocus();
@@ -148,9 +174,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 final ImageProvider imageProvider =
                     provider.selectedImage != null
                         ? FileImage(provider.selectedImage!)
-                        : (!provider.isImageRemoved &&
-                            imageUrl != null &&
-                            imageUrl.isNotEmpty)
+                        : (imageUrl != null && imageUrl.isNotEmpty)
                         ? NetworkImage(imageUrl)
                         : AssetImage(
                               provider.user?.user?.gender == "Male"
@@ -190,31 +214,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 ),
                           );
                         },
-                        child:
-                     
-                        ClipOval(
-                          child: Image(
-                            image:
-                                provider.selectedImage != null
-                                    ? FileImage(provider.selectedImage!)
-                                        as ImageProvider
-                                    : (!provider.isImageRemoved &&
-                                        imageUrl != null &&
-                                        imageUrl.isNotEmpty)
-                                    ? NetworkImage(imageUrl)
-                                    : AssetImage(
-                                          provider.user?.user?.gender == "Male"
-                                              ? 'assets/images/male.png'
-                                              : provider.user?.user?.gender ==
-                                                  "Female"
-                                              ? 'assets/images/female.png'
-                                              : 'assets/images/user.png',
-                                        )
-                                        as ImageProvider,
-                            width: 100,
-                            height: 100,
-                            fit: BoxFit.cover, // ✅ cover circle
-                          ),
+                        child: CircleAvatar(
+                          radius: 50,
+                          backgroundColor: Colors.grey[200],
+                          backgroundImage:
+                              provider.selectedImage != null
+                                  ? FileImage(provider.selectedImage!)
+                                  : (imageUrl != null && imageUrl.isNotEmpty)
+                                  ? NetworkImage(imageUrl)
+                                  : AssetImage(
+                                        provider.user?.user?.gender == "Male"
+                                            ? 'assets/images/male.png'
+                                            : provider.user?.user?.gender ==
+                                                "Female"
+                                            ? 'assets/images/female.png'
+                                            : 'assets/images/user.png',
+                                      )
+                                      as ImageProvider,
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -241,6 +257,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       _buildTextField(
                         "assets/images/phoneIcon.png",
                         provider.phoneController,
+                        readOnly: true,
                       ),
                       _buildTextFieldEmail(
                         "assets/images/mailIcon.png",
@@ -391,7 +408,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: ElevatedButton(
-                                  onPressed: () {
+                                  onPressed: () async {
                                     final name =
                                         provider.nameController.text.trim();
                                     final email =
@@ -404,7 +421,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                       );
                                       return;
                                     }
-
                                     if (email.isEmpty) {
                                       GlobalSnackbar.error(
                                         context,
@@ -412,7 +428,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                       );
                                       return;
                                     }
-
                                     if (!_isValidEmail(email)) {
                                       GlobalSnackbar.error(
                                         context,
@@ -421,9 +436,52 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                       return;
                                     }
 
-                                    // ✅ All validations passed → Call API
-                                    provider.editProfile(context);
+                                    setState(() => _isSaving = true);
+
+                                    await provider.editProfile(
+                                      context,
+                                      isFromLogin: true,
+                                    );
+
+                                    setState(() => _isSaving = false);
                                   },
+                                  // onPressed: () {
+                                  //   final name =
+                                  //       provider.nameController.text.trim();
+                                  //   final email =
+                                  //       provider.emailController.text.trim();
+
+                                  //   if (name.isEmpty) {
+                                  //     GlobalSnackbar.error(
+                                  //       context,
+                                  //       "Name cannot be empty",
+                                  //     );
+                                  //     return;
+                                  //   }
+
+                                  //   if (email.isEmpty) {
+                                  //     GlobalSnackbar.error(
+                                  //       context,
+                                  //       "Email cannot be empty",
+                                  //     );
+                                  //     return;
+                                  //   }
+
+                                  //   if (!_isValidEmail(email)) {
+                                  //     GlobalSnackbar.error(
+                                  //       context,
+                                  //       "Enter a valid email address",
+                                  //     );
+                                  //     return;
+                                  //   }
+
+                                  //   // ✅ All validations passed → Call API
+                                  //   provider.editProfile(
+                                  //     context,
+                                  //     isFromLogin: true,
+                                  //   );
+
+                                  // },
                                   // onPressed: () => provider.editProfile(context),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.transparent,
@@ -453,12 +511,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  Widget _buildTextField(String iconPath, TextEditingController controller) {
+  Widget _buildTextField(
+    String iconPath,
+    TextEditingController controller, {
+    bool readOnly = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(top: 20),
       child: Container(
         color: AppColors.white,
         child: TextField(
+          readOnly: readOnly,
           controller: controller,
           style: AppTextStyle.blackText(),
           decoration: InputDecoration(

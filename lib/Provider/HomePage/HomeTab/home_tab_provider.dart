@@ -9,12 +9,14 @@ import 'package:gkmarts/Models/HomeTab_Models/notification_model.dart';
 import 'package:gkmarts/Provider/Connectivity/connectivity_provider.dart';
 import 'package:gkmarts/Provider/Location/location_provider.dart';
 import 'package:gkmarts/Services/AuthServices/auth_services.dart';
+import 'package:gkmarts/Services/BookTab/book_tab_service.dart';
 import 'package:gkmarts/Services/HomeTab/home_tab_service.dart';
 import 'package:gkmarts/Utils/SharedPrefHelper/shared_local_storage.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/my_coins.dart';
 import 'package:gkmarts/Widget/global.dart';
 import 'package:gkmarts/Widget/global_button.dart';
+import 'package:gkmarts/Widget/global_snackbar.dart';
 import 'package:provider/provider.dart';
 
 class HomeTabProvider with ChangeNotifier {
@@ -39,6 +41,73 @@ class HomeTabProvider with ChangeNotifier {
   int get selectedServiceIndex => _selectedServiceIndex;
   CoinsModel? coinsModel;
   bool isCoinsLoading = false;
+
+  void setVenueList(List<VenueModel> venues) {
+    venueList = venues;
+    filteredVenueList = venues;
+    notifyListeners();
+  }
+
+  void searchVenues(String query) {
+    if (query.isEmpty) {
+      filteredVenueList = venueList;
+    } else {
+      filteredVenueList =
+          venueList
+              .where(
+                (venue) =>
+                    venue.venueName.toLowerCase().contains(query.toLowerCase()),
+              )
+              .toList();
+    }
+    notifyListeners();
+  }
+
+  Future<void> toggleFavoriteVenue(BuildContext context, int venueId) async {
+    final isOnline =
+        Provider.of<ConnectivityProvider>(context, listen: false).isOnline;
+
+    if (!isOnline) {
+      GlobalSnackbar.error(context, "No internet connection");
+      return;
+    }
+
+    // Find the venue in the list
+    final index = filteredVenueList.indexWhere(
+      (venue) => venue.facilityId == venueId,
+    );
+    if (index == -1) return;
+
+    // Optimistically update UI
+    filteredVenueList[index] = filteredVenueList[index].copyWith(
+      isFavorite: !filteredVenueList[index].isFavorite,
+    );
+    notifyListeners();
+
+    try {
+      // Call API to update favorite status
+      final response = await BookTabService().addFavoriteService(venueId);
+
+      if (response.isSuccess) {
+        GlobalSnackbar.success(context, response.message);
+      } else {
+        // Revert change if API fails
+        filteredVenueList[index] = filteredVenueList[index].copyWith(
+          isFavorite: !filteredVenueList[index].isFavorite,
+        );
+        notifyListeners();
+        GlobalSnackbar.error(context, response.message);
+      }
+    } catch (e) {
+      // Revert change on error
+      filteredVenueList[index] = filteredVenueList[index].copyWith(
+        isFavorite: !filteredVenueList[index].isFavorite,
+      );
+      notifyListeners();
+      GlobalSnackbar.error(context, "Something went wrong");
+    }
+  }
+
   Future<void> getNotifications(BuildContext context) async {
     final isOnline =
         Provider.of<ConnectivityProvider>(context, listen: false).isOnline;
@@ -54,6 +123,8 @@ class HomeTabProvider with ChangeNotifier {
       final response = await HomeTabService().getNotificationService();
 
       if (response.isSuccess) {
+        notificationList.clear();
+        unreadNotifications = 0;
         final data = jsonDecode(response.responseData);
 
         unreadNotifications = data['unreadCount'] ?? 0;
@@ -64,10 +135,12 @@ class HomeTabProvider with ChangeNotifier {
                 .map((e) => NotificationModel.fromJson(e))
                 .toList();
       } else {
-        debugPrint("Notifications API error: ${response.message}");
+        notificationList.clear();
+        unreadNotifications = 0;
       }
     } catch (e) {
-      debugPrint("Error fetching notifications: $e");
+      notificationList.clear();
+      unreadNotifications = 0;
     } finally {
       isNotificationsLoading = false;
       notifyListeners();
@@ -235,27 +308,6 @@ class HomeTabProvider with ChangeNotifier {
     }
   }
 
-  void setVenueList(List<VenueModel> venues) {
-    venueList = venues;
-    filteredVenueList = venues;
-    notifyListeners();
-  }
-
-  void searchVenues(String query) {
-    if (query.isEmpty) {
-      filteredVenueList = venueList;
-    } else {
-      filteredVenueList =
-          venueList
-              .where(
-                (venue) =>
-                    venue.venueName.toLowerCase().contains(query.toLowerCase()),
-              )
-              .toList();
-    }
-    notifyListeners();
-  }
-
   void setSelectedService(int index) {
     _selectedServiceIndex = index;
     notifyListeners();
@@ -265,43 +317,6 @@ class HomeTabProvider with ChangeNotifier {
     _currentBannerIndex = index;
     notifyListeners();
   }
-
-  // Future<void> getBookVenue(BuildContext context) async {
-  //   final isOnline =
-  //       Provider.of<ConnectivityProvider>(context, listen: false).isOnline;
-  //   if (!isOnline) return;
-
-  //   isBookVenueLoading = true;
-  //   notifyListeners();
-
-  //   try {
-  //     final locationProvider = Provider.of<LocationProvider>(
-  //       context,
-  //       listen: false,
-  //     );
-  //     final city =
-  //         locationProvider.selectedCity.isNotEmpty
-  //             ? locationProvider.selectedCity
-  //             : "Pune";
-
-  //     final response = await HomeTabService().getAllVenueServices(city: city);
-
-  //     if (response.isSuccess) {
-  //       final data = jsonDecode(response.responseData);
-  //       final List<dynamic> facilitiesList = data['facilities'] ?? [];
-
-  //       venueList = facilitiesList.map((e) => VenueModel.fromJson(e)).toList();
-  //       setVenueList(venueList);
-  //     } else {
-  //       debugPrint("API Error: ${response.message}");
-  //     }
-  //   } catch (e) {
-  //     debugPrint("Venue fetch error: $e");
-  //   } finally {
-  //     isBookVenueLoading = false;
-  //     notifyListeners();
-  //   }
-  // }
 
   Future<bool> getBookVenue(BuildContext context) async {
     final isOnline =
@@ -430,21 +445,45 @@ class HomeTabProvider with ChangeNotifier {
     isBannerGetting = true;
     notifyListeners();
     try {
+      // bannerList = [
+      //   BannerModel(
+      //     imageId: '1',
+      //     imageUrl:
+      //         'https://media.istockphoto.com/id/531912354/photo/dramatic-american-football-stadium.webp?a=1&b=1&s=612x612&w=0&k=20&c=t2zCElMELwlIA9lLxIY06mAv1Z9a1i1IEitg4WsDKjA=',
+      //   ),
+      //   BannerModel(
+      //     imageId: '2',
+      //     imageUrl:
+      //         'https://media.istockphoto.com/id/495800596/photo/dramatic-soccer-stadium.webp?a=1&b=1&s=612x612&w=0&k=20&c=aH1ZzO4OGhDLS973joMuiIWy2OLCJXxZGTUFRvl9Dw4=',
+      //   ),
+      //   BannerModel(
+      //     imageId: '3',
+      //     imageUrl:
+      //         'https://media.istockphoto.com/id/495800596/photo/dramatic-soccer-stadium.webp?a=1&b=1&s=612x612&w=0&k=20&c=aH1ZzO4OGhDLS973joMuiIWy2OLCJXxZGTUFRvl9Dw4=',
+      //   ),
+      // ];
+
       bannerList = [
         BannerModel(
           imageId: '1',
-          imageUrl:
-              'https://media.istockphoto.com/id/531912354/photo/dramatic-american-football-stadium.webp?a=1&b=1&s=612x612&w=0&k=20&c=t2zCElMELwlIA9lLxIY06mAv1Z9a1i1IEitg4WsDKjA=',
+          imageUrl: 'assets/images/banner1.png',
+          title: 'Welcome Bonus',
+          description:
+              '5,000 bonus coins are waiting for you. Use these coins before they expire to get exclusive discounts worth ₹500 on your bookings right from the start.',
         ),
         BannerModel(
           imageId: '2',
-          imageUrl:
-              'https://media.istockphoto.com/id/495800596/photo/dramatic-soccer-stadium.webp?a=1&b=1&s=612x612&w=0&k=20&c=aH1ZzO4OGhDLS973joMuiIWy2OLCJXxZGTUFRvl9Dw4=',
+          imageUrl: 'assets/images/banner2.png',
+          title: 'Refer & Earn',
+          description:
+              'Share the app with your friends and earn coins when they install and make their first booking on CXPlay. The more friends you refer, the more coins you collect and the more savings you make!',
         ),
         BannerModel(
           imageId: '3',
-          imageUrl:
-              'https://media.istockphoto.com/id/495800596/photo/dramatic-soccer-stadium.webp?a=1&b=1&s=612x612&w=0&k=20&c=aH1ZzO4OGhDLS973joMuiIWy2OLCJXxZGTUFRvl9Dw4=',
+          imageUrl: 'assets/images/banner3.png',
+          title: 'Coupon Offer',
+          description:
+              'Enjoy instant savings with our special promo code. Apply DISCOUNT10 at checkout to get 10% off your total booking amount.',
         ),
       ];
 

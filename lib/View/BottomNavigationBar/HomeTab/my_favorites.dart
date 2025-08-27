@@ -11,6 +11,7 @@ import 'package:gkmarts/View/BottomNavigationBar/BookTab/venue_details_page.dart
 import 'package:gkmarts/Widget/global_appbar.dart' show GlobalAppBar;
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class MyFavorites extends StatefulWidget {
   const MyFavorites({super.key});
@@ -117,131 +118,291 @@ class _MyFavoritesState extends State<MyFavorites> {
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.only(
-              top: 20,
-              bottom: 20,
-              left: 15,
-              right: 15,
-            ),
+            shrinkWrap: true,
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
             itemCount: provider.favoritesList.length,
             itemBuilder: (context, index) {
-              final item = provider.favoritesList;
+              final favorite = provider.favoritesList[index];
 
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 15),
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      PageTransition(
-                        type: PageTransitionType.rightToLeft,
-                        duration: const Duration(milliseconds: 300),
-                        child: VenueDetailsPage(
-                          facilityId: item[index].facilityId!,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Card(
-                    color: AppColors.white,
-                    elevation: 5,
-                    child: Padding(
-                      padding: const EdgeInsets.all(10),
+              // PageController for image slider
+              final PageController _controller = PageController();
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.15),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Material(
+                    color: Colors.white,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          PageTransition(
+                            type: PageTransitionType.rightToLeft,
+                            duration: const Duration(milliseconds: 300),
+                            child: VenueDetailsPage(
+                              facilityId: favorite.facilityId!,
+                            ),
+                          ),
+                        );
+                      },
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Stack(
-                            alignment: AlignmentDirectional.topEnd,
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: CachedNetworkImage(
-                                  imageUrl:
-                                      item[index].facilityImages!.first.image
-                                          .toString(),
-                                  height: 140,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                  placeholder:
-                                      (_, __) => Container(
-                                        height: 140,
-                                        color: Colors.grey[300],
+                          // ---------- IMAGES ----------
+                          Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Stack(
+                                children: [
+                                  SizedBox(
+                                    height: 140,
+                                    width: double.infinity,
+                                    child:
+                                        (favorite.facilityImages != null &&
+                                                favorite
+                                                    .facilityImages!
+                                                    .isNotEmpty)
+                                            ? Stack(
+                                              children: [
+                                                PageView.builder(
+                                                  controller: _controller,
+                                                  itemCount:
+                                                      favorite
+                                                          .facilityImages!
+                                                          .length,
+                                                  itemBuilder: (
+                                                    context,
+                                                    imgIndex,
+                                                  ) {
+                                                    return Image.network(
+                                                      favorite
+                                                          .facilityImages![imgIndex]
+                                                          .image!,
+                                                      fit: BoxFit.cover,
+                                                      width: double.infinity,
+                                                      loadingBuilder: (
+                                                        context,
+                                                        child,
+                                                        loadingProgress,
+                                                      ) {
+                                                        if (loadingProgress ==
+                                                            null) {
+                                                          return child;
+                                                        }
+                                                        return Container(
+                                                          color:
+                                                              Colors
+                                                                  .grey
+                                                                  .shade200,
+                                                        );
+                                                      },
+                                                      errorBuilder:
+                                                          (
+                                                            context,
+                                                            error,
+                                                            stackTrace,
+                                                          ) => Container(
+                                                            color:
+                                                                Colors
+                                                                    .grey
+                                                                    .shade100,
+                                                            child: const Center(
+                                                              child: Icon(
+                                                                Icons
+                                                                    .broken_image_outlined,
+                                                                size: 40,
+                                                                color:
+                                                                    Colors.grey,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                    );
+                                                  },
+                                                ),
+                                                Positioned(
+                                                  bottom: 8,
+                                                  left: 0,
+                                                  right: 0,
+                                                  child: Center(
+                                                    child: SmoothPageIndicator(
+                                                      controller: _controller,
+                                                      count:
+                                                          favorite
+                                                              .facilityImages!
+                                                              .length,
+                                                      effect: ExpandingDotsEffect(
+                                                        dotHeight: 6,
+                                                        dotWidth: 6,
+                                                        activeDotColor:
+                                                            AppColors
+                                                                .primaryColor,
+                                                        dotColor:
+                                                            Colors.white54,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                            : Container(
+                                              color: Colors.grey.shade200,
+                                              child: const Center(
+                                                child: Icon(
+                                                  Icons.broken_image_outlined,
+                                                  size: 40,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ),
+                                  ),
+
+                                  // ---------- FAVORITE ICON ----------
+                                  Positioned(
+                                    top: 8,
+                                    right: 8,
+                                    child: CircleAvatar(
+                                      radius: 14,
+                                      backgroundColor: Colors.white.withOpacity(
+                                        0.8,
                                       ),
-                                  errorWidget:
-                                      (_, __, ___) => Container(
-                                        height: 140,
-                                        color: Colors.grey[300],
-                                        child: Center(
-                                          child: Icon(
-                                            Icons.broken_image_outlined,
-                                            size: 40,
-                                            color: Colors.grey,
+                                      child: Icon(
+                                        Icons.favorite,
+                                        color: AppColors.primaryColor,
+                                        size: 17,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          // ---------- DETAILS ----------
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Facility Name + Rating
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        favorite.facilityName ??
+                                            "Unknown Facility",
+                                        style: AppTextStyle.primaryText(
+                                          fontSize: 16,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.star,
+                                          color: Colors.amber,
+                                          size: 16,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          "${favorite.feedback?.averageRating ?? 0.0}",
+                                          style: AppTextStyle.greytext(
+                                            fontSize: 12,
                                           ),
                                         ),
+                                        Text(
+                                          " (${favorite.feedback?.totalCount ?? 0})",
+                                          style: AppTextStyle.greytext(
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+
+                                // Address + Price
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        favorite.address ?? "",
+                                        style: AppTextStyle.greytext(
+                                          fontSize: 12,
+                                          color: AppColors.borderColor,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
+                                    ),
+                                    RichText(
+                                      text: TextSpan(
+                                        text:
+                                            (favorite.services != null &&
+                                                    favorite
+                                                        .services!
+                                                        .isNotEmpty)
+                                                ? "₹${favorite.services!.first.minRate} "
+                                                : "₹ ",
+                                        style: AppTextStyle.blackText(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        children: [
+                                          TextSpan(
+                                            text: "Onwards",
+                                            style: AppTextStyle.greytext(
+                                              fontSize: 12,
+                                              color: AppColors.borderColor,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  top: 5,
-                                  right: 5,
-                                ),
-                                child: Image.asset(
-                                  "assets/images/heart.png",
-                                  height: 22,
-                                  width: 22,
-                                  color: AppColors.primaryColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 15),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  item[index].facilityName!,
-                                  style: AppTextStyle.primaryText(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                              // const Spacer(),
-                              Icon(
-                                Icons.star,
-                                size: 14,
-                                color: AppColors.accentColor,
-                              ),
-                              SizedBox(width: 3),
-                              Text(
-                                // item[index].feedback!.averageRating.toString(),
-                                "${item[index].feedback!.averageRating ?? 0.0} "
-                                "(${item[index].feedback!.totalCount ?? 0})",
-                                style: AppTextStyle.blackText(fontSize: 10),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 6),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  item[index].address!,
-                                  // "${item[index].address!}, ${item[index].city}, ${item[index].state}, ${item[index].zipcode}",
-                                  style: AppTextStyle.greytext(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color(0xFF555555),
-                                  ),
-                                ),
-                                // const SizedBox(width: 80),
-                                Text(
-                                  "₹ ${item[index].services!.first.minRate} Onwards",
-                                  style: AppTextStyle.greytext(fontSize: 10),
-                                ),
+                                // Row(
+                                //   children: [
+                                //     Expanded(
+                                //       child: Text(
+                                //         favorite.address ?? "Address not available",
+                                //         style: AppTextStyle.greytext(fontSize: 13),
+                                //         maxLines: 2,
+                                //         overflow: TextOverflow.ellipsis,
+                                //       ),
+                                //     ),
+                                //     Text(
+                                //       (favorite.services != null &&
+                                //               favorite.services!.isNotEmpty)
+                                //           ? "₹${favorite.services!.first.minRate} Onwards"
+                                //           : "Rate not available",
+                                //       style: AppTextStyle.blackText(
+                                //         fontSize: 14,
+                                //         fontWeight: FontWeight.bold,
+                                //       ),
+                                //     ),
+                                //   ],
+                                // ),
                               ],
                             ),
                           ),

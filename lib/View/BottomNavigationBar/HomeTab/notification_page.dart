@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
+import 'package:gkmarts/View/BottomNavigationBar/HomeTab/my_bookings.dart';
+import 'package:gkmarts/View/BottomNavigationBar/HomeTab/my_coins.dart';
 import 'package:gkmarts/Widget/global_appbar.dart';
 import 'package:intl/intl.dart';
 
@@ -50,7 +52,7 @@ class _NotificationPageState extends State<NotificationPage> {
             return ListView.separated(
               itemCount: provider.notificationList.length,
               separatorBuilder:
-                  (_, __) => const Divider(height: 1, thickness: 1),
+                  (_, __) => const Divider(height: 1, thickness: 0.4),
               itemBuilder: (context, index) {
                 final notification = provider.notificationList[index];
 
@@ -59,7 +61,43 @@ class _NotificationPageState extends State<NotificationPage> {
                   description: notification.message,
                   date: notification.date,
                   sentAt: notification.sentAt,
+                  type: notification.type,
                   isRead: notification.isRead,
+                  onTap: () {
+                    switch (notification.type) {
+                      case 'Coins':
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const MyCoins()),
+                        );
+                        break;
+
+                      case 'Booking':
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const MyBookings()),
+                        );
+                        break;
+
+                      case 'Review': // past
+                      case 'CancelBooking':
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const MyBookings()),
+                        );
+                        break;
+
+                      case 'General':
+                      default:
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const NotificationPage(),
+                          ),
+                        );
+                        break;
+                    }
+                  },
                 );
               },
             );
@@ -76,6 +114,8 @@ class NotificationTile extends StatelessWidget {
   final String date; // yyyy-MM-dd
   final DateTime sentAt; // full DateTime
   final bool isRead;
+  final String type;
+  final VoidCallback? onTap;
 
   const NotificationTile({
     super.key,
@@ -83,7 +123,9 @@ class NotificationTile extends StatelessWidget {
     required this.description,
     required this.date,
     required this.sentAt,
+    required this.type,
     required this.isRead,
+    this.onTap,
   });
 
   String get formattedTime {
@@ -98,76 +140,107 @@ class NotificationTile extends StatelessWidget {
     ).format(sentAt.toLocal()); // convert UTC to local
   }
 
+  IconData get typeIcon {
+    switch (type.toLowerCase()) {
+      case 'coins':
+        return Icons.monetization_on; // coin icon
+      case 'booking':
+        return Icons.event_available; // booking icon
+      case 'review':
+        return Icons.rate_review; // review icon
+      case 'cancelbooking':
+        return Icons.cancel; // cancel icon
+      case 'general':
+      default:
+        return Icons.notifications; // fallback
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: isRead ? Colors.white : AppColors.bgColor, // highlight unread
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Circular icon with unread indicator
-          Stack(
-            children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color:
-                      isRead
-                          ? Colors.grey
-                          : AppColors.primaryColor.withOpacity(0.7),
-                ),
-                child: const Icon(Icons.notifications, color: Colors.white),
-              ),
-            ],
-          ),
-          const SizedBox(width: 12),
-
-          // Title, description, date & time
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        color: isRead ? Colors.white : AppColors.bgColor, // highlight unread
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Circular icon with unread indicator
+            Stack(
               children: [
-                // Title + Date & Time
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: AppTextStyle.blackText(
-                          fontSize: 14,
-                          fontWeight:
-                              isRead ? FontWeight.w500 : FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '$formattedDate, $formattedTime',
-                      style: AppTextStyle.base(
-                        color: AppColors.grey,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-
-                // Description
-                Text(
-                  description,
-                  style: AppTextStyle.smallBlack().copyWith(
-                    color: isRead ? Colors.grey[700] : Colors.black,
-                    fontWeight: isRead ? FontWeight.normal : FontWeight.w500,
+                // Container(
+                //   width: 50,
+                //   height: 50,
+                //   decoration: BoxDecoration(
+                //     shape: BoxShape.circle,
+                //     color:
+                //         isRead
+                //             ? Colors.grey
+                //             : AppColors.primaryColor.withOpacity(0.7),
+                //   ),
+                //   child: const Icon(Icons.notifications, color: Colors.white),
+                // ),
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color:
+                        isRead
+                            ? Colors.grey
+                            : AppColors.primaryColor.withOpacity(0.7),
                   ),
+                  child: Icon(typeIcon, color: Colors.white), 
                 ),
               ],
             ),
-          ),
-        ],
+            const SizedBox(width: 12),
+
+            // Title, description, date & time
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title + Date & Time
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: AppTextStyle.blackText(
+                            fontSize: 14,
+                            fontWeight:
+                                isRead ? FontWeight.w500 : FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+
+                  // Description
+                  Text(
+                    description,
+                    style: AppTextStyle.smallBlack().copyWith(
+                      color: isRead ? Colors.grey[700] : Colors.black,
+                      fontWeight: isRead ? FontWeight.normal : FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '$formattedDate, $formattedTime',
+                    style: AppTextStyle.base(
+                      color: AppColors.grey,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -305,7 +305,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
                     value,
                     deviceId.toString(),
                     widget.oneSignalPlayerId.toString(),
-                    isHome: true,
+                    isHome: widget.isHome,
                   );
                 }
               },
@@ -357,7 +357,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
                   otpController.text,
                   deviceId.toString(),
                   widget.oneSignalPlayerId,
-                  isHome: true,
+                    isHome: widget.isHome,
                 );
               },
             ),

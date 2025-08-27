@@ -8,7 +8,7 @@ import 'package:gkmarts/Utils/ThemeAndColors/app_Text_style.dart';
 import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
 import 'package:gkmarts/View/BottomNavigationBar/BookTab/venue_details_page.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/home_header.dart';
-import 'package:gkmarts/Widget/mobile_otp_login_widget.dart';
+import 'package:gkmarts/View/Auth_view/mobile_otp_login_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -239,20 +239,25 @@ class _VenuesState extends State<Venues> {
                                 Positioned(
                                   top: 8,
                                   right: 8,
-                                  child: Consumer<BookTabProvider>(
+                                  child: Consumer<HomeTabProvider>(
                                     builder: (context, provider, _) {
+                                      // Find the index of this venue
+                                      final index = provider.filteredVenueList
+                                          .indexWhere(
+                                            (v) =>
+                                                v.facilityId ==
+                                                venue.facilityId,
+                                          );
+
+                                      final isLoading =
+                                          index == -1
+                                              ? false
+                                              : provider.isBookVenueLoading;
+
                                       return IgnorePointer(
-                                        ignoring: provider
-                                            .isFavoriteListLoading(
-                                              venue.facilityId,
-                                            ),
+                                        ignoring: isLoading,
                                         child: AnimatedOpacity(
-                                          opacity:
-                                              provider.isFavoriteListLoading(
-                                                    venue.facilityId,
-                                                  )
-                                                  ? 0.5
-                                                  : 1,
+                                          opacity: isLoading ? 0.5 : 1,
                                           duration: const Duration(
                                             milliseconds: 300,
                                           ),
@@ -273,7 +278,9 @@ class _VenuesState extends State<Venues> {
                                                 );
                                                 return;
                                               }
-                                              provider.toggleFavoriteList(
+
+                                              // Toggle favorite in HomeTabProvider
+                                              provider.toggleFavoriteVenue(
                                                 context,
                                                 venue.facilityId,
                                               );
@@ -283,15 +290,11 @@ class _VenuesState extends State<Venues> {
                                               backgroundColor: Colors.white
                                                   .withOpacity(0.8),
                                               child: Icon(
-                                                provider.isFavoriteList(
-                                                      venue.facilityId,
-                                                    )
+                                                venue.isFavorite
                                                     ? Icons.favorite
                                                     : Icons.favorite_border,
                                                 color:
-                                                    provider.isFavoriteList(
-                                                          venue.facilityId,
-                                                        )
+                                                    venue.isFavorite
                                                         ? Colors.red
                                                         : Colors.black,
                                                 size: 17,
@@ -365,21 +368,53 @@ class _VenuesState extends State<Venues> {
                                     child: Text(
                                       venue.venueAddress,
                                       style: AppTextStyle.greytext(
-                                        fontSize: 13,
+                                        fontSize: 12,
+                                        color: AppColors.borderColor,
                                       ),
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
-                                  Text(
-                                    "₹${venue.price}",
-                                    style: AppTextStyle.blackText(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
+                                  RichText(
+                                    text: TextSpan(
+                                      text: "₹${venue.price} ",
+                                      style: AppTextStyle.blackText(
+                                        fontSize: 14,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text: "Onwards",
+                                          style: AppTextStyle.greytext(
+                                            fontSize: 12,
+                                            color: AppColors.borderColor,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
                               ),
+                              // Row(
+                              //   children: [
+                              //     Expanded(
+                              //       child: Text(
+                              //         venue.venueAddress,
+                              //         style: AppTextStyle.greytext(
+                              //           fontSize: 13,
+                              //         ),
+                              //         maxLines: 2,
+                              //         overflow: TextOverflow.ellipsis,
+                              //       ),
+                              //     ),
+                              //     Text(
+                              //       "₹${venue.price}",
+                              //       style: AppTextStyle.blackText(
+                              //         fontSize: 14,
+                              //         fontWeight: FontWeight.bold,
+                              //       ),
+                              //     ),
+                              //   ],
+                              // ),
                             ],
                           ),
                         ),

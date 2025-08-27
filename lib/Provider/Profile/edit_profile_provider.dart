@@ -22,6 +22,7 @@ class EditProfileProvider extends ChangeNotifier {
   ProfileModel? _profile;
   int selectedGenderIndex = 0;
   DateTime? selectedDate;
+  bool isImageRemoved = false;
 
   ProfileModel? get user => _profile;
   String get emailError => _emailError;
@@ -35,7 +36,11 @@ class EditProfileProvider extends ChangeNotifier {
     selectedDate = date;
     notifyListeners();
   }
-
+  void clearImage() {
+    _selectedImage = null;
+    isImageRemoved = true;
+    notifyListeners();
+  }
   void clearControllers() {
     emailController.clear();
     nameController.clear();
@@ -127,12 +132,12 @@ class EditProfileProvider extends ChangeNotifier {
     }
   }
 
-  void clearImage() {
-    _selectedImage = null;
-    notifyListeners();
-  }
 
-  Future<void> editProfile(BuildContext context) async {
+
+  Future<void> editProfile(
+    BuildContext context, {
+    bool isFromLogin = false,
+  }) async {
     final isOnline = context.read<ConnectivityProvider>().isOnline;
     if (!isOnline) {
       GlobalSnackbar.error(context, "No internet connection");
@@ -191,15 +196,21 @@ class EditProfileProvider extends ChangeNotifier {
 
         clearControllers();
         GlobalSnackbar.success(context, "Profile updated successfully");
-
-        Navigator.pushReplacement(
-          context,
-          PageTransition(
-            type: PageTransitionType.fade,
-            duration: const Duration(milliseconds: 300),
-            child: const ProfilePage(homePage: false),
-          ),
-        );
+        if (isFromLogin) {
+          // ✅ For normal edit → just go back 3 times
+          Navigator.pop(context);
+          Navigator.pop(context);
+          Navigator.pop(context);
+        } else {
+          Navigator.pushReplacement(
+            context,
+            PageTransition(
+              type: PageTransitionType.fade,
+              duration: const Duration(milliseconds: 300),
+              child: const ProfilePage(homePage: false),
+            ),
+          );
+        }
       } else {
         GlobalSnackbar.error(
           context,

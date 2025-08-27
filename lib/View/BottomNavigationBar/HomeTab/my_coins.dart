@@ -151,7 +151,7 @@ class _MyCoinsCardState extends State<MyCoinsCard> {
                       size: 24,
                     ),
                     const SizedBox(width: 10),
-                    Text("My Coins", style: AppTextStyle.titleText()),
+                    Text("Welcome Bonus Coins", style: AppTextStyle.titleText()),
                   ],
                 ),
 
@@ -256,7 +256,7 @@ class _MyCoinsCardState extends State<MyCoinsCard> {
                       Expanded(
                         child: Text(
                           "You can use up to 500 coins per booking. "
-                          "Coins can be used across up to 10 bookings.",
+                          "you can used exactly 500 coins per booking .",
                           style: AppTextStyle.blackText(
                             fontSize: 13,
                             color: AppColors.greytext,
@@ -275,10 +275,10 @@ class _MyCoinsCardState extends State<MyCoinsCard> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Text(
-              "Earned Coins",
-              style: AppTextStyle.blackText(
-                fontSize: 14,
-                color: AppColors.black,
+              "Referred Coins",
+              style: AppTextStyle.titleText(
+                // fontSize: 14,
+                // color: AppColors.black,
               ),
             ),
           ],

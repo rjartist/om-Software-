@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
 import 'package:gkmarts/Provider/Location/location_provider.dart';
 import 'package:gkmarts/Provider/Login/login_provider.dart';
+import 'package:gkmarts/Provider/Profile/profile_page_provider.dart';
 import 'package:gkmarts/Services/AuthServices/auth_services.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/notification_page.dart';
 import 'package:gkmarts/Widget/global.dart';
@@ -13,7 +14,7 @@ import 'package:gkmarts/View/BottomNavigationBar/HomeTab/home_banner.dart';
 import 'package:gkmarts/View/BottomNavigationBar/HomeTab/profile_page.dart';
 import 'package:gkmarts/Widget/global_button.dart';
 import 'package:gkmarts/Widget/global_snackbar.dart';
-import 'package:gkmarts/Widget/mobile_otp_login_widget.dart';
+import 'package:gkmarts/View/Auth_view/mobile_otp_login_widget.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 
@@ -53,7 +54,7 @@ class HomeHeader extends StatelessWidget {
                   const Spacer(),
                   _notificationIcon(context),
                   const SizedBox(width: 8),
-                  _profileAvatar(),
+                  _profileAvatar(context),
                 ],
               ),
             ),
@@ -166,46 +167,68 @@ class HomeHeader extends StatelessWidget {
     );
   }
 
-  Widget _profileAvatar() => GestureDetector(
-    onTap: () async {
-      final isLoggedIn = await AuthService.isLoggedIn();
+  Widget _profileAvatar(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        final isLoggedIn = await AuthService.isLoggedIn();
 
-      if (!isLoggedIn) {
-        // If not logged in, navigate to login page
+        if (!isLoggedIn) {
+          Navigator.push(
+            navigatorKey.currentContext!,
+            MaterialPageRoute(
+              builder: (_) => const MobileInputPage(referralCode: ""),
+            ),
+          );
+          return;
+        }
+
         Navigator.push(
           navigatorKey.currentContext!,
-          MaterialPageRoute(
-            builder: (_) => const MobileInputPage(referralCode: ""),
+          PageTransition(
+            type: PageTransitionType.bottomToTop,
+            duration: const Duration(milliseconds: 300),
+            child: const ProfilePage(homePage: false),
           ),
         );
-        return; // Prevent further execution
-      }
-      Navigator.push(
-        navigatorKey.currentContext!,
-        PageTransition(
-          type: PageTransitionType.bottomToTop,
-          duration: const Duration(milliseconds: 300),
-          child: const ProfilePage(homePage: false),
-        ),
-      );
-    },
-    child: Container(
-      padding: const EdgeInsets.all(2.5),
-      decoration: BoxDecoration(
-        color: AppColors.bgColor,
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: AppColors.borderColor.withValues(alpha: 0.3),
-          width: 2,
-        ),
+      },
+      child: Selector<ProfileProvider, String?>(
+        selector: (_, provider) => provider.user?.user?.profileImage,
+        builder: (context, imageUrl, _) {
+          final user = context.read<ProfileProvider>().user;
+
+          return Container(
+            padding: const EdgeInsets.all(2.5),
+            decoration: BoxDecoration(
+              color: AppColors.bgColor,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.borderColor.withValues(alpha: 0.3),
+                width: 2,
+              ),
+            ),
+            child: ClipOval(
+              child: Image(
+                image:
+                    imageUrl != null && imageUrl.isNotEmpty
+                        ? NetworkImage(imageUrl)
+                        : AssetImage(
+                              user?.user?.gender == "Male"
+                                  ? "assets/images/male.png"
+                                  : user?.user?.gender == "Female"
+                                  ? "assets/images/female.png"
+                                  : "assets/images/user.png",
+                            )
+                            as ImageProvider,
+                width: 36,
+                height: 36,
+                fit: BoxFit.cover,
+              ),
+            ),
+          );
+        },
       ),
-      child: const CircleAvatar(
-        radius: 18,
-        backgroundColor: Colors.transparent,
-        backgroundImage: AssetImage('assets/images/user.jpeg'),
-      ),
-    ),
-  );
+    );
+  }
 }
 
 class LocationBottomSheet extends StatefulWidget {

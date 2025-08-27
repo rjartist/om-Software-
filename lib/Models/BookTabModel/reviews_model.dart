@@ -62,11 +62,13 @@ class UserModel {
   final int userId;
   final String name;
   final String profileImage;
+  final String gender;
 
   UserModel({
     required this.userId,
     required this.name,
     required this.profileImage,
+    required this.gender,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -74,6 +76,7 @@ class UserModel {
       userId: json['user_id'] ?? 0,
       name: json['name'] ?? '',
       profileImage: json['profile_image'] ?? '',
+      gender: json['gender'] ?? '',
     );
   }
 }

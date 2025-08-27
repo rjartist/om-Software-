@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gkmarts/Models/HomeTab_Models/banner_model.dart';
 import 'package:gkmarts/Provider/HomePage/HomeTab/home_tab_provider.dart';
+import 'package:gkmarts/Utils/ThemeAndColors/app_colors.dart';
+import 'package:gkmarts/Widget/global_appbar.dart';
 import 'package:provider/provider.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -50,19 +52,28 @@ class HomeBanner extends StatelessWidget {
                   },
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: CachedNetworkImage(
-                      imageUrl: banner.imageUrl,
+                    child: Image.asset(
+                      banner.imageUrl, // 👈 directly use your asset path
                       fit: BoxFit.cover,
                       width: double.infinity,
-                      placeholder: (context, url) => _buildShimmer(),
-                      errorWidget:
-                          (context, url, error) => Image.asset(
-                            'assets/images/banner1.png',
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                          ),
                     ),
                   ),
+
+                  // child: ClipRRect(
+                  //   borderRadius: BorderRadius.circular(12),
+                  //   child: CachedNetworkImage(
+                  //     imageUrl: banner.imageUrl,
+                  //     fit: BoxFit.cover,
+                  //     width: double.infinity,
+                  //     placeholder: (context, url) => _buildShimmer(),
+                  //     errorWidget:
+                  //         (context, url, error) => Image.asset(
+                  //           'assets/images/banner1.png',
+                  //           fit: BoxFit.cover,
+                  //           width: double.infinity,
+                  //         ),
+                  //   ),
+                  // ),
                 ),
               ],
             );
@@ -124,44 +135,47 @@ class TargetPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("banner.title"),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 1,
-      ),
+      backgroundColor: AppColors.bgColor,
+
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Banner image
-          CachedNetworkImage(
-            imageUrl: banner.imageUrl,
-            placeholder:
-                (context, url) => const SizedBox(
-                  height: 200,
-                  child: Center(child: CircularProgressIndicator()),
-                ),
-            errorWidget: (context, url, error) => const Icon(Icons.error),
+          GlobalAppBar(title: banner.title, showBackButton: true),
+          Image.asset(
+            banner.imageUrl, // e.g. "assets/images/banner12.png"
             fit: BoxFit.cover,
             height: 200,
             width: double.infinity,
           ),
 
+          // CachedNetworkImage(
+          //   imageUrl: banner.imageUrl,
+          //   placeholder:
+          //       (context, url) => const SizedBox(
+          //         height: 200,
+          //         child: Center(child: CircularProgressIndicator()),
+          //       ),
+          //   errorWidget: (context, url, error) => const Icon(Icons.error),
+          //   fit: BoxFit.cover,
+          //   height: 200,
+          //   width: double.infinity,
+          // ),
           const SizedBox(height: 16),
 
           // Banner title or description
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
-             " banner.title",
+              banner.title,
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
 
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Text(
-              "This is a sample description for the banner. You can customize this section with more details like offers, links, etc.",
+              banner.description,
               style: TextStyle(fontSize: 14, color: Colors.black87),
             ),
           ),
